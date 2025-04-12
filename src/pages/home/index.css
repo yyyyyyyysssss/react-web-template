@@ -1,0 +1,45 @@
+html {
+    height: 100%;
+}
+
+body {
+    margin: 0 !important;
+    padding: 0 !;
+    min-height: 100%;
+    overflow: hidden;
+}
+
+
+/* 滚动条整体 */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+/* 滚动条轨道 */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    /* 轨道背景色 */
+    border-radius: 10px;
+    /* 轨道圆角 */
+}
+
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+    background: lightgray;
+    /* 滑块背景色 */
+    border-radius: 10px;
+    /* 滑块圆角 */
+}
+
+/* 滚动条滑块悬停 */
+::-webkit-scrollbar-thumb:hover {
+    background: gray;
+    /* 滑块悬停背景色 */
+}
+
+.logo-vertical {
+    height: 32px;
+    margin: 16px;
+    background: rgba(255, 255, 255, .2);
+    border-radius: 6px;
+}
