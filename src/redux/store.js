@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore  } from '@reduxjs/toolkit'
 import authReducer from './slices/authSlice'
 import layoutReducer from './slices/layoutSlice'
 
@@ -29,12 +29,18 @@ const saveState = (state) => {
 
 const reduxStore = configureStore({
     preloadedState: {
-        layout: loadState()
+        layout: {
+            ...loadState(),
+            menuItems: []
+        }
     },
     reducer: {
         auth: authReducer,
         layout: layoutReducer
-    }
+    },
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+        serializableCheck: false,
+    })
 })
 
 reduxStore.subscribe(() => {

@@ -1,4 +1,4 @@
-import { lazy } from "react";
+import React, { lazy, useMemo } from "react";
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 import AuthProvider from "./AuthProvider";
 
@@ -13,7 +13,7 @@ const Auth = lazy(() => import('../pages/system-manage/auth-manage'))
 
 export const routes = [
     {
-        path: '/login',
+        path: 'login',
         element: <Login />,
         protected: false,
     },
@@ -40,13 +40,11 @@ export const routes = [
                         path: 'user',
                         element: <User />,
                         breadcrumbName: '用户管理',
-                        // children: [
-                        //     {
-                        //         path: 'details',
-                        //         element: <UserDetails />,
-                        //         breadcrumbName: '用户详情',
-                        //     }
-                        // ]
+                    },
+                    {
+                        path: 'user/details',
+                        element: <UserDetails />,
+                        breadcrumbName: '用户详情',
                     },
                     {
                         path: 'role',
@@ -65,22 +63,34 @@ export const routes = [
     }
 ]
 
-
-const findRoute = (path, routes) => {
-    for (const route of routes) {
-        if (route.path === path) {
-            return route
+const findRoute = (route, fullPath, targetPath) => {
+    if (route.path !== '') {
+        fullPath = fullPath + (route.path.startsWith('/') ? route.path : '/' + route.path)
+    }
+    if (fullPath === targetPath) {
+        return {
+            ...route,
+            fullPath: fullPath
         }
-        if (route.children) {
-            return findRoute(path, route.children)
+    }
+    if (route.children && targetPath.includes(route.path)) {
+        for (const childrenRoute of route.children) {
+            const result = findRoute(childrenRoute, fullPath, targetPath)
+            if (result) {
+                return result
+            }
+        }
+    }
+}
+
+export const findRouteByPath = (targetPath) => {
+    for (const route of routes) {
+        const result = findRoute(route, '', targetPath)
+        if (result) {
+            return result
         }
     }
     return null
-}
-
-export const findRouteByPath = (path) => {
-
-    return findRoute(path, routes)
 }
 
 const findRouteHierarchy = (paths, routes) => {
@@ -102,8 +112,6 @@ const findRouteHierarchy = (paths, routes) => {
 }
 
 export const findRouteByHierarchy = (paths) => {
-    // const result = paths.filter(item => item !== '')
-    // console.log('result',result)
     return findRouteHierarchy(paths, routes)
 }
 

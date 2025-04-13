@@ -4,7 +4,6 @@ import './index.css'
 
 const Home = () => {
 
-
     return (
         <>
             <p>long content</p>

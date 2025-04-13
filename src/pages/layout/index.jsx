@@ -1,76 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Flex, Layout, Menu, theme } from 'antd';
+import React, { useEffect } from 'react';
+import { Button, Flex, Layout, theme } from 'antd';
 import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
-    SettingOutlined,
 } from '@ant-design/icons';
 import './index.css'
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import TopBreadcrumbTab from '../../component/top-tab/breadcrumb-tab';
 import TopMenuTab from '../../component/top-tab/menu-tab';
 import { useDispatch, useSelector } from 'react-redux';
-import { menuCollapsed, setActiveKey, setOpenKeys } from '../../redux/slices/layoutSlice';
+import { menuCollapsed, setActiveKey } from '../../redux/slices/layoutSlice';
+import SiderMenu from '../../component/sider-menu';
 
-
-function menuHandle(arr) {
-    return arr.map((item, index) => {
-        const menuItem = {
-            key: item.key,
-            label: item.label,
-        }
-        if (item.path) {
-            menuItem.label = <Link to={item.path}>{item.label}</Link>
-        }
-        return menuItem
-    })
-}
-
-const menuItems = [
-    {
-        key: 'system',
-        label: '系统管理',
-        icon: <SettingOutlined />,
-        children: [
-            {
-                key: '/system/user',
-                label: '用户管理',
-                path: '/system/user',
-            },
-            {
-                key: '/system/role',
-                label: '角色管理',
-                path: '/system/role',
-            },
-            {
-                key: '/system/auth',
-                label: '权限管理',
-                path: '/system/auth',
-            }
-        ],
-    }
-].map((item, index) => {
-    const menuItem = {
-        key: item.key,
-        label: item.label,
-        icon: item.icon,
-        children: item.children ? menuHandle(item.children) : null
-    }
-    if (item.path) {
-        menuItem.label = <Link to={item.path}>{item.label}</Link>
-    }
-    return menuItem
-})
 
 const { Header, Content, Sider } = Layout;
 
 const AppLayout = () => {
 
     const collapsed = useSelector(state => state.layout.menuCollapsed)
-
-    const activeKey = useSelector(state => state.layout.activeKey)
-
-    const openKeys = useSelector(state => state.layout.openKeys)
 
     const navigate = useNavigate()
 
@@ -83,10 +30,6 @@ const AppLayout = () => {
         }
     } = theme.useToken()
 
-    const handleOpenChange = (keys) => {
-        dispatch(setOpenKeys({keys: keys}))
-    }
-
     const handleCollapsed = () => {
         dispatch(menuCollapsed())
     }
@@ -94,11 +37,6 @@ const AppLayout = () => {
     const goHome = () => {
         navigate('home')
         dispatch(setActiveKey({key: '/home'}))
-    }
-
-    const switchMenu = (e) => {
-        const key = e.key
-        dispatch(setActiveKey({key: key}))
     }
 
     return (
@@ -116,15 +54,7 @@ const AppLayout = () => {
                 trigger={null}
             >
                 <div onClick={goHome} className="logo-vertical" />
-                <Menu
-                    selectedKeys={activeKey}
-                    openKeys={openKeys}
-                    onOpenChange={handleOpenChange}
-                    onClick={switchMenu}
-                    theme='dark'
-                    mode='inline'
-                    items={menuItems}
-                />
+                <SiderMenu/>
             </Sider>
             <Layout>
                 {/* 头部 */}

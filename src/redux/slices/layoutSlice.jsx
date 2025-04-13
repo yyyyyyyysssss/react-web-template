@@ -4,7 +4,8 @@ const initialState = {
     activeKey: '',
     menuCollapsed: false,
     openKeys: [],
-    tabItems: []
+    tabItems: [],
+    menuItems: []
 }
 
 export const layoutSlice = createSlice({
@@ -25,11 +26,11 @@ export const layoutSlice = createSlice({
         },
         menuCollapsed: (state, action) => {
             state.menuCollapsed = !state.menuCollapsed
-            if(!state.menuCollapsed){
+            if (!state.menuCollapsed) {
                 state.openKeys = state.activeKey.split('/')
             }
         },
-        addTabIems: (state, action) => {
+        addTabIem: (state, action) => {
             const { payload } = action
             const { key, tabItem } = payload
             const item = state.tabItems.find(item => item.key === key)
@@ -41,21 +42,65 @@ export const layoutSlice = createSlice({
             state.activeKey = key
             state.openKeys = state.menuCollapsed ? [] : key.split('/')
         },
-        removeTabItems: (state, action) => {
+        removeTabItem: (state, action) => {
             const { payload } = action
             const { targetKey } = payload
             const targetIndex = state.tabItems.findIndex(pane => pane.key === targetKey)
-            const newPanes = state.tabItems.filter(pane => pane.key !== targetKey);
+            const newPanes = state.tabItems.filter(pane => pane.key !== targetKey)
             if (newPanes.length && targetKey === state.activeKey) {
-                const { key } = newPanes[targetIndex === newPanes.length ? targetIndex - 1 : targetIndex];
+                const { key } = newPanes[targetIndex === newPanes.length ? targetIndex - 1 : targetIndex]
                 state.activeKey = key
                 state.openKeys = state.menuCollapsed ? [] : key.split('/')
             }
             state.tabItems = newPanes
+        },
+        removeAllTabItem: (state, action) => {
+            const newItems = state.tabItems.filter(item => item.closable === false)
+            if (newItems.length) {
+                const key = newItems[0].key
+                state.activeKey = key
+                state.openKeys = state.menuCollapsed ? [] : key.split('/')
+            }
+            state.tabItems = newItems
+        },
+        removeOtherTabItem: (state, action) => {
+            const { payload } = action
+            const { key, index } = payload
+            const newItems = state.tabItems.filter((item, i) => item.closable === false || i === index)
+            if (newItems.length) {
+                state.activeKey = key
+                state.openKeys = state.menuCollapsed ? [] : key.split('/')
+            }
+            state.tabItems = newItems
+        },
+        removeLeftTabItem: (state, action) => {
+            const { payload } = action
+            const { key, index } = payload
+            const newItems = state.tabItems.filter((item, i) => i >= index || item.closable === false)
+            if (newItems.length) {
+                state.activeKey = key
+                state.openKeys = state.menuCollapsed ? [] : key.split('/')
+            }
+            state.tabItems = newItems
+        },
+        removeRightTabItem: (state, action) => {
+            const { payload } = action
+            const { key, index } = payload
+            const newItems = state.tabItems.filter((item, i) => i <= index || item.closable === false)
+            if (newItems.length) {
+                state.activeKey = key
+                state.openKeys = state.menuCollapsed ? [] : key.split('/')
+            }
+            state.tabItems = newItems
+        },
+        loadMenuItems: (state, action) => {
+            const { payload } = action
+            const { menuItems } = payload
+            state.menuItems = menuItems
         }
     }
 })
 
-export const { reset, setActiveKey, menuCollapsed, setOpenKeys, addTabIems, removeTabItems } = layoutSlice.actions
+export const { reset, setActiveKey, menuCollapsed, setOpenKeys, addTabIem, removeTabItem, removeAllTabItem, removeOtherTabItem, removeLeftTabItem, removeRightTabItem, loadMenuItems } = layoutSlice.actions
 
 export default layoutSlice.reducer
