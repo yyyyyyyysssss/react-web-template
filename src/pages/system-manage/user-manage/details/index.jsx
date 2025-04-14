@@ -1,15 +1,14 @@
 import React from 'react';
 import './index.css'
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import useQueryParams from '../../../../hooks/useQueryParams';
+import useStateParams from '../../../../hooks/useStateParams';
 
 const UserDetails = () => {
 
-    const { id } = useParams()
+    // const { id } = useParams()
 
-    // const location  = useLocation()
-
-    // const { id } = location.state || {}
+    const { id } = useStateParams()
 
     // const { id } = useQueryParams()
 

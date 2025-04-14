@@ -43,7 +43,7 @@ export const routes = [
                         breadcrumbName: '用户管理',
                     },
                     {
-                        path: 'user/details/:id',
+                        path: 'user/details',
                         element: <UserDetails />,
                         breadcrumbName: '用户详情',
                     },

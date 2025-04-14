@@ -1,12 +1,12 @@
-import { useLocation } from "react-router-dom"
+import { useSearchParams } from "react-router-dom"
 
 
 const useQueryParams = () => {
-    const location = useLocation()
-    const queryParams = new URLSearchParams(location.search)
+
+    const [searchParams] = useSearchParams()
 
     const params = {}
-    queryParams.forEach((value, key) => {
+    searchParams.forEach((value, key) => {
         params[key] = value;
     })
     return params

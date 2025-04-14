@@ -7,15 +7,15 @@ const User = () => {
     const navigate = useNavigate()
 
     const toUserDetails = () => {
-        // navigate('/system/user/details',{
-        //     state: {
-        //         id: 1
-        //     }
-        // })
+        navigate('/system/user/details',{
+            state: {
+                id: 1
+            }
+        })
 
         // navigate('/system/user/details?id=1')
 
-        navigate('/system/user/details/1')
+        // navigate('/system/user/details/1')
     }
 
     return (
