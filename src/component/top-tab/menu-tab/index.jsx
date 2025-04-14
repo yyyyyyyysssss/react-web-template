@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import './index.css'
 import { Tabs } from 'antd';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { findRouteByPath } from '../../../router/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { addTabIem, removeTabItem, setActiveKey } from '../../../redux/slices/layoutSlice';
@@ -17,6 +17,16 @@ const TopMenuTab = () => {
     const activeKey = useSelector(state => state.layout.activeKey)
 
     const tabItems = useSelector(state => state.layout.tabItems)
+
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        const pathnames = location.pathname
+        const route = findRouteByPath(pathnames)
+        if (route && route.path !== '') {
+            add(location, route)
+        }
+    }, [location])
 
     // 右键菜单
     const [rightMenu, setRightMenu] = useState({
@@ -38,7 +48,7 @@ const TopMenuTab = () => {
         })
     }
 
-    const rightMenuClose = () => {
+    const rightMenuClose = useCallback((targetKey) => {
         setRightMenu({
             visible: false,
             x: 0,
@@ -46,30 +56,45 @@ const TopMenuTab = () => {
             tabKey: null,
             index: null
         })
-    }
-
-    useEffect(() => {
-        const pathnames = location.pathname
-        const route = findRouteByPath(pathnames)
-        if (route && route.path !== '') {
-            add(pathnames, route.breadcrumbName, route.path !== 'home')
+        if (targetKey && targetKey !== activeKey) {
+            switchTab(targetKey)
         }
-    }, [location])
+    }, [activeKey])
 
-    const add = (key, label, closable = true) => {
+    const add = (location, route) => {
+        const key = location.pathname
+        const closable = route.path !== 'home'
         const tabItem = {
-            label: label,
             key: key,
+            label: route.breadcrumbName,
+            search: location.search,
+            state: location.state,
             closable: closable
         }
         dispatch(addTabIem({ key: key, tabItem: tabItem }))
     }
+
     const remove = targetKey => {
-        dispatch(removeTabItem({ targetKey: targetKey }))
+        const selectKey = afterRemoveSelectKey(targetKey)
+        dispatch(removeTabItem({ targetKey: targetKey, selectKey: selectKey }))
+        if (selectKey) {
+            switchTab(selectKey)
+        }
     }
+
+    const afterRemoveSelectKey = useCallback((targetKey) => {
+        const targetIndex = tabItems.findIndex(pane => pane.key === targetKey)
+        const newPanes = tabItems.filter(pane => pane.key !== targetKey)
+        if (newPanes.length && targetKey === activeKey) {
+            const { key } = newPanes[targetIndex === newPanes.length ? targetIndex - 1 : targetIndex]
+            return key
+        }
+        return null
+    }, [tabItems, activeKey])
 
     const onChange = key => {
         dispatch(setActiveKey({ key: key }))
+        switchTab(key)
     }
 
     const onEdit = (targetKey, action) => {
@@ -77,6 +102,17 @@ const TopMenuTab = () => {
             remove(targetKey)
         }
     }
+
+    const switchTab = useCallback((tabKey) => {
+        const tabItem = tabItems.find(item => item.key === tabKey)
+        if (tabItem) {
+            const path = tabItem.search ? tabKey + tabItem.search : tabKey
+            navigate(path,{
+                state: tabItem.state
+            })
+        }
+
+    }, [tabItems])
 
     const items = useMemo(() => {
         return tabItems.map((item, index) => ({

@@ -1,5 +1,5 @@
 import { Flex } from "antd"
-import { useEffect, useMemo, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import './index.css'
 import { useDispatch, useSelector } from 'react-redux';
 import { removeAllTabItem, removeLeftTabItem, removeOtherTabItem, removeRightTabItem } from "../../../redux/slices/layoutSlice";
@@ -33,23 +33,31 @@ const TabRightClickMenu = ({ tabKey, index, x, y, close }) => {
     }, [])
 
     const closeOther = () => {
-        close()
         dispatch(removeOtherTabItem({ key: tabKey, index: index }))
+        close(tabKey)
     }
 
     const closeAll = () => {
-        close()
         dispatch(removeAllTabItem())
+        const selectKey = afterCloseAllSelectKey()
+        close(selectKey)
     }
 
+    const afterCloseAllSelectKey = useCallback(() => {
+        if(tabSize > 0){
+            return tabItems[0].key
+        }
+        return null
+    },[tabItems])
+
     const closeRight = () => {
-        close()
         dispatch(removeRightTabItem({ key: tabKey, index: index }))
+        close(tabKey)
     }
 
     const closeLeft = () => {
-        close()
         dispatch(removeLeftTabItem({ key: tabKey, index: index }))
+        close(tabKey)
     }
 
     return (

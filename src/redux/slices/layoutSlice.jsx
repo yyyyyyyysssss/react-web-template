@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-const initialState = {
+export const initialState = {
     activeKey: '',
     menuCollapsed: false,
     openKeys: [],
@@ -44,13 +44,11 @@ export const layoutSlice = createSlice({
         },
         removeTabItem: (state, action) => {
             const { payload } = action
-            const { targetKey } = payload
-            const targetIndex = state.tabItems.findIndex(pane => pane.key === targetKey)
+            const { targetKey, selectKey } = payload
             const newPanes = state.tabItems.filter(pane => pane.key !== targetKey)
-            if (newPanes.length && targetKey === state.activeKey) {
-                const { key } = newPanes[targetIndex === newPanes.length ? targetIndex - 1 : targetIndex]
-                state.activeKey = key
-                state.openKeys = state.menuCollapsed ? [] : key.split('/')
+            if (selectKey) {
+                state.activeKey = selectKey
+                state.openKeys = state.menuCollapsed ? [] : selectKey.split('/')
             }
             state.tabItems = newPanes
         },

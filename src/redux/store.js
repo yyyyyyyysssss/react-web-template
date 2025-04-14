@@ -1,38 +1,36 @@
-import { configureStore  } from '@reduxjs/toolkit'
+import { configureStore } from '@reduxjs/toolkit'
 import authReducer from './slices/authSlice'
-import layoutReducer from './slices/layoutSlice'
+import layoutReducer, { initialState } from './slices/layoutSlice'
 
 const loadState = () => {
-    try{
+    try {
         const serializedState = localStorage.getItem('layoutState')
-        if(serializedState === null){
-            return undefined
+        if (serializedState === null) {
+            return null
         }
         const layoutState = JSON.parse(serializedState)
-        if(layoutState && layoutState.menuCollapsed === true){
+        if (layoutState && layoutState.menuCollapsed === true) {
             layoutState.openKeys = []
         }
         return layoutState
-    }catch(e){
-        return undefined
+    } catch (e) {
+        return null
     }
 }
 
 const saveState = (state) => {
-    try{
+    try {
         const serializedState = JSON.stringify(state.layout)
-        localStorage.setItem('layoutState',serializedState)
-    }catch(e){
+        localStorage.setItem('layoutState', serializedState)
+    } catch (e) {
         console.log(e)
     }
 }
 
+const loadedState = loadState();
 const reduxStore = configureStore({
     preloadedState: {
-        layout: {
-            ...loadState(),
-            menuItems: []
-        }
+        layout: loadedState === null ? initialState : { ...loadedState, menuItems: [] }
     },
     reducer: {
         auth: authReducer,

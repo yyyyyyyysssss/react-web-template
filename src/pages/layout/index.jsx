@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { Button, Flex, Layout, theme } from 'antd';
 import {
     MenuFoldOutlined,
@@ -11,6 +11,7 @@ import TopMenuTab from '../../component/top-tab/menu-tab';
 import { useDispatch, useSelector } from 'react-redux';
 import { menuCollapsed, setActiveKey } from '../../redux/slices/layoutSlice';
 import SiderMenu from '../../component/sider-menu';
+import Loading from '../../component/loading';
 
 
 const { Header, Content, Sider } = Layout;
@@ -36,7 +37,7 @@ const AppLayout = () => {
 
     const goHome = () => {
         navigate('home')
-        dispatch(setActiveKey({key: '/home'}))
+        dispatch(setActiveKey({ key: '/home' }))
     }
 
     return (
@@ -54,7 +55,7 @@ const AppLayout = () => {
                 trigger={null}
             >
                 <div onClick={goHome} className="logo-vertical" />
-                <SiderMenu/>
+                <SiderMenu />
             </Sider>
             <Layout>
                 {/* 头部 */}
@@ -76,7 +77,7 @@ const AppLayout = () => {
                 <Content style={{ margin: '0 16px', height: 'auto', overflow: 'initial', scrollbarGutter: 'stable' }}>
                     {/* 面包屑 */}
                     {/* <TopBreadcrumbTab style={{ paddingTop: 10, paddingBottom: 10 }} /> */}
-                    <TopMenuTab/>
+                    <TopMenuTab />
                     <div
                         style={{
                             height: 'calc(100vh - 100px)',
@@ -86,7 +87,9 @@ const AppLayout = () => {
                             borderRadius: borderRadiusLG,
                         }}
                     >
-                        <Outlet />
+                        <Suspense fallback={<Loading/>}>
+                            <Outlet />
+                        </Suspense>
                     </div>
                 </Content>
             </Layout>

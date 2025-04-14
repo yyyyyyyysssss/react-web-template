@@ -53,10 +53,6 @@ const SiderMenu = () => {
         fetchMenuItems()
     }, [])
 
-    useEffect(() => {
-        navigate(activeKey)
-    }, [activeKey])
-
     const handleOpenChange = (keys) => {
         dispatch(setOpenKeys({ keys: keys }))
     }
@@ -65,6 +61,7 @@ const SiderMenu = () => {
         const key = e.key
         if (key !== activeKey) {
             dispatch(setActiveKey({ key: key }))
+            navigate(key)
         }
     }
 

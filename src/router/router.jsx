@@ -1,5 +1,6 @@
-import React, { lazy, useMemo } from "react";
+import React, { lazy } from "react";
 import { Navigate, createBrowserRouter } from 'react-router-dom';
+import { matchPath } from "react-router"
 import AuthProvider from "./AuthProvider";
 
 const AppLayout = lazy(() => import('../pages/layout'))
@@ -42,7 +43,7 @@ export const routes = [
                         breadcrumbName: '用户管理',
                     },
                     {
-                        path: 'user/details',
+                        path: 'user/details/:id',
                         element: <UserDetails />,
                         breadcrumbName: '用户详情',
                     },
@@ -67,7 +68,8 @@ const findRoute = (route, fullPath, targetPath) => {
     if (route.path !== '') {
         fullPath = fullPath + (route.path.startsWith('/') ? route.path : '/' + route.path)
     }
-    if (fullPath === targetPath) {
+    const result = matchPath({ path: fullPath }, targetPath)
+    if (result) {
         return {
             ...route,
             fullPath: fullPath
