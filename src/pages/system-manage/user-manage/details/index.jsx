@@ -1,19 +1,25 @@
 import React from 'react';
 import './index.css'
-import { useParams } from 'react-router-dom';
-import useQueryParams from '../../../../hooks/useQueryParams';
 import useStateParams from '../../../../hooks/useStateParams';
+import { Button, Flex } from 'antd';
+import useBack from '../../../../hooks/useBack';
 
 const UserDetails = () => {
 
-    // const { id } = useParams()
-
     const { id } = useStateParams()
 
-    // const { id } = useQueryParams()
+    const { goBack } = useBack()
+
+    const handleClose = () => {
+        goBack()
+    }
 
     return (
-        <h1>This is UserDetails {id}</h1>
+        <Flex vertical>
+            <h1>This is UserDetails {id}</h1>
+            <Button onClick={handleClose}>close</Button>
+        </Flex>
+
     )
 }
 

@@ -7,6 +7,8 @@ import store from './redux/store';
 
 const App = () => {
 
+  console.log('App')
+
   return (
     <Provider store={store}>
       <RouterProvider

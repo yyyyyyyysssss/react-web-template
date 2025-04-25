@@ -1,3 +1,4 @@
+import { useMemo } from "react"
 import { useSearchParams } from "react-router-dom"
 
 
@@ -5,10 +6,14 @@ const useQueryParams = () => {
 
     const [searchParams] = useSearchParams()
 
-    const params = {}
-    searchParams.forEach((value, key) => {
-        params[key] = value;
-    })
+    const params = useMemo(() => {
+        const result = {}
+        searchParams.forEach((value, key) => {
+            result[key] = value;
+        })
+        return result
+    },[searchParams])
+    
     return params
 }
 

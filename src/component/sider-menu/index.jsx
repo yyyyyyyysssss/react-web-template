@@ -51,6 +51,7 @@ const SiderMenu = () => {
         }
 
         fetchMenuItems()
+        // eslint-disable-next-line
     }, [])
 
     const handleOpenChange = (keys) => {

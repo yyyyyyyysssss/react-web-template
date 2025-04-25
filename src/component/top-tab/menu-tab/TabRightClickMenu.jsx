@@ -30,6 +30,7 @@ const TabRightClickMenu = ({ tabKey, index, x, y, close }) => {
             // 组件卸载时移除事件监听器
             document.removeEventListener('mousedown', handleClickOutside);
         }
+        // eslint-disable-next-line
     }, [])
 
     const closeOther = () => {
@@ -44,11 +45,11 @@ const TabRightClickMenu = ({ tabKey, index, x, y, close }) => {
     }
 
     const afterCloseAllSelectKey = useCallback(() => {
-        if(tabSize > 0){
+        if (tabSize > 0) {
             return tabItems[0].key
         }
         return null
-    },[tabItems])
+    }, [tabItems,tabSize])
 
     const closeRight = () => {
         dispatch(removeRightTabItem({ key: tabKey, index: index }))
@@ -72,7 +73,7 @@ const TabRightClickMenu = ({ tabKey, index, x, y, close }) => {
                 borderRadius: 6,
                 backgroundColor: 'white',
                 border: '1px solid #ccc',
-                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
             }}
             vertical
         >
@@ -81,12 +82,14 @@ const TabRightClickMenu = ({ tabKey, index, x, y, close }) => {
                 flex={1}
                 vertical
             >
-                <div className='menu-btn' onClick={closeOther}>关闭其它</div>
+                {tabSize !== 0 && (
+                    <div className='menu-btn' onClick={closeOther}>关闭其它</div>
+                )}
                 <div className='menu-btn' onClick={closeAll}>关闭所有</div>
-                {index === tabSize && (
+                {index === tabSize && tabSize !== 0 && (
                     <div className='menu-btn' onClick={closeLeft}>关闭左侧</div>
                 )}
-                {index === 0 && (
+                {index === 0 && tabSize !== 0 && (
                     <div className='menu-btn' onClick={closeRight}>关闭右侧</div>
                 )}
                 {index > 0 && index < tabSize && (

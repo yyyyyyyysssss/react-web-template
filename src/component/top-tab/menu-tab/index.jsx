@@ -26,6 +26,7 @@ const TopMenuTab = () => {
         if (route && route.path !== '') {
             add(location, route)
         }
+        // eslint-disable-next-line
     }, [location])
 
     // 右键菜单
@@ -59,6 +60,7 @@ const TopMenuTab = () => {
         if (targetKey && targetKey !== activeKey) {
             switchTab(targetKey)
         }
+        // eslint-disable-next-line
     }, [activeKey])
 
     const add = (location, route) => {
@@ -107,16 +109,17 @@ const TopMenuTab = () => {
         const tabItem = tabItems.find(item => item.key === tabKey)
         if (tabItem) {
             const path = tabItem.search ? tabKey + tabItem.search : tabKey
-            navigate(path,{
+            navigate(path, {
                 state: tabItem.state
             })
         }
-
+        // eslint-disable-next-line
     }, [tabItems])
 
     const items = useMemo(() => {
         return tabItems.map((item, index) => ({
             key: item.key,
+            index: index,
             label: <div onContextMenu={(event) => handleContextMenu(event, item.key, index)}>{item.label}</div>,
             closable: item.closable
         }))

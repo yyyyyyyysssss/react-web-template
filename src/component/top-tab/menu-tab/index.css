@@ -2,10 +2,25 @@
     margin: 0 !important;
 }
 
-.ant-tabs-ink-bar {
-    background-color: transparent !important;
+.layout-panel-tabs .ant-tabs-card >.ant-tabs-nav .ant-tabs-tab-active{
+    background-color: #1677ff;
 }
 
+.layout-panel-tabs .ant-tabs-card >.ant-tabs-nav .ant-tabs-tab:hover{
+    color: #1677ff;
+}
+
+.layout-panel-tabs .ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn{
+    color: white;
+}
+
+.layout-panel-tabs .ant-tabs-card >.ant-tabs-nav .ant-tabs-tab{
+    border-radius: 0px 0px 0px 0px !important;
+}
+
+/* .layout-panel-tabs .ant-tabs .ant-tabs-tab-remove:hover{
+    color: white;
+} */
 
 .menu-btn {
     cursor: pointer;

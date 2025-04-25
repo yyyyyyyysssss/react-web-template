@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense } from 'react';
 import { Button, Flex, Layout, theme } from 'antd';
 import {
     MenuFoldOutlined,
@@ -6,6 +6,7 @@ import {
 } from '@ant-design/icons';
 import './index.css'
 import { Outlet, useNavigate } from 'react-router-dom';
+// eslint-disable-next-line
 import TopBreadcrumbTab from '../../component/top-tab/breadcrumb-tab';
 import TopMenuTab from '../../component/top-tab/menu-tab';
 import { useDispatch, useSelector } from 'react-redux';
@@ -77,6 +78,7 @@ const AppLayout = () => {
                 <Content style={{ margin: '0 16px', height: 'auto', overflow: 'initial', scrollbarGutter: 'stable' }}>
                     {/* 面包屑 */}
                     {/* <TopBreadcrumbTab style={{ paddingTop: 10, paddingBottom: 10 }} /> */}
+                    {/* 顶部页签 */}
                     <TopMenuTab />
                     <div
                         style={{
