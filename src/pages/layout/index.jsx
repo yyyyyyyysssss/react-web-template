@@ -60,36 +60,36 @@ const AppLayout = () => {
             </Sider>
             <Layout>
                 {/* 头部 */}
-                <Header style={{ padding: 0, background: colorBgContainer }}>
-                    <Flex>
+                <Header style={{ padding: 0, background: colorBgContainer,height: '64px' }}>
+                    <Flex style={{height: '100%'}} align='center'>
                         <Button
                             type="text"
                             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                             onClick={handleCollapsed}
                             style={{
                                 fontSize: '16px',
-                                width: 64,
-                                height: 64,
+                                width: 48,
+                                height: 48,
                             }}
                         />
+                        {/* 面包屑 */}
+                        <TopBreadcrumbTab style={{ paddingTop: 10, paddingBottom: 10 }} />
                     </Flex>
                 </Header>
                 {/* 主题内容 */}
                 <Content style={{ margin: '0 16px', height: 'auto', overflow: 'initial', scrollbarGutter: 'stable' }}>
-                    {/* 面包屑 */}
-                    {/* <TopBreadcrumbTab style={{ paddingTop: 10, paddingBottom: 10 }} /> */}
                     {/* 顶部页签 */}
-                    <TopMenuTab />
+                    <TopMenuTab style={{ height: '40px' }} />
                     <div
                         style={{
-                            height: 'calc(100vh - 100px)',
+                            height: 'calc(100vh - 104px)',
                             overflow: 'auto',
                             padding: 24,
                             background: colorBgContainer,
                             borderRadius: borderRadiusLG,
                         }}
                     >
-                        <Suspense fallback={<Loading/>}>
+                        <Suspense fallback={<Loading />}>
                             <Outlet />
                         </Suspense>
                     </div>

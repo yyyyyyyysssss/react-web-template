@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import './index.css'
 
-const Role = () => {
+const RoleManage = () => {
 
     useEffect(() => {
         
@@ -12,4 +12,4 @@ const Role = () => {
     )
 }
 
-export default Role
+export default RoleManage

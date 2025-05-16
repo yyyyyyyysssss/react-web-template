@@ -6,10 +6,10 @@ import AuthProvider from "./AuthProvider";
 const AppLayout = lazy(() => import('../pages/layout'))
 const Home = lazy(() => import('../pages/home'))
 const Login = lazy(() => import('../pages/login'))
-const User = lazy(() => import('../pages/system-manage/user-manage'))
+const UserManage = lazy(() => import('../pages/system-manage/user-manage'))
 const UserDetails = lazy(() => import('../pages/system-manage/user-manage/details'))
-const Role = lazy(() => import('../pages/system-manage/role-manage'))
-const Auth = lazy(() => import('../pages/system-manage/auth-manage'))
+const RoleManage = lazy(() => import('../pages/system-manage/role-manage'))
+const AuthManage = lazy(() => import('../pages/system-manage/auth-manage'))
 
 
 export const routes = [
@@ -39,7 +39,7 @@ export const routes = [
                 children: [
                     {
                         path: 'user',
-                        element: <User />,
+                        element: <UserManage />,
                         breadcrumbName: '用户管理',
                     },
                     {
@@ -49,12 +49,12 @@ export const routes = [
                     },
                     {
                         path: 'role',
-                        element: <Role />,
+                        element: <RoleManage />,
                         breadcrumbName: '角色管理',
                     },
                     {
                         path: 'auth',
-                        element: <Auth />,
+                        element: <AuthManage />,
                         breadcrumbName: '权限管理',
                     }
                 ]

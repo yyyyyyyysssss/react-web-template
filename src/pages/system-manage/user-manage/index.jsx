@@ -2,7 +2,7 @@ import { Button, Flex } from 'antd'
 import './index.css'
 import { useNavigate } from 'react-router-dom';
 
-const User = () => {
+const UserManage = () => {
 
     const navigate = useNavigate()
 
@@ -26,4 +26,4 @@ const User = () => {
     )
 }
 
-export default User
+export default UserManage

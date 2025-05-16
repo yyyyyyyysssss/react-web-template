@@ -25,23 +25,14 @@ const TopBreadcrumbTab = ({ style }) => {
         return pathnames.map((value, index) => {
             path += `/${value}`
             const route = findRouteByPath(path)
-            if(route.element){
-                return (
-                    <Breadcrumb.Item key={path}>
-                        <Link to={path}>{route.breadcrumbName}</Link>
-                    </Breadcrumb.Item>
-                )
-            }else {
-                return (
-                    <Breadcrumb.Item key={path}>
-                        {route.breadcrumbName}
-                    </Breadcrumb.Item>
-                )
+            return {
+                key: path,
+                title: route.element ? <Link to={path}>{route.breadcrumbName}</Link> : route.breadcrumbName,
             }
         })
     }, [location.pathname])
 
-    return <Breadcrumb style={style}>{breadcrumbItems}</Breadcrumb>
+    return <Breadcrumb style={style} items={breadcrumbItems}/>
 }
 
 export default TopBreadcrumbTab

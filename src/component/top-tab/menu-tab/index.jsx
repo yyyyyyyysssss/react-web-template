@@ -8,7 +8,7 @@ import { addTabIem, removeTabItem, setActiveKey } from '../../../redux/slices/la
 import TabRightClickMenu from './TabRightClickMenu';
 
 
-const TopMenuTab = () => {
+const TopMenuTab = ({style}) => {
 
     const location = useLocation()
 
@@ -126,7 +126,7 @@ const TopMenuTab = () => {
     }, [tabItems])
 
     return (
-        <div className='layout-panel-tabs'>
+        <div style={style} className='layout-panel-tabs'>
             <Tabs
                 hideAdd
                 onChange={onChange}
