@@ -60,8 +60,8 @@ const AppLayout = () => {
             </Sider>
             <Layout>
                 {/* 头部 */}
-                <Header style={{ padding: 0, background: colorBgContainer,height: '64px' }}>
-                    <Flex style={{height: '100%'}} align='center'>
+                <Header style={{ padding: 0, background: colorBgContainer, height: '64px',boxShadow: '0 4px 6px -4px rgba(0, 0, 0, 0.1)' }}>
+                    <Flex style={{ height: '100%' }} align='center'>
                         <Button
                             type="text"
                             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -79,10 +79,10 @@ const AppLayout = () => {
                 {/* 主题内容 */}
                 <Content style={{ margin: '0 16px', height: 'auto', overflow: 'initial', scrollbarGutter: 'stable' }}>
                     {/* 顶部页签 */}
-                    <TopMenuTab style={{ height: '40px' }} />
+                    <TopMenuTab style={{ height: '45px' }} />
                     <div
                         style={{
-                            height: 'calc(100vh - 104px)',
+                            height: 'calc(100vh - 109px)',
                             overflow: 'auto',
                             padding: 24,
                             background: colorBgContainer,

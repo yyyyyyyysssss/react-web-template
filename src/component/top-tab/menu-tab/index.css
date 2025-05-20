@@ -1,26 +1,22 @@
+.layout-panel-tabs{
+    display: flex;
+    align-items: center;
+}
 .layout-panel-tabs .ant-tabs-nav {
     margin: 0 !important;
 }
 
-.layout-panel-tabs .ant-tabs-card >.ant-tabs-nav .ant-tabs-tab-active{
-    background-color: #1677ff;
-}
-
-.layout-panel-tabs .ant-tabs-card >.ant-tabs-nav .ant-tabs-tab:hover{
-    color: #1677ff;
-}
-
 .layout-panel-tabs .ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn{
-    color: white;
+    color: #1677FF;
 }
 
-.layout-panel-tabs .ant-tabs-card >.ant-tabs-nav .ant-tabs-tab{
-    border-radius: 0px 0px 0px 0px !important;
+.layout-panel-tabs .ant-tabs-nav-list .ant-tabs-tab{
+    background-color: white;
+    border-radius: 5px !important;
+    margin-right: 5px;
+    padding: 5px 12px !important;
+    outline: none;
 }
-
-/* .layout-panel-tabs .ant-tabs .ant-tabs-tab-remove:hover{
-    color: white;
-} */
 
 .menu-btn {
     cursor: pointer;
