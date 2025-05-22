@@ -3,7 +3,7 @@ import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { matchPath } from "react-router"
 import AuthProvider from "./AuthProvider";
 
-const AppLayout = lazy(() => import('../pages/layout'))
+const AppLayout = lazy(() => import('../layouts'))
 const Home = lazy(() => import('../pages/home'))
 const Login = lazy(() => import('../pages/login'))
 const UserManage = lazy(() => import('../pages/system-manage/user-manage'))

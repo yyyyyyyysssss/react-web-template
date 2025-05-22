@@ -2,7 +2,7 @@ import { Flex } from "antd"
 import { useCallback, useEffect, useMemo, useRef } from "react"
 import './index.css'
 import { useDispatch, useSelector } from 'react-redux';
-import { removeAllTabItem, removeLeftTabItem, removeOtherTabItem, removeRightTabItem } from "../../../redux/slices/layoutSlice";
+import { removeAllTabItem, removeLeftTabItem, removeOtherTabItem, removeRightTabItem } from "../../redux/slices/layoutSlice";
 
 
 const TabRightClickMenu = ({ tabKey, index, x, y, close }) => {
@@ -73,7 +73,7 @@ const TabRightClickMenu = ({ tabKey, index, x, y, close }) => {
                 borderRadius: 6,
                 backgroundColor: 'white',
                 border: '1px solid #ccc',
-                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+                boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
             }}
             vertical
         >

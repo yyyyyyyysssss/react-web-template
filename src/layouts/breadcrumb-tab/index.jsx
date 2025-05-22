@@ -2,9 +2,9 @@ import './index.css'
 import React, { useEffect, useMemo } from 'react';
 import { Breadcrumb } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
-import { findRouteByPath } from '../../../router/router';
+import { findRouteByPath } from '../../router/router';
 import { useDispatch } from 'react-redux';
-import { setActiveKey } from '../../../redux/slices/layoutSlice';
+import { setActiveKey } from '../../redux/slices/layoutSlice';
 
 const TopBreadcrumbTab = ({ style }) => {
 

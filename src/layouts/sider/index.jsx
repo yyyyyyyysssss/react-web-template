@@ -33,7 +33,7 @@ const menuItemList = [
     }
 ]
 
-const SiderMenu = () => {
+const Sider = () => {
 
     const menuItems = useSelector(state => state.layout.menuItems)
 
@@ -66,6 +66,11 @@ const SiderMenu = () => {
         }
     }
 
+    const goHome = () => {
+        navigate('home')
+        dispatch(setActiveKey({ key: '/home' }))
+    }
+
     const matchMenuKey = useMemo(() => {
         for (const menuItem of menuItems) {
             if (menuItem.key === activeKey) {
@@ -96,19 +101,23 @@ const SiderMenu = () => {
             icon: <SettingOutlined />,
             children: item.children
         }))
-    },[menuItems])
+    }, [menuItems])
 
     return (
-        <Menu
-            selectedKeys={matchMenuKey}
-            openKeys={openKeys}
-            onOpenChange={handleOpenChange}
-            onClick={switchMenu}
-            theme='dark'
-            mode='inline'
-            items={items}
-        />
+        <>
+            <div onClick={goHome} className="logo-vertical" />
+            <Menu
+                selectedKeys={matchMenuKey}
+                openKeys={openKeys}
+                onOpenChange={handleOpenChange}
+                onClick={switchMenu}
+                theme='dark'
+                mode='inline'
+                items={items}
+            />
+        </>
+
     )
 }
 
-export default SiderMenu
+export default Sider

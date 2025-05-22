@@ -2,9 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import './index.css'
 import { Tabs } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { findRouteByPath } from '../../../router/router';
+import { findRouteByPath } from '../../router/router';
 import { useDispatch, useSelector } from 'react-redux';
-import { addTabIem, removeTabItem, setActiveKey } from '../../../redux/slices/layoutSlice';
+import { addTabIem, removeTabItem, setActiveKey } from '../../redux/slices/layoutSlice';
 import TabRightClickMenu from './TabRightClickMenu';
 
 
