@@ -30,7 +30,7 @@ const saveState = (state) => {
 const loadedState = loadState();
 const reduxStore = configureStore({
     preloadedState: {
-        layout: loadedState === null ? initialState : { ...loadedState, menuItems: [] }
+        layout: loadedState === null ? initialState : { ...loadedState, menuItems: [], flattenMenuItems: [] }
     },
     reducer: {
         auth: authReducer,

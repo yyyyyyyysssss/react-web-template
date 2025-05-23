@@ -32,7 +32,7 @@ const Header = () => {
                 }}
             />
             {/* 面包屑 */}
-            <TopBreadcrumbTab style={{ paddingTop: 10, paddingBottom: 10 }} />
+            <TopBreadcrumbTab/>
         </Flex>
     )
 }

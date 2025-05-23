@@ -9,7 +9,7 @@ const Login = lazy(() => import('../pages/login'))
 const UserManage = lazy(() => import('../pages/system-manage/user-manage'))
 const UserDetails = lazy(() => import('../pages/system-manage/user-manage/details'))
 const RoleManage = lazy(() => import('../pages/system-manage/role-manage'))
-const AuthManage = lazy(() => import('../pages/system-manage/auth-manage'))
+const MenuManage = lazy(() => import('../pages/system-manage/menu-manage'))
 
 
 export const routes = [
@@ -53,9 +53,9 @@ export const routes = [
                         breadcrumbName: '角色管理',
                     },
                     {
-                        path: 'auth',
-                        element: <AuthManage />,
-                        breadcrumbName: '权限管理',
+                        path: 'menu',
+                        element: <MenuManage />,
+                        breadcrumbName: '菜单管理',
                     }
                 ]
             },

@@ -4,38 +4,28 @@ import {
     SettingOutlined,
 } from '@ant-design/icons';
 import { Menu } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadMenuItems, setActiveKey, setOpenKeys } from '../../redux/slices/layoutSlice';
+import { fetchMenuTree } from '../../services/SystemService';
 
-const menuItemList = [
-    {
-        key: 'system',
-        label: '系统管理',
-        icon: 'SettingOutlined',
-        children: [
-            {
-                key: '/system/user',
-                label: '用户管理',
-                path: '/system/user',
-            },
-            {
-                key: '/system/role',
-                label: '角色管理',
-                path: '/system/role',
-            },
-            {
-                key: '/system/auth',
-                label: '权限管理',
-                path: '/system/auth',
-            }
-        ],
-    }
-]
+const formatMenuItems = (items) => {
+    return items.map(item => ({
+        key: item.id,
+        label: item.name,
+        icon: <SettingOutlined />,
+        path: item.routePath,
+        children: item.children && item.children.length > 0 ? formatMenuItems(item.children) : undefined,
+    }))
+}
 
 const Sider = () => {
 
     const menuItems = useSelector(state => state.layout.menuItems)
+
+    const flattenMenuItems = useSelector(state => state.layout.flattenMenuItems)
+
+    const collapsed = useSelector(state => state.layout.menuCollapsed)
 
     const activeKey = useSelector(state => state.layout.activeKey)
 
@@ -45,68 +35,58 @@ const Sider = () => {
 
     const navigate = useNavigate()
 
-    useEffect(() => {
-        const fetchMenuItems = async () => {
-            dispatch(loadMenuItems({ menuItems: menuItemList }))
-        }
+    const location = useLocation()
 
-        fetchMenuItems()
+    useEffect(() => {
+        const fetchMenus = async () => {
+            fetchMenuTree()
+                .then(data => dispatch(loadMenuItems({ menuItems: data })))
+        }
+        fetchMenus()
         // eslint-disable-next-line
     }, [])
+
+
+    useEffect(() => {
+        if (location.pathname && location.pathname !== '/' && flattenMenuItems && flattenMenuItems.length > 0) {
+            dispatch(setActiveKey({ path: location.pathname }))
+        }
+        // eslint-disable-next-line
+    }, [flattenMenuItems,location.pathname])
 
     const handleOpenChange = (keys) => {
         dispatch(setOpenKeys({ keys: keys }))
     }
 
     const switchMenu = (e) => {
-        const key = e.key
+        const menuItem = flattenMenuItems.find(item => item.id === e.key)
+        const key = menuItem.routePath
         if (key !== activeKey) {
-            dispatch(setActiveKey({ key: key }))
-            navigate(key)
+            navigate(menuItem.routePath)
         }
     }
 
     const goHome = () => {
         navigate('home')
-        dispatch(setActiveKey({ key: '/home' }))
+        dispatch(setActiveKey({ path: '/home' }))
     }
 
     const matchMenuKey = useMemo(() => {
-        for (const menuItem of menuItems) {
-            if (menuItem.key === activeKey) {
-                return menuItem.key
-            }
-            if (activeKey.startsWith(menuItem.key)) {
-                return menuItem.key
-            }
-            if (menuItem.children) {
-                for (const child of menuItem.children) {
-                    if (child.key === activeKey) {
-                        return child.key
-                    }
-                    if (activeKey.startsWith(child.key)) {
-                        return child.key
-                    }
-                }
-            }
-
-        }
-        return null
-    }, [activeKey, menuItems])
+        const menuItem = flattenMenuItems.find(item => item.id === activeKey)
+        return menuItem?.id
+    }, [activeKey, flattenMenuItems])
 
     const items = useMemo(() => {
-        return menuItems.map((item) => ({
-            key: item.key,
-            label: item.label,
-            icon: <SettingOutlined />,
-            children: item.children
-        }))
+        return formatMenuItems(menuItems)
     }, [menuItems])
+
 
     return (
         <>
             <div onClick={goHome} className="logo-vertical" />
             <Menu
+                key={collapsed ? 'collapsed' : 'expanded'}
+                inlineCollapsed={collapsed}
                 selectedKeys={matchMenuKey}
                 openKeys={openKeys}
                 onOpenChange={handleOpenChange}

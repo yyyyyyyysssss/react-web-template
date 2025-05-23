@@ -30,7 +30,7 @@ const AppLayout = () => {
                 style={{
                     overflow: 'auto',
                     height: '100vh',
-                    scrollbarGutter: 'stable'
+                    scrollbarGutter: 'stable',
                 }}
                 collapsible
                 collapsed={collapsed}

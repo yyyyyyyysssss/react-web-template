@@ -4,15 +4,17 @@ import { Tabs } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { findRouteByPath } from '../../router/router';
 import { useDispatch, useSelector } from 'react-redux';
-import { addTabIem, removeTabItem, setActiveKey } from '../../redux/slices/layoutSlice';
+import { addTabIem, removeTabItem } from '../../redux/slices/layoutSlice';
 import TabRightClickMenu from './TabRightClickMenu';
 
 
-const TopMenuTab = ({style}) => {
+const TopMenuTab = ({ style }) => {
 
     const location = useLocation()
 
     const dispatch = useDispatch()
+
+    const flattenMenuItems = useSelector(state => state.layout.flattenMenuItems)
 
     const activeKey = useSelector(state => state.layout.activeKey)
 
@@ -21,13 +23,14 @@ const TopMenuTab = ({style}) => {
     const navigate = useNavigate()
 
     useEffect(() => {
-        const pathnames = location.pathname
-        const route = findRouteByPath(pathnames)
-        if (route && route.path !== '') {
-            add(location, route)
+        if (location.pathname && location.pathname !== '/' &&  flattenMenuItems && flattenMenuItems.length > 0) {
+            const route = findRouteByPath(location.pathname)
+            if (route && route.path !== '') {
+                add(location, route)
+            }
         }
         // eslint-disable-next-line
-    }, [location])
+    }, [flattenMenuItems, location])
 
     // 右键菜单
     const [rightMenu, setRightMenu] = useState({
@@ -64,16 +67,16 @@ const TopMenuTab = ({style}) => {
     }, [activeKey])
 
     const add = (location, route) => {
-        const key = location.pathname
+        const path = location.pathname
         const closable = route.path !== 'home'
         const tabItem = {
-            key: key,
+            path: path,
             label: route.breadcrumbName,
             search: location.search,
             state: location.state,
             closable: closable
         }
-        dispatch(addTabIem({ key: key, tabItem: tabItem }))
+        dispatch(addTabIem({ tabItem: tabItem }))
     }
 
     const remove = targetKey => {
@@ -95,7 +98,6 @@ const TopMenuTab = ({style}) => {
     }, [tabItems, activeKey])
 
     const onChange = key => {
-        dispatch(setActiveKey({ key: key }))
         switchTab(key)
     }
 
@@ -108,7 +110,7 @@ const TopMenuTab = ({style}) => {
     const switchTab = useCallback((tabKey) => {
         const tabItem = tabItems.find(item => item.key === tabKey)
         if (tabItem) {
-            const path = tabItem.search ? tabKey + tabItem.search : tabKey
+            const path = tabItem.search ? tabItem.path + tabItem.search : tabItem.path
             navigate(path, {
                 state: tabItem.state
             })
@@ -134,6 +136,7 @@ const TopMenuTab = ({style}) => {
                 type="editable-card"
                 onEdit={onEdit}
                 items={items}
+                tabBarStyle={{borderBottom: 'none'}}
             />
             {rightMenu.visible && (
                 <TabRightClickMenu

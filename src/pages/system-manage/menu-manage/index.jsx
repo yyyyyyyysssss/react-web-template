@@ -1,10 +1,10 @@
 import './index.css'
 
-const AuthManage = () => {
+const MenuManage = () => {
 
     return (
         <h1>This is Auth</h1>
     )
 }
 
-export default AuthManage
+export default MenuManage

@@ -6,13 +6,9 @@
     margin: 0 !important;
 }
 
-.layout-panel-tabs .ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn{
-    color: #1677FF;
-}
-
 .layout-panel-tabs .ant-tabs-nav-list .ant-tabs-tab{
     background-color: white;
-    border-radius: 5px !important;
+    border-radius: 8px !important;
     margin-right: 5px;
     padding: 5px 12px !important;
     outline: none;

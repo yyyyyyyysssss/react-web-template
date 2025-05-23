@@ -5,7 +5,30 @@ export const initialState = {
     menuCollapsed: false,
     openKeys: [],
     tabItems: [],
-    menuItems: []
+    menuItems: [],
+    flattenMenuItems: []
+}
+
+const findMenuByKey = (targetKey, menus) => {
+    if (menus && menus.length > 0) {
+        return menus.find(item => item.id === targetKey)
+    }
+    return null
+}
+
+const findBestMatchMenu = (targetPath, menus) => {
+    const tp = targetPath.split('?')[0].split('#')[0]
+    let bestMatchMenu = null;
+    for (const menuItem of menus) {
+        const routePath = menuItem.routePath
+        if (tp === routePath || (tp.startsWith(routePath) && tp.charAt(routePath.length) === '/')) {
+            // 如果更长就替换
+            if (!bestMatchMenu || routePath.length > bestMatchMenu.routePath.length) {
+                bestMatchMenu = menuItem;
+            }
+        }
+    }
+    return bestMatchMenu;
 }
 
 export const layoutSlice = createSlice({
@@ -20,27 +43,40 @@ export const layoutSlice = createSlice({
         },
         setActiveKey: (state, action) => {
             const { payload } = action
-            const { key } = payload
-            state.activeKey = key
-            state.openKeys = state.menuCollapsed ? [] : key.split('/')
+            const { key, path } = payload
+            let menuItem
+            if (key) {
+                menuItem = findMenuByKey(key, state.flattenMenuItems)
+            } else {
+                menuItem = findBestMatchMenu(path, state.flattenMenuItems)
+            }
+            state.activeKey = menuItem.id
+            state.openKeys = state.menuCollapsed ? [] : menuItem.parentPath
         },
         menuCollapsed: (state, action) => {
             state.menuCollapsed = !state.menuCollapsed
-            if (!state.menuCollapsed) {
-                state.openKeys = state.activeKey.split('/')
+            const menuItem = findMenuByKey(state.activeKey, state.flattenMenuItems)
+            if (menuItem) {
+                state.openKeys = state.menuCollapsed ? [] : menuItem.parentPath
             }
         },
         addTabIem: (state, action) => {
             const { payload } = action
-            const { key, tabItem } = payload
-            const item = state.tabItems.find(item => item.key === key)
-            if (item) {
-                state.activeKey = item.key
+            const { tabItem } = payload
+            const path = tabItem.path
+            const menuItem = findBestMatchMenu(path, state.flattenMenuItems)
+            if (!menuItem) {
                 return
             }
+            const item = state.tabItems.find(item => item.key === menuItem.id)
+            if (item) {
+                state.activeKey = menuItem.id
+                return
+            }
+            tabItem.key = menuItem.id
             state.tabItems.push(tabItem)
-            state.activeKey = key
-            state.openKeys = state.menuCollapsed ? [] : key.split('/')
+            state.activeKey = menuItem.id
+            state.openKeys = state.menuCollapsed ? [] : menuItem.parentPath
         },
         removeTabItem: (state, action) => {
             const { payload } = action
@@ -48,7 +84,8 @@ export const layoutSlice = createSlice({
             const newPanes = state.tabItems.filter(pane => pane.key !== targetKey)
             if (selectKey) {
                 state.activeKey = selectKey
-                state.openKeys = state.menuCollapsed ? [] : selectKey.split('/')
+                const menuItem = findMenuByKey(selectKey, state.flattenMenuItems)
+                state.openKeys = state.menuCollapsed ? [] : menuItem.parentPath
             }
             state.tabItems = newPanes
         },
@@ -57,7 +94,8 @@ export const layoutSlice = createSlice({
             if (newItems.length) {
                 const key = newItems[0].key
                 state.activeKey = key
-                state.openKeys = state.menuCollapsed ? [] : key.split('/')
+                const menuItem = findMenuByKey(key, state.flattenMenuItems)
+                state.openKeys = state.menuCollapsed ? [] : menuItem.parentPath
             }
             state.tabItems = newItems
         },
@@ -67,7 +105,8 @@ export const layoutSlice = createSlice({
             const newItems = state.tabItems.filter((item, i) => item.closable === false || i === index)
             if (newItems.length) {
                 state.activeKey = key
-                state.openKeys = state.menuCollapsed ? [] : key.split('/')
+                const menuItem = findMenuByKey(key, state.flattenMenuItems)
+                state.openKeys = state.menuCollapsed ? [] : menuItem.parentPath
             }
             state.tabItems = newItems
         },
@@ -77,7 +116,8 @@ export const layoutSlice = createSlice({
             const newItems = state.tabItems.filter((item, i) => i >= index || item.closable === false)
             if (newItems.length) {
                 state.activeKey = key
-                state.openKeys = state.menuCollapsed ? [] : key.split('/')
+                const menuItem = findMenuByKey(key, state.flattenMenuItems)
+                state.openKeys = state.menuCollapsed ? [] : menuItem.parentPath
             }
             state.tabItems = newItems
         },
@@ -87,7 +127,8 @@ export const layoutSlice = createSlice({
             const newItems = state.tabItems.filter((item, i) => i <= index || item.closable === false)
             if (newItems.length) {
                 state.activeKey = key
-                state.openKeys = state.menuCollapsed ? [] : key.split('/')
+                const menuItem = findMenuByKey(key, state.flattenMenuItems)
+                state.openKeys = state.menuCollapsed ? [] : menuItem.parentPath
             }
             state.tabItems = newItems
         },
@@ -95,6 +136,22 @@ export const layoutSlice = createSlice({
             const { payload } = action
             const { menuItems } = payload
             state.menuItems = menuItems
+            const flattenMenuItems = []
+            function recurse(nodes, parentId = null, parentPath = []) {
+                for (const node of nodes) {
+                    const { children, ...rest } = node;
+
+                    const currentPath = [...parentPath, parentId].filter(Boolean); // 去除 null
+                    flattenMenuItems.push({ ...rest, parentId, parentPath: currentPath });
+
+                    if (children && children.length > 0) {
+                        recurse(children, node.id, currentPath);
+                    }
+                }
+            }
+            //对树形结构进行扁平化
+            recurse(menuItems)
+            state.flattenMenuItems = flattenMenuItems
         }
     }
 })

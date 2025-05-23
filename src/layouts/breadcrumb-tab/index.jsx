@@ -1,23 +1,12 @@
 import './index.css'
-import React, { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Breadcrumb } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
 import { findRouteByPath } from '../../router/router';
-import { useDispatch } from 'react-redux';
-import { setActiveKey } from '../../redux/slices/layoutSlice';
 
-const TopBreadcrumbTab = ({ style }) => {
+const TopBreadcrumbTab = () => {
 
     const location = useLocation()
-
-    const dispatch = useDispatch()
-
-    useEffect(() => {
-        if (location.pathname) {
-            dispatch(setActiveKey({ key: location.pathname }))
-        }
-        // eslint-disable-next-line
-    }, [])
 
     const breadcrumbItems = useMemo(() => {
         const pathnames = location.pathname.split('/').filter(item => item !== '')
@@ -32,7 +21,7 @@ const TopBreadcrumbTab = ({ style }) => {
         })
     }, [location.pathname])
 
-    return <Breadcrumb style={style} items={breadcrumbItems}/>
+    return <Breadcrumb items={breadcrumbItems}/>
 }
 
 export default TopBreadcrumbTab
