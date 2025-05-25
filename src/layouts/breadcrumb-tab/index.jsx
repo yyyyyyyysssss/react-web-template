@@ -14,12 +14,15 @@ const TopBreadcrumbTab = () => {
         return pathnames.map((value, index) => {
             path += `/${value}`
             const route = findRouteByPath(path)
+            if(index === pathnames.length - 1 && location.search){
+                path += location.search
+            }
             return {
                 key: path,
-                title: route.element ? <Link to={path}>{route.breadcrumbName}</Link> : route.breadcrumbName,
+                title: route?.element ? <Link to={path} state={location.state}>{route?.breadcrumbName}</Link> : route?.breadcrumbName,
             }
         })
-    }, [location.pathname])
+    }, [location])
 
     return <Breadcrumb items={breadcrumbItems}/>
 }

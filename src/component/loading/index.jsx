@@ -1,21 +1,19 @@
-import { Flex, Spin } from 'antd'
-import { LoadingOutlined } from '@ant-design/icons';
 import './index.css'
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css';
+import { useEffect } from 'react';
 
 const Loading = () => {
 
-    return (
-        <Flex
-            flex={1}
-            justify='center'
-            align='center'
-            style={{
-                height: '100%',
-            }}
-        >
-            <Spin size="large"/>
-        </Flex>
-    )
+
+    useEffect(() => {
+        NProgress.start()
+        return () => {
+            NProgress.done();
+        }
+    }, [])
+
+    return <></>
 }
 
 export default Loading

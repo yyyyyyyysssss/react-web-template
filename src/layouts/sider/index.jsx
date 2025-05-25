@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import './index.css'
 import {
     SettingOutlined,
@@ -86,12 +86,12 @@ const Sider = () => {
             <div onClick={goHome} className="logo-vertical" />
             <Menu
                 key={collapsed ? 'collapsed' : 'expanded'}
+                theme="dark"
                 inlineCollapsed={collapsed}
                 selectedKeys={matchMenuKey}
                 openKeys={openKeys}
                 onOpenChange={handleOpenChange}
                 onClick={switchMenu}
-                theme='dark'
                 mode='inline'
                 items={items}
             />

@@ -43,7 +43,7 @@ export const routes = [
                         breadcrumbName: '用户管理',
                     },
                     {
-                        path: 'user/details',
+                        path: 'user/details/:id?',
                         element: <UserDetails />,
                         breadcrumbName: '用户详情',
                     },
@@ -56,6 +56,10 @@ export const routes = [
                         path: 'menu',
                         element: <MenuManage />,
                         breadcrumbName: '菜单管理',
+                        // loader: async () => {
+                        //     const menuTree = fetchMenuTree()
+                        //     return { menuTree }
+                        // }
                     }
                 ]
             },

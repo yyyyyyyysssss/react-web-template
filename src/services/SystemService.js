@@ -12,6 +12,30 @@ export const fetchMenuTree = async () => {
     }
 }
 
+export const fetchMenuDetails = async (menuId) => {
+    try {
+        const res = await httpWrapper.get(`/api/system/menu/${menuId}`)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
+export const menuDrag = async (dragId, targetId, position) => {
+    try {
+        const res = await httpWrapper.post('/api/system/menu/drag',{
+            dragId: dragId,
+            targetId: targetId,
+            position: position
+        })
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
 
 
 const handleError = (error) => {

@@ -13,12 +13,26 @@ const App = () => {
     <ConfigProvider
       theme={{
         token: {
+          colorText: 'rgba(0,0,0,0.88)',
           colorPrimary: '#1DA57A',
           borderRadius: 8,
+          colorBgContainer: 'white'
         },
         components: {
           Breadcrumb: {
             linkHoverColor: '#1DA57A'
+          },
+          Layout: {
+            //顶部背景色
+            headerBg: 'white',
+            //侧边栏背景色
+            siderBg: '#001529',
+            //主体部分背景色
+            bodyBg: '#f5f5f5',
+            //顶部高度
+            headerHeight: 64,
+            //顶部内边距
+            headerPadding: 0
           }
         }
       }}

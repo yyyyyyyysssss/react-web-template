@@ -6,6 +6,10 @@
     margin: 0 !important;
 }
 
+.layout-panel-tabs .ant-tabs-nav .ant-tabs-tab-active{
+    border-bottom-color: transparent !important
+}
+
 .layout-panel-tabs .ant-tabs-nav-list .ant-tabs-tab{
     background-color: white;
     border-radius: 8px !important;

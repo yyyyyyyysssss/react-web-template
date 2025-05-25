@@ -7,6 +7,12 @@ import { useSelector } from 'react-redux';
 import Sider from './sider';
 import Loading from '../component/loading';
 import Header from './header';
+import NProgress from 'nprogress';
+
+NProgress.configure({ 
+    parent: '.layout-header',
+    showSpinner: false
+ })
 
 
 const { Header: LayoutHeader, Content: LayoutContent, Sider: LayoutSider } = Layout;
@@ -18,7 +24,7 @@ const AppLayout = () => {
     const {
         token: {
             colorBgContainer,
-            borderRadiusLG
+            borderRadius
         }
     } = theme.useToken()
 
@@ -40,7 +46,7 @@ const AppLayout = () => {
             </LayoutSider>
             <Layout>
                 {/* 头部 */}
-                <LayoutHeader style={{ padding: 0, background: colorBgContainer, height: '64px',boxShadow: '0 4px 6px -4px rgba(0, 0, 0, 0.1)' }}>
+                <LayoutHeader className='layout-header' style={{boxShadow: '0 4px 6px -4px rgba(0, 0, 0, 0.1)' }}>
                     <Header/>
                 </LayoutHeader>
                 {/* 主题内容 */}
@@ -52,8 +58,8 @@ const AppLayout = () => {
                             height: 'calc(100vh - 109px)',
                             overflow: 'auto',
                             padding: 24,
-                            background: colorBgContainer,
-                            borderRadius: borderRadiusLG,
+                            borderRadius: borderRadius,
+                            background: colorBgContainer
                         }}
                     >
                         <Suspense fallback={<Loading />}>
