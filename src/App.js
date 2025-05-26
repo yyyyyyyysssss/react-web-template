@@ -12,6 +12,7 @@ const App = () => {
   return (
     <ConfigProvider
       theme={{
+        cssVar: true,
         token: {
           colorText: 'rgba(0,0,0,0.88)',
           colorPrimary: '#1DA57A',

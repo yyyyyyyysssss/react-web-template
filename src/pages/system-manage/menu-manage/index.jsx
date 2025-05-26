@@ -2,13 +2,15 @@ import { useEffect, useMemo, useState } from 'react'
 import './index.css'
 import { Button, Flex, Tree } from 'antd'
 import { fetchMenuDetails, fetchMenuTree, menuDrag } from '../../../services/SystemService'
-import { PlusCircleOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 
 
 const MenuManage = () => {
 
 
     const [menuData, setMenuData] = useState([])
+
+    const [selectedKeys, setSelectedKeys] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -89,20 +91,19 @@ const MenuManage = () => {
     const convertToTreeData = (data) => {
         return data.map(item => ({
             title: <Flex gap={10} justify='space-between' align='center'>
-                {/* <Button danger type="text">
-                    {item.name}
-                </Button> */}
                 <div>
                     {item.name}
                 </div>
                 <Flex gap={5}>
                     <div
-                        className=''
+                        className='menu-ops-btn'
                     >
-                        <PlusCircleOutlined style={{ fontSize: 12, color: 'gray' }} />
+                        <PlusOutlined style={{ fontSize: 14, color: 'gray' }} />
                     </div>
-                    <div>
-                        <DeleteOutlined style={{ fontSize: 12, color: 'gray' }} />
+                    <div
+                        className='menu-ops-btn'
+                    >
+                        <DeleteOutlined style={{ fontSize: 14, color: 'gray' }} />
                     </div>
                 </Flex>
             </Flex>,
@@ -114,11 +115,14 @@ const MenuManage = () => {
     const menuItems = useMemo(() => convertToTreeData(menuData), [menuData]);
 
     const handleSelect = (selectedKeys, info) => {
-        const menuId = info.node.key
-        fetchMenuDetails(menuId)
-            .then(data => {
-                console.log('menuItem:', data)
-            })
+        const clickedKey = info.node.key;
+        // 不取消选中
+        setSelectedKeys([clickedKey]);
+        // const menuId = info.node.key
+        // fetchMenuDetails(menuId)
+        //     .then(data => {
+        //         console.log('menuItem:', data)
+        //     })
     }
 
     return (
@@ -131,6 +135,7 @@ const MenuManage = () => {
                     onDragEnter={onDragEnter}
                     onDrop={onDrop}
                     treeData={menuItems}
+                    selectedKeys={selectedKeys}
                     onSelect={handleSelect}
                 />
             </Flex>
