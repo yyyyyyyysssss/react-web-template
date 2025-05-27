@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import './index.css'
-import { Button, Flex, Tree } from 'antd'
+import { Button, Dropdown, Flex, Space, Tree } from 'antd'
 import { fetchMenuDetails, fetchMenuTree, menuDrag } from '../../../services/SystemService'
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
 
 const MenuManage = () => {
@@ -87,6 +87,26 @@ const MenuManage = () => {
             })
     }
 
+    const addMenu = (e, type, menuItem) => {
+        e.stopPropagation()
+        setSelectedKeys([menuItem.id])
+        if (type === 'child') {
+            console.log('新增子节点')
+        } else {
+            console.log('新增兄弟节点')
+        }
+    }
+
+    const editMenu = (e, menuItem) => {
+        e.stopPropagation()
+        setSelectedKeys([menuItem.id]);
+    }
+
+
+    const deleteMenu = (e, menuItem) => {
+        e.stopPropagation()
+        setSelectedKeys([menuItem.id]);
+    }
 
     const convertToTreeData = (data) => {
         return data.map(item => ({
@@ -94,14 +114,42 @@ const MenuManage = () => {
                 <div>
                     {item.name}
                 </div>
-                <Flex gap={5}>
+                <Flex>
+                    <Dropdown menu={{
+                        items: [
+                            {
+                                key: 'child',
+                                label: '新增子菜单'
+                            },
+                            {
+                                key: 'brother',
+                                label: '新增同级菜单'
+                            }
+                        ],
+                        onClick: (info) => {
+                            const event = info.domEvent
+                            const key = info.key
+                            addMenu(event, key, item)
+                        }
+                    }}>
+                        <div
+                            className='menu-ops-btn'
+                            onClick={e => {
+                                e.stopPropagation()
+                            }}
+                        >
+                            <PlusOutlined style={{ fontSize: 14, color: 'gray' }} />
+                        </div>
+                    </Dropdown>
                     <div
                         className='menu-ops-btn'
+                        onClick={(e) => editMenu(e, item)}
                     >
-                        <PlusOutlined style={{ fontSize: 14, color: 'gray' }} />
+                        <EditOutlined style={{ fontSize: 14, color: 'gray' }} />
                     </div>
                     <div
                         className='menu-ops-btn'
+                        onClick={(e) => deleteMenu(e, item)}
                     >
                         <DeleteOutlined style={{ fontSize: 14, color: 'gray' }} />
                     </div>
@@ -118,11 +166,7 @@ const MenuManage = () => {
         const clickedKey = info.node.key;
         // 不取消选中
         setSelectedKeys([clickedKey]);
-        // const menuId = info.node.key
-        // fetchMenuDetails(menuId)
-        //     .then(data => {
-        //         console.log('menuItem:', data)
-        //     })
+        console.log('handleSelect')
     }
 
     return (

@@ -31,8 +31,7 @@
     /* 容器内水平垂直居中 */
     align-items: center;
     justify-content: center;
-    /* background-color: red; */
-    padding: 5px;
+    padding: 3px;
     /* 控制包裹框大小 */
     border-radius: var(--ant-border-radius);
     /* 圆角 */
