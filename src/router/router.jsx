@@ -56,10 +56,6 @@ export const routes = [
                         path: 'menu',
                         element: <MenuManage />,
                         breadcrumbName: '菜单管理',
-                        // loader: async () => {
-                        //     const menuTree = fetchMenuTree()
-                        //     return { menuTree }
-                        // }
                     }
                 ]
             },

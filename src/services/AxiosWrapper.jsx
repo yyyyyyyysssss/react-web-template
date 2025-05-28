@@ -4,6 +4,8 @@ import { message } from "antd"
 import router from '../router/router';
 import { jwtDecode } from 'jwt-decode'
 import env from "../env";
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 
 
 const httpWrapper = axios.create({
@@ -11,8 +13,25 @@ const httpWrapper = axios.create({
     timeout: 60000
 })
 
+
+let requestCount = 0
+const startProgress = () => {
+    if (requestCount === 0) {
+        NProgress.start()
+    }
+    requestCount++
+}
+const stopProgress = () => {
+    requestCount--
+    requestCount = Math.max(requestCount, 0)
+    if (requestCount === 0) {
+        NProgress.done()
+    }
+}
+
 httpWrapper.interceptors.request.use(
     (req) => {
+        startProgress()
         const token = Cookies.get("accessToken");
         if (token) {
             const path = req.url;
@@ -26,21 +45,19 @@ httpWrapper.interceptors.request.use(
         return req;
     },
     (error) => {
-        Promise.reject(error);
+        stopProgress()
+        return Promise.reject(error);
     }
 )
 
 
 httpWrapper.interceptors.response.use(
     (res) => {
-        if (res.status < 200 || res.status > 300) {
-            message.error(res.msg)
-            return Promise.reject(new Error(res.msg) || 'Unknown Error');
-        } else {
-            return res.data;
-        }
+        stopProgress()
+        return res.data
     },
     (error) => {
+        stopProgress()
         if (!error.response) {
             message.error(error.message || '网络错误');
             return Promise.reject(error);

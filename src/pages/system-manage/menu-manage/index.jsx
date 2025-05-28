@@ -1,8 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import './index.css'
-import { Button, Dropdown, Flex, Space, Tree } from 'antd'
+import { Button, Divider, Dropdown, Flex, Form, Input, Space, Tree } from 'antd'
 import { fetchMenuDetails, fetchMenuTree, menuDrag } from '../../../services/SystemService'
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
+import {
+    SettingOutlined,
+} from '@ant-design/icons';
 
 
 const MenuManage = () => {
@@ -10,7 +13,11 @@ const MenuManage = () => {
 
     const [menuData, setMenuData] = useState([])
 
-    const [selectedKeys, setSelectedKeys] = useState([]);
+    const [selectedMenu, setSelectedMenu] = useState(null)
+
+    const [selectedKeys, setSelectedKeys] = useState(null)
+
+    const flattenTreeRef = useRef()
 
     useEffect(() => {
         const fetchData = async () => {
@@ -19,6 +26,23 @@ const MenuManage = () => {
         }
         fetchData()
     }, [])
+
+    useEffect(() => {
+        const flattenTree = (menuData) => {
+            const result = []
+            const dfs = (nodes) => {
+                nodes.forEach(node => {
+                    result.push({ ...node, children: null })
+                    if (node.children && node.children.length > 0) {
+                        dfs(node.children)
+                    }
+                })
+            }
+            dfs(menuData)
+            return result
+        }
+        flattenTreeRef.current = flattenTree(menuData)
+    }, [menuData])
 
     const onDragEnter = (info) => {
 
@@ -89,23 +113,24 @@ const MenuManage = () => {
 
     const addMenu = (e, type, menuItem) => {
         e.stopPropagation()
-        setSelectedKeys([menuItem.id])
+        handleSelectMenu(menuItem.id)
         if (type === 'child') {
             console.log('新增子节点')
         } else {
             console.log('新增兄弟节点')
         }
+
     }
 
     const editMenu = (e, menuItem) => {
         e.stopPropagation()
-        setSelectedKeys([menuItem.id]);
+        handleSelectMenu(menuItem.id)
     }
 
 
     const deleteMenu = (e, menuItem) => {
         e.stopPropagation()
-        setSelectedKeys([menuItem.id]);
+        handleSelectMenu(menuItem.id)
     }
 
     const convertToTreeData = (data) => {
@@ -138,20 +163,20 @@ const MenuManage = () => {
                                 e.stopPropagation()
                             }}
                         >
-                            <PlusOutlined style={{ fontSize: 14, color: 'gray' }} />
+                            <Plus size={18} color='gray' />
                         </div>
                     </Dropdown>
                     <div
                         className='menu-ops-btn'
                         onClick={(e) => editMenu(e, item)}
                     >
-                        <EditOutlined style={{ fontSize: 14, color: 'gray' }} />
+                        <Pencil size={16} color='gray' />
                     </div>
                     <div
                         className='menu-ops-btn'
                         onClick={(e) => deleteMenu(e, item)}
                     >
-                        <DeleteOutlined style={{ fontSize: 14, color: 'gray' }} />
+                        <Trash2 size={16} color='gray' />
                     </div>
                 </Flex>
             </Flex>,
@@ -163,18 +188,30 @@ const MenuManage = () => {
     const menuItems = useMemo(() => convertToTreeData(menuData), [menuData]);
 
     const handleSelect = (selectedKeys, info) => {
-        const clickedKey = info.node.key;
+        const clickedKey = info.node.key
+        handleSelectMenu(clickedKey)
+
+    }
+
+    const handleSelectMenu = (menuId) => {
         // 不取消选中
-        setSelectedKeys([clickedKey]);
-        console.log('handleSelect')
+        setSelectedKeys([menuId])
+        const menu = flattenTreeRef.current.find(f => f.id === menuId)
+        setSelectedMenu(menu)
     }
 
     return (
-        <Flex>
-            <Flex flex={2}>
+        <Flex flex={1} gap={10} style={{ height: '100%' }}>
+            <Flex
+                style={{
+                    minWidth: '240px',
+                }}
+            >
                 <Tree
                     className="draggable-tree"
-                    draggable
+                    draggable={{
+                        icon: false
+                    }}
                     blockNode
                     onDragEnter={onDragEnter}
                     onDrop={onDrop}
@@ -183,25 +220,44 @@ const MenuManage = () => {
                     onSelect={handleSelect}
                 />
             </Flex>
+            <Divider
+                type="vertical"
+                style={{
+                    height: '100%',           // 让它撑满高度
+                    width: '2px',             // 指定宽度
+                    backgroundColor: 'lightgray',  // 设置背景色，视觉上看到竖线
+                    marginInline: '12px'
+                }}
+            />
             <Flex flex={8}>
-                body
+                {selectedKeys && (
+                    <Form
+                        labelCol={{ span: 2 }}
+                        wrapperCol={{ span: 22 }}
+                        layout="horizontal"
+                        disabled={true}
+                        style={{ width: '100%' }}
+                    >
+                        <Form.Item label="菜单名称:">
+                            <Input value={selectedMenu.name} />
+                        </Form.Item>
+                        <Form.Item label="菜单编码:">
+                            <Input value={selectedMenu.code} />
+                        </Form.Item>
+                        <Form.Item label="路由:">
+                            <Input value={selectedMenu.routePath} />
+                        </Form.Item>
+                        <Form.Item label="图标:">
+                            <div className='flex items-center'>
+                                <SettingOutlined size={18} color='gray' />
+                            </div>
+                        </Form.Item>
+                        <Form.Item label="排序:">
+                            <Input value={selectedMenu.sort} />
+                        </Form.Item>
+                    </Form>
+                )}
             </Flex>
-
-            {/* <Suspense fallback={<Loading />}>
-                <Await resolve={menuTree}>
-                    {(data) => (
-                        <Tree
-                            className="draggable-tree"
-                            draggable
-                            blockNode
-                            onDragEnter={onDragEnter}
-                            onDrop={onDrop}
-                            treeData={convertToTreeData(menuData)}
-                            onSelect={handleSelect}
-                        />
-                    )}
-                </Await>
-            </Suspense> */}
         </Flex>
     )
 }

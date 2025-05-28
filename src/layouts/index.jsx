@@ -7,12 +7,6 @@ import { useSelector } from 'react-redux';
 import Sider from './sider';
 import Loading from '../component/loading';
 import Header from './header';
-import NProgress from 'nprogress';
-
-NProgress.configure({ 
-    parent: '.layout-header',
-    showSpinner: false
- })
 
 
 const { Header: LayoutHeader, Content: LayoutContent, Sider: LayoutSider } = Layout;

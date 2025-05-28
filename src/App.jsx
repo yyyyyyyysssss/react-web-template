@@ -7,6 +7,13 @@ import store from './redux/store';
 import { ConfigProvider } from 'antd';
 import 'antd/dist/reset.css';
 
+import NProgress from 'nprogress';
+
+NProgress.configure({ 
+    parent: '.layout-header',
+    showSpinner: false
+ })
+
 const App = () => {
 
   return (

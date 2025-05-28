@@ -20,7 +20,7 @@
 
 .draggable-tree .ant-tree-node-content-wrapper {
     flex: 1;
-    padding: 8px;
+    padding: 6px;
     display: block;
     box-sizing: border-box;
 }
@@ -31,7 +31,7 @@
     /* 容器内水平垂直居中 */
     align-items: center;
     justify-content: center;
-    padding: 3px;
+    padding: 4px;
     /* 控制包裹框大小 */
     border-radius: var(--ant-border-radius);
     /* 圆角 */
