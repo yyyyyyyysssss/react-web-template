@@ -1,4 +1,3 @@
-import { message } from "antd"
 import httpWrapper from "./AxiosWrapper"
 
 
@@ -40,5 +39,4 @@ export const menuDrag = async (dragId, targetId, position) => {
 
 const handleError = (error) => {
     // 这里可以加入更多的错误处理逻辑，比如发送错误日志、显示错误信息等
-    message.error(error.message || '未知错误')
 }

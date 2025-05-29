@@ -51,7 +51,7 @@ const AppLayout = () => {
                         style={{
                             height: 'calc(100vh - 109px)',
                             overflow: 'auto',
-                            padding: 24,
+                            padding: 20,
                             borderRadius: borderRadius,
                             background: colorBgContainer
                         }}

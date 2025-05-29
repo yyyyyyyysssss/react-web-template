@@ -4,7 +4,7 @@ import router from './router/router';
 import { RouterProvider } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './redux/store';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, Empty } from 'antd';
 import 'antd/dist/reset.css';
 
 import NProgress from 'nprogress';
@@ -14,6 +14,8 @@ NProgress.configure({
     showSpinner: false
  })
 
+const colorPrimary = '#1DA57A'
+
 const App = () => {
 
   return (
@@ -22,13 +24,17 @@ const App = () => {
         cssVar: true,
         token: {
           colorText: 'rgba(0,0,0,0.88)',
-          colorPrimary: '#1DA57A',
+          colorPrimary: colorPrimary,
           borderRadius: 8,
           colorBgContainer: 'white'
         },
         components: {
           Breadcrumb: {
-            linkHoverColor: '#1DA57A'
+            linkHoverColor: colorPrimary
+          },
+          Table: {
+            headerBg: '#fafafa',
+            rowHoverBg: '#fafafa'
           },
           Layout: {
             //顶部背景色
@@ -44,6 +50,7 @@ const App = () => {
           }
         }
       }}
+      renderEmpty={() => (<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无数据" />)}
     >
       <Provider store={store}>
         <RouterProvider

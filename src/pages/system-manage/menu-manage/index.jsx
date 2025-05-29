@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './index.css'
-import { Button, Divider, Dropdown, Flex, Form, Input, Space, Tree } from 'antd'
-import { fetchMenuDetails, fetchMenuTree, menuDrag } from '../../../services/SystemService'
+import { Divider, Dropdown, Flex, Tree } from 'antd'
+import { fetchMenuTree, menuDrag } from '../../../services/SystemService'
 import { Plus, Pencil, Trash2 } from 'lucide-react';
-import {
-    SettingOutlined,
-} from '@ant-design/icons';
+import MenuDetails from './details';
 
 
 const MenuManage = () => {
@@ -135,11 +133,13 @@ const MenuManage = () => {
 
     const convertToTreeData = (data) => {
         return data.map(item => ({
-            title: <Flex gap={10} justify='space-between' align='center'>
+            title: <div
+                className="flex justify-between items-center w-full"
+            >
                 <div>
                     {item.name}
                 </div>
-                <Flex>
+                <div className='flex items-center'>
                     <Dropdown menu={{
                         items: [
                             {
@@ -178,8 +178,8 @@ const MenuManage = () => {
                     >
                         <Trash2 size={16} color='gray' />
                     </div>
-                </Flex>
-            </Flex>,
+                </div>
+            </div>,
             key: item.id,
             children: item.children && item.children.length > 0 ? convertToTreeData(item.children) : [],
         }));
@@ -201,7 +201,7 @@ const MenuManage = () => {
     }
 
     return (
-        <Flex flex={1} gap={10} style={{ height: '100%' }}>
+        <Flex flex={1} gap={10} className='h-full'>
             <Flex
                 style={{
                     minWidth: '240px',
@@ -223,39 +223,15 @@ const MenuManage = () => {
             <Divider
                 type="vertical"
                 style={{
-                    height: '100%',           // 让它撑满高度
-                    width: '2px',             // 指定宽度
-                    backgroundColor: 'lightgray',  // 设置背景色，视觉上看到竖线
+                    height: '100%',
+                    width: '2px',
+                    backgroundColor: 'lightgray',
                     marginInline: '12px'
                 }}
             />
             <Flex flex={8}>
                 {selectedKeys && (
-                    <Form
-                        labelCol={{ span: 2 }}
-                        wrapperCol={{ span: 22 }}
-                        layout="horizontal"
-                        disabled={true}
-                        style={{ width: '100%' }}
-                    >
-                        <Form.Item label="菜单名称:">
-                            <Input value={selectedMenu.name} />
-                        </Form.Item>
-                        <Form.Item label="菜单编码:">
-                            <Input value={selectedMenu.code} />
-                        </Form.Item>
-                        <Form.Item label="路由:">
-                            <Input value={selectedMenu.routePath} />
-                        </Form.Item>
-                        <Form.Item label="图标:">
-                            <div className='flex items-center'>
-                                <SettingOutlined size={18} color='gray' />
-                            </div>
-                        </Form.Item>
-                        <Form.Item label="排序:">
-                            <Input value={selectedMenu.sort} />
-                        </Form.Item>
-                    </Form>
+                    <MenuDetails menuId={selectedMenu.id} />
                 )}
             </Flex>
         </Flex>
