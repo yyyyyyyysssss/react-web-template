@@ -23,11 +23,27 @@ export const fetchMenuDetails = async (menuId) => {
 
 export const menuDrag = async (dragId, targetId, position) => {
     try {
-        const res = await httpWrapper.post('/api/system/menu/drag',{
+        const res = await httpWrapper.post('/api/system/menu/drag', {
             dragId: dragId,
             targetId: targetId,
             position: position
         })
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
+
+export const updateAuthorityUrlsById = async (id, authorityUrls) => {
+    try {
+        const res = await httpWrapper.patch('/api/system/authority',
+            {
+                id: id,
+                urls: authorityUrls,
+            }
+        )
         return res.data
     } catch (error) {
         handleError(error)

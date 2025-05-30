@@ -1,11 +1,11 @@
 import axios from "axios";
 import Cookies from 'js-cookie'
-import { message } from "antd"
 import router from '../router/router';
 import { jwtDecode } from 'jwt-decode'
 import env from "../env";
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
+import { getMessageApi } from "../utils/MessageUtil.jx";
 
 
 const httpWrapper = axios.create({
@@ -54,12 +54,17 @@ httpWrapper.interceptors.request.use(
 httpWrapper.interceptors.response.use(
     (res) => {
         stopProgress()
-        return res.data
+        const result = res.data
+        if(result.code !== 0){
+            getMessageApi().error(result.message)
+            return Promise.reject(new Error(result.message))
+        }
+        return result
     },
     (error) => {
         stopProgress()
         if (!error.response) {
-            message.error(error.message || '网络错误');
+            getMessageApi().error(error.message || '网络错误');
             return Promise.reject(error);
         }
         const { status, message: errorMessage } = error.response;
@@ -72,13 +77,13 @@ httpWrapper.interceptors.response.use(
                 }
                 break
             case 403:
-                message.error("未经授权的访问");
+                getMessageApi().error("未经授权的访问");
                 break;
             case 500:
-                message.error('服务器内部错误')
+                getMessageApi().error('服务器内部错误')
                 break;
             default:
-                message.error(errorMessage || '未知错误');
+                getMessageApi().error(errorMessage || '未知错误');
                 break;
         }
         return Promise.reject(error);

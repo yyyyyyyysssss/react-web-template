@@ -4,10 +4,11 @@ import router from './router/router';
 import { RouterProvider } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './redux/store';
-import { ConfigProvider, Empty } from 'antd';
+import { ConfigProvider, Empty, message } from 'antd';
 import 'antd/dist/reset.css';
 
 import NProgress from 'nprogress';
+import { setMessageApi } from './utils/MessageUtil.jx';
 
 NProgress.configure({ 
     parent: '.layout-header',
@@ -17,6 +18,10 @@ NProgress.configure({
 const colorPrimary = '#1DA57A'
 
 const App = () => {
+
+  const [api, contextHolder] = message.useMessage()
+
+  setMessageApi(api)
 
   return (
     <ConfigProvider
@@ -53,6 +58,7 @@ const App = () => {
       renderEmpty={() => (<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无数据" />)}
     >
       <Provider store={store}>
+        {contextHolder}
         <RouterProvider
           future={{
             v7_startTransition: true,
