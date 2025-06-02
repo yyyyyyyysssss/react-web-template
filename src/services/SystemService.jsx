@@ -36,6 +36,67 @@ export const menuDrag = async (dragId, targetId, position) => {
 }
 
 
+export const createMenu = async (req) => {
+    try {
+        const res = await httpWrapper.post('/api/system/menu', req)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
+export const updateMenu = async (req) => {
+    try {
+        const res = await httpWrapper.put('/api/system/menu', req)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
+export const deleteMenu = async (id) => {
+    try {
+        const res = await httpWrapper.delete(`/api/system/menu/${id}`)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
+
+export const addAuthority = async (req) => {
+    try {
+        const res = await httpWrapper.post('/api/system/authority', req)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
+export const updateAuthority = async (req) => {
+    try {
+        const res = await httpWrapper.put('/api/system/authority', req)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
+export const deleteAuthorityById = async (id) => {
+    try {
+        const res = await httpWrapper.delete(`/api/system/authority/${id}`)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
 export const updateAuthorityUrlsById = async (id, authorityUrls) => {
     try {
         const res = await httpWrapper.patch('/api/system/authority',

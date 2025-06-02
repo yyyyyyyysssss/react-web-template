@@ -1,19 +1,34 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './index.css'
-import { Divider, Dropdown, Flex, Tree } from 'antd'
-import { fetchMenuTree, menuDrag } from '../../../services/SystemService'
+import { Divider, Dropdown, Flex, Popconfirm, Tree, Modal } from 'antd'
+import { deleteMenu, fetchMenuTree, menuDrag } from '../../../services/SystemService'
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import MenuDetails from './details';
-
+import MenuAuthority from './details/menu-authority';
+import { AuthorityType } from '../../../enums';
+import IdGen from '../../../utils/IdGen';
 
 const MenuManage = () => {
 
+    const [modal, contextHolder] = Modal.useModal()
 
     const [menuData, setMenuData] = useState([])
 
     const [selectedMenu, setSelectedMenu] = useState(null)
 
     const [selectedKeys, setSelectedKeys] = useState(null)
+
+    const [menuDetailsKey, setMenuDetailsKey] = useState('0')
+
+    const [menuAuthorityOpen, setMenuAuthorityOpen] = useState({
+        open: false,
+        type: '',
+        operation: '',
+        title: '',
+        parentId: null,
+        parentCode: null,
+        data: null
+    })
 
     const flattenTreeRef = useRef()
 
@@ -109,26 +124,68 @@ const MenuManage = () => {
             })
     }
 
-    const addMenu = (e, type, menuItem) => {
+    const handleAddMenu = (e, type, menuItem) => {
         e.stopPropagation()
         handleSelectMenu(menuItem.id)
         if (type === 'child') {
-            console.log('新增子节点')
+            setMenuAuthorityOpen({
+                open: true,
+                type: AuthorityType.MENU,
+                operation: 'ADD',
+                title: '新增子菜单',
+                data: null,
+                parentId: menuItem.id,
+                parentCode: menuItem.code
+            })
         } else {
-            console.log('新增兄弟节点')
+            const parentMenuItem = flattenTreeRef.current.find(f => f.id === menuItem.parentId)
+            setMenuAuthorityOpen({
+                open: true,
+                type: AuthorityType.MENU,
+                operation: 'ADD',
+                title: '新增同级菜单',
+                data: null,
+                parentId: parentMenuItem ? parentMenuItem.id : '0',
+                parentCode: parentMenuItem ? parentMenuItem.code : ''
+            })
         }
 
     }
 
-    const editMenu = (e, menuItem) => {
+    const handleEditMenu = (e, menuItem) => {
         e.stopPropagation()
+        setMenuAuthorityOpen({
+            open: true,
+            type: AuthorityType.MENU,
+            operation: 'EDIT',
+            title: '编辑菜单',
+            data: menuItem,
+            parentId: menuItem.parentId,
+            parentCode: null
+        })
         handleSelectMenu(menuItem.id)
     }
 
 
-    const deleteMenu = (e, menuItem) => {
+    const handleDeleteMenu = (e, menuItem) => {
         e.stopPropagation()
         handleSelectMenu(menuItem.id)
+        modal.confirm({
+            title: '确认删除菜单？',
+            content: '删除该菜单将一并移除其下所有子菜单和权限项，是否确认删除？',
+            okText: '确认',
+            cancelText: '取消',
+            onOk() {
+                deleteMenu(menuItem.id)
+                    .then(
+                        () => {
+                            const newMenuData = deleteTreeNode(menuData, menuItem.id)
+                            setMenuData(newMenuData)
+                            setSelectedKeys(null)
+                        }
+                    )
+            },
+        })
     }
 
     const convertToTreeData = (data) => {
@@ -154,7 +211,7 @@ const MenuManage = () => {
                         onClick: (info) => {
                             const event = info.domEvent
                             const key = info.key
-                            addMenu(event, key, item)
+                            handleAddMenu(event, key, item)
                         }
                     }}>
                         <div
@@ -168,13 +225,13 @@ const MenuManage = () => {
                     </Dropdown>
                     <div
                         className='menu-ops-btn'
-                        onClick={(e) => editMenu(e, item)}
+                        onClick={(e) => handleEditMenu(e, item)}
                     >
                         <Pencil size={16} color='gray' />
                     </div>
                     <div
                         className='menu-ops-btn'
-                        onClick={(e) => deleteMenu(e, item)}
+                        onClick={(e) => handleDeleteMenu(e, item)}
                     >
                         <Trash2 size={16} color='gray' />
                     </div>
@@ -200,6 +257,86 @@ const MenuManage = () => {
         setSelectedMenu(menu)
     }
 
+    const handleSuccessMenuAuthority = (newData, operation) => {
+        if (operation === 'ADD') {
+            const newMenuData = addTreeNode(menuData, newData.parentId, newData)
+            setMenuData(newMenuData)
+        } else {
+            const newMenuData = updateTreeNode(menuData, newData)
+            setMenuData(newMenuData)
+            //刷新详情组件
+            setMenuDetailsKey(IdGen.nextId())
+        }
+        handleCloseMenuAuthority()
+    }
+
+    const handleCloseMenuAuthority = () => {
+        setMenuAuthorityOpen({
+            open: false,
+            type: '',
+            operation: '',
+            title: '',
+            parentId: null,
+            parentCode: null,
+            data: null
+        })
+    }
+
+    const sortBySortValue = (a, b) => {
+        if (a.sort == null && b.sort == null) return 0;
+        if (a.sort == null) return 1
+        if (b.sort == null) return -1
+        return a.sort - b.sort
+    }
+
+    const addTreeNode = (treeData, parentId, targetData) => {
+        if (parentId == 0) {
+            return [...(treeData || []), targetData].sort(sortBySortValue)
+        }
+        return treeData.map(node => {
+            if (node.id === parentId) {
+                const children = [...(node.children || []), targetData].sort(sortBySortValue)
+                return { ...node, children }
+            } else if (node.children && node.children.length > 0) {
+                return {
+                    ...node,
+                    children: addTreeNode(node.children, parentId, targetData),
+                };
+            } else {
+                return node
+            }
+        })
+    }
+
+    const updateTreeNode = (treeData, targetData) => {
+        return treeData.map(node => {
+            if (node.id === targetData.id) {
+                return { ...node, ...targetData }
+            } else if (node.children && node.children.length > 0) {
+                return {
+                    ...node,
+                    children: updateTreeNode(node.children, targetData),
+                };
+            } else {
+                return node
+            }
+        })
+    }
+
+    const deleteTreeNode = (treeData, targetId) => {
+        return (treeData || []).filter(node => {
+            // 如果当前节点是要删除的，直接过滤掉
+            if (node.id === targetId) return false;
+
+            // 如果当前节点有子节点，递归删除子节点
+            if (node.children && node.children.length > 0) {
+                node.children = deleteTreeNode(node.children, targetId);
+            }
+
+            return true;
+        })
+    }
+
     return (
         <Flex flex={1} gap={10} className='h-full'>
             <Flex
@@ -223,17 +360,25 @@ const MenuManage = () => {
             <Divider
                 type="vertical"
                 style={{
-                    height: '100%',
+                    height: 'calc(100% + 40px)',
                     width: '2px',
                     backgroundColor: 'lightgray',
-                    marginInline: '12px'
+                    marginInline: '12px',
+                    marginTop: '-20px',
+                    marginBottom: '-20px'
                 }}
             />
             <Flex flex={8}>
                 {selectedKeys && (
-                    <MenuDetails menuId={selectedMenu.id} />
+                    <MenuDetails key={menuDetailsKey} menuId={selectedMenu.id} />
                 )}
             </Flex>
+            <MenuAuthority
+                {...menuAuthorityOpen}
+                onClose={handleCloseMenuAuthority}
+                onSuccess={handleSuccessMenuAuthority}
+            />
+            {contextHolder}
         </Flex>
     )
 }

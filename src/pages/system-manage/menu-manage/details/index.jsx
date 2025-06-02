@@ -1,11 +1,11 @@
-import { Space, Flex, Form, Input, Table, Tag, Popconfirm, Typography, Drawer, Button, message } from 'antd'
+import { Space, Flex, Form, Input, Table, Tag, Drawer, Button, Modal, Popconfirm, Typography } from 'antd'
 import { SettingOutlined } from '@ant-design/icons';
-import { AuthorityType, RequestMethod } from '../../../../enums';
+import { AuthorityType } from '../../../../enums';
 import { useEffect, useState } from 'react';
-import { fetchMenuDetails, updateAuthorityUrlsById } from '../../../../services/SystemService';
-import AuthorityEditableCell from './AuthorityEditCell';
+import { deleteAuthorityById, fetchMenuDetails, updateAuthorityUrlsById } from '../../../../services/SystemService';
 import IdGen from '../../../../utils/IdGen';
-import Authority from './Authority';
+import AuthorityUrl from './AuthorityUrl';
+import MenuAuthority from './menu-authority';
 
 
 const MenuDetails = ({ menuId }) => {
@@ -20,24 +20,33 @@ const MenuDetails = ({ menuId }) => {
         authorityId: ''
     })
 
-    useEffect(() => {
-        const getData = async () => {
-            const data = await fetchMenuDetails(menuId)
-            if (data.children && data.children.length > 0) {
-                data.children.forEach(child => {
-                    if (child.urls && child.urls.length > 0) {
-                        child.urls = child.urls.map(item => ({
-                            ...item,
-                            id: IdGen.nextId()
-                        }))
-                    }
-                })
+    const [menuAuthorityOpen, setMenuAuthorityOpen] = useState({
+        open: false,
+        type: '',
+        operation: '',
+        title: '',
+        data: null
+    })
 
-            }
-            setMenuData(data)
+    const fetchAndSetMenuData = async (id) => {
+        const data = await fetchMenuDetails(id)
+        if (data.children && data.children.length > 0) {
+            data.children.forEach(child => {
+                if (child.urls && child.urls.length > 0) {
+                    child.urls = child.urls.map(item => ({
+                        ...item,
+                        id: IdGen.nextId()
+                    }))
+                }
+            })
+
         }
+        setMenuData(data)
+    }
+
+    useEffect(() => {
         if (menuId) {
-            getData()
+            fetchAndSetMenuData(menuId)
         }
     }, [menuId])
 
@@ -70,11 +79,65 @@ const MenuDetails = ({ menuId }) => {
         })
         setAuthorityUrls(menuItem.urls)
     }
+
     const onClose = () => {
         setOpenInfo({
             open: false,
             title: '',
             authorityId: ''
+        })
+    }
+
+    const handleMenuAuthority = (title, type, operation, data) => {
+        setMenuAuthorityOpen({
+            open: true,
+            type: type,
+            operation: operation,
+            title: title,
+            data: data
+        })
+    }
+
+    const handleDeleteAuthority = (authorityId) => {
+        deleteAuthorityById(authorityId)
+            .then(
+                () => {
+                    const newMenuData = {
+                        ...menuData,
+                        children: [...(menuData.children.filter(f => f.id !== authorityId))]
+                    }
+                    setMenuData(newMenuData)
+                }
+            )
+    }
+
+    const handleSuccessMenuAuthority = (newData, operation) => {
+        if (operation === 'ADD') {
+            const newMenuData = {
+                ...menuData,
+                children: [...(menuData.children || []), newData]
+            }
+            setMenuData(newMenuData)
+        } else {
+            const updatedChildren = (menuData.children || []).map(child =>
+                child.id === newData.id ? { ...child, ...newData } : child
+            )
+            const newMenuData = {
+                ...menuData,
+                children: updatedChildren,
+            }
+            setMenuData(newMenuData)
+        }
+        handleCloseMenuAuthority()
+    }
+
+    const handleCloseMenuAuthority = () => {
+        setMenuAuthorityOpen({
+            open: false,
+            type: '',
+            operation: '',
+            title: '',
+            data: null
         })
     }
 
@@ -122,8 +185,13 @@ const MenuDetails = ({ menuId }) => {
             render: (_, record) => {
                 return (
                     <Space size='middle'>
-                        <a onClick={() => showDrawer(record)}>查看</a>
-                        <a>删除</a>
+                        <a onClick={() => showDrawer(record)}>绑定API</a>
+                        <a onClick={() => handleMenuAuthority('编辑权限', AuthorityType.BUTTON, 'EDIT', record)}>编辑</a>
+                        <Popconfirm okText='确定' cancelText='取消' title="确定删除？" onConfirm={() => handleDeleteAuthority(record.id)} style={{ marginInlineEnd: 8 }}>
+                            <Typography.Link>
+                                删除
+                            </Typography.Link>
+                        </Popconfirm>
                     </Space>
                 )
             }
@@ -133,6 +201,7 @@ const MenuDetails = ({ menuId }) => {
     return (
         <Flex
             className='w-full'
+            gap={8}
             vertical
         >
             <Form
@@ -159,11 +228,19 @@ const MenuDetails = ({ menuId }) => {
                     <Input value={menuData.sort} />
                 </Form.Item>
             </Form>
+            <Button type="primary" onClick={() => handleMenuAuthority('新增权限', AuthorityType.BUTTON, 'ADD', null)} className='w-20'>新增权限</Button>
             <Table
                 columns={columns}
                 dataSource={menuData.children}
                 rowKey={(record) => record.id}
                 pagination={false}
+            />
+            <MenuAuthority
+                {...menuAuthorityOpen}
+                parentId={menuData.id}
+                parentCode={menuData.code}
+                onClose={handleCloseMenuAuthority}
+                onSuccess={handleSuccessMenuAuthority}
             />
             <Drawer
                 title={openInfo.title}
@@ -171,8 +248,9 @@ const MenuDetails = ({ menuId }) => {
                 onClose={onClose}
                 open={openInfo.open}
                 width={700}
+                destroyOnClose
             >
-                <Authority
+                <AuthorityUrl
                     authorityId={openInfo.authorityId}
                     authorityUrls={authorityUrls}
                     onChange={handleAuthorityChange}

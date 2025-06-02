@@ -1,10 +1,82 @@
-import { Flex, Form, Table, Tag, Popconfirm, Typography, Button } from 'antd'
-import AuthorityEditableCell from './AuthorityEditCell'
+import { Flex, Form, Table, Tag, Popconfirm, Typography, Button, Input, Select } from 'antd'
 import { RequestMethod } from '../../../../enums'
 import { useEffect, useState } from 'react'
 import IdGen from '../../../../utils/IdGen'
 
-const Authority = ({ authorityId, authorityUrls, onChange }) => {
+
+var __rest =
+    (this && this.__rest) ||
+    function (s, e) {
+        var t = {};
+        for (var p in s)
+            if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
+        if (s != null && typeof Object.getOwnPropertySymbols === 'function')
+            for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+                if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                    t[p[i]] = s[p[i]];
+            }
+        return t;
+    }
+
+const AuthorityEditableCell = _a => {
+    var { editing, dataIndex, title, record, index, children } = _a,
+        restProps = __rest(_a, [
+            'editing',
+            'dataIndex',
+            'title',
+            'record',
+            'index',
+            'children',
+        ])
+
+    const methodOptions = Object.entries(RequestMethod).map(([key, value]) => ({
+        label: key,
+        value: value,
+    }))
+
+    const handleChange = (value) => {
+
+    }
+
+    return (
+        <td {...restProps}>
+            {editing ?
+                (
+                    <Form.Item
+                        name={dataIndex}
+                        style={{ margin: 0 }}
+                        rules={[
+                            {
+                                required: true,
+                                message: `${title}不能为空`,
+                            },
+                        ]}
+                    >
+                        {
+                            dataIndex === 'method' ?
+                                (
+                                    <Select
+                                        style={{ width: 100 }}
+                                        onChange={handleChange}
+                                        options={methodOptions}
+                                    />
+                                )
+                                :
+                                (
+                                    <Input />
+                                )
+                        }
+
+                    </Form.Item>
+                )
+                :
+                (children)
+            }
+        </td>
+    )
+}
+
+const AuthorityUrl = ({ authorityId, authorityUrls, onChange }) => {
 
     const [form] = Form.useForm()
 
@@ -14,7 +86,12 @@ const Authority = ({ authorityId, authorityUrls, onChange }) => {
 
     useEffect(() => {
         setAuthorityData(authorityUrls)
-    }, [authorityUrls])
+        if (authorityId === '') {
+            if (authorityUrls && authorityUrls.length > 0) {
+                cancel(authorityUrls[authorityUrls.length - 1])
+            }
+        }
+    }, [authorityUrls, authorityId])
 
     const isEditing = record => record.id === editingKey
 
@@ -23,13 +100,17 @@ const Authority = ({ authorityId, authorityUrls, onChange }) => {
         setEditingKey(record.id)
     }
 
+    const resetEdit = () => {
+        form.resetFields()
+        setEditingKey('')
+    }
+
     const cancel = (record) => {
-        if (record.type && record.type === 'ADD') {
+        if (record && record.type && record.type === 'ADD') {
             const newData = authorityData.filter(f => f.id !== record.id)
             setAuthorityData(newData)
         }
-        form.resetFields()
-        setEditingKey('')
+        resetEdit()
     }
 
     const save = (key) => {
@@ -42,8 +123,7 @@ const Authority = ({ authorityId, authorityUrls, onChange }) => {
                 newData.splice(index, 1, { ...restItem, ...values })
                 onChange(newData)
                     .then(() => {
-                        form.resetFields()
-                        setEditingKey('')
+                        resetEdit()
                     }
                     )
             })
@@ -58,7 +138,7 @@ const Authority = ({ authorityId, authorityUrls, onChange }) => {
         //更新权限数据
         onChange(newData)
             .then(() => {
-                setEditingKey('')
+                resetEdit()
             })
     }
 
@@ -184,4 +264,4 @@ const Authority = ({ authorityId, authorityUrls, onChange }) => {
 
 }
 
-export default Authority
+export default AuthorityUrl
