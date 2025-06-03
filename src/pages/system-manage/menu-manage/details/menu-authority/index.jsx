@@ -1,10 +1,9 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Button, Flex, Form, Input, InputNumber, Modal, Popconfirm, Select, Table, Typography, Upload } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Button, Flex, Form, Input, InputNumber, Modal, Radio, Select, Space, Table, Typography, Upload } from 'antd';
 import './index.css'
 import IdGen from '../../../../../utils/IdGen';
 import { AuthorityType, RequestMethod } from '../../../../../enums';
 import { UploadOutlined } from '@ant-design/icons';
-import { useForm } from 'antd/es/form/Form';
 import { addAuthority, createMenu, updateAuthority, updateMenu } from '../../../../../services/SystemService';
 
 var __rest =
@@ -283,26 +282,6 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
         setDataSource(initDataSource)
     }
 
-    const props = {
-        name: 'file',
-        action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
-        fileList: [],
-        maxCount: 1,
-        headers: {
-            authorization: 'authorization-text',
-        },
-        onChange(info) {
-            if (info.file.status !== 'uploading') {
-                console.log(info.file, info.fileList);
-            }
-            if (info.file.status === 'done') {
-                message.success(`${info.file.name} file uploaded successfully`);
-            } else if (info.file.status === 'error') {
-                message.error(`${info.file.name} file upload failed.`);
-            }
-        },
-    };
-
     return (
         <Modal
             title={title}
@@ -374,7 +353,11 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
                                 name="icon"
                             >
                                 <Upload
-                                    {...props}
+                                    fileList={null}
+                                    accept=".svg,.png,.jpg,.jpeg"
+                                    maxCount={1}
+                                    beforeUpload={null}
+                                    customRequest={null}
                                 >
                                     <Button icon={<UploadOutlined />}>点击上传</Button>
                                 </Upload>

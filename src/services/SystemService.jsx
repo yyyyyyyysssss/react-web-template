@@ -1,6 +1,17 @@
 import httpWrapper from "./AxiosWrapper"
 
 
+export const fetchRoleList = async (queryParam) => {
+    try {
+        const res = await httpWrapper.post('/api/system/role/query',queryParam)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
+
 export const fetchMenuTree = async () => {
     try {
         const res = await httpWrapper.get('/api/system/menu/tree')

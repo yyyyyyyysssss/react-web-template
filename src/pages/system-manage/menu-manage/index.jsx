@@ -8,6 +8,81 @@ import MenuAuthority from './details/menu-authority';
 import { AuthorityType } from '../../../enums';
 import IdGen from '../../../utils/IdGen';
 
+
+
+const MenuItem = ({ item, onAddMenu, onEditMenu, onDeleteMenu }) => {
+
+
+    const [hovering, setHovering] = useState(false)
+
+    const [dropdownOpen, setDropdownOpen] = useState(false)
+
+    const showOps = hovering || dropdownOpen
+
+
+    return (
+        <div
+            className="flex justify-between items-center w-full"
+            onMouseEnter={() => setHovering(true)}
+            onMouseLeave={() => setHovering(false)}
+        >
+            <div>
+                {item.name}
+            </div>
+            <div className={`flex items-center transition-opacity ${showOps ? 'opacity-100' : 'opacity-0'}`}>
+                <Dropdown
+                    menu={{
+                        items: [
+                            {
+                                key: 'child',
+                                label: '新增子菜单'
+                            },
+                            {
+                                key: 'brother',
+                                label: '新增同级菜单'
+                            }
+                        ],
+                        onClick: (info) => {
+                            const event = info.domEvent
+                            const key = info.key
+                            event.stopPropagation()
+                            onAddMenu(key, item)
+                        }
+                    }}
+                    onOpenChange={(open) => setDropdownOpen(open)}
+                >
+                    <div
+                        className='menu-ops-btn'
+                        onClick={e => {
+                            e.stopPropagation()
+                        }}
+                    >
+                        <Plus size={18} color='gray' />
+                    </div>
+                </Dropdown>
+                <div
+                    className='menu-ops-btn'
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        onEditMenu(item)
+                    }}
+                >
+                    <Pencil size={16} color='gray' />
+                </div>
+                <div
+                    className='menu-ops-btn'
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        onDeleteMenu(item)
+                    }}
+                >
+                    <Trash2 size={16} color='gray' />
+                </div>
+            </div>
+        </div>
+    )
+}
+
 const MenuManage = () => {
 
     const [modal, contextHolder] = Modal.useModal()
@@ -124,8 +199,7 @@ const MenuManage = () => {
             })
     }
 
-    const handleAddMenu = (e, type, menuItem) => {
-        e.stopPropagation()
+    const handleAddMenu = (type, menuItem) => {
         handleSelectMenu(menuItem.id)
         if (type === 'child') {
             setMenuAuthorityOpen({
@@ -152,8 +226,7 @@ const MenuManage = () => {
 
     }
 
-    const handleEditMenu = (e, menuItem) => {
-        e.stopPropagation()
+    const handleEditMenu = (menuItem) => {
         setMenuAuthorityOpen({
             open: true,
             type: AuthorityType.MENU,
@@ -167,8 +240,7 @@ const MenuManage = () => {
     }
 
 
-    const handleDeleteMenu = (e, menuItem) => {
-        e.stopPropagation()
+    const handleDeleteMenu = (menuItem) => {
         handleSelectMenu(menuItem.id)
         modal.confirm({
             title: '确认删除菜单？',
@@ -190,53 +262,12 @@ const MenuManage = () => {
 
     const convertToTreeData = (data) => {
         return data.map(item => ({
-            title: <div
-                className="flex justify-between items-center w-full"
-            >
-                <div>
-                    {item.name}
-                </div>
-                <div className='flex items-center'>
-                    <Dropdown menu={{
-                        items: [
-                            {
-                                key: 'child',
-                                label: '新增子菜单'
-                            },
-                            {
-                                key: 'brother',
-                                label: '新增同级菜单'
-                            }
-                        ],
-                        onClick: (info) => {
-                            const event = info.domEvent
-                            const key = info.key
-                            handleAddMenu(event, key, item)
-                        }
-                    }}>
-                        <div
-                            className='menu-ops-btn'
-                            onClick={e => {
-                                e.stopPropagation()
-                            }}
-                        >
-                            <Plus size={18} color='gray' />
-                        </div>
-                    </Dropdown>
-                    <div
-                        className='menu-ops-btn'
-                        onClick={(e) => handleEditMenu(e, item)}
-                    >
-                        <Pencil size={16} color='gray' />
-                    </div>
-                    <div
-                        className='menu-ops-btn'
-                        onClick={(e) => handleDeleteMenu(e, item)}
-                    >
-                        <Trash2 size={16} color='gray' />
-                    </div>
-                </div>
-            </div>,
+            title: <MenuItem
+                item={item}
+                onAddMenu={handleAddMenu}
+                onEditMenu={handleEditMenu}
+                onDeleteMenu={handleDeleteMenu}
+            />,
             key: item.id,
             children: item.children && item.children.length > 0 ? convertToTreeData(item.children) : [],
         }));
