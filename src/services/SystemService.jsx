@@ -1,9 +1,53 @@
 import httpWrapper from "./AxiosWrapper"
 
 
+export const createRole = async (roleBody) => {
+    try {
+        const res = await httpWrapper.post('/api/system/role', roleBody)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
+export const updateRole = async (roleBody) => {
+    try {
+        const res = await httpWrapper.put('/api/system/role', roleBody)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
+export const updateRoleEnabled = async (roleId, enabled) => {
+    const roleBody = {
+        id: roleId,
+        enabled: enabled
+    }
+    try {
+        const res = await httpWrapper.patch('/api/system/role', roleBody)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
+export const deleteRoleById = async (roleId) => {
+    try {
+        const res = await httpWrapper.delete(`/api/system/role/${roleId}`)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
 export const fetchRoleList = async (queryParam) => {
     try {
-        const res = await httpWrapper.post('/api/system/role/query',queryParam)
+        const res = await httpWrapper.post('/api/system/role/query', queryParam)
         return res.data
     } catch (error) {
         handleError(error)
@@ -116,6 +160,16 @@ export const updateAuthorityUrlsById = async (id, authorityUrls) => {
                 urls: authorityUrls,
             }
         )
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
+export const fetchAuthorityTree = async () => {
+    try {
+        const res = await httpWrapper.get('/api/system/authority/tree')
         return res.data
     } catch (error) {
         handleError(error)

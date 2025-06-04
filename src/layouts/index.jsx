@@ -26,7 +26,7 @@ const AppLayout = () => {
         <Layout style={{ minHeight: '100vh' }}>
             {/* 侧边菜单 */}
             <LayoutSider
-                width='13%'
+                width='240px'
                 style={{
                     overflow: 'auto',
                     height: '100vh',

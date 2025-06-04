@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import './index.css'
-import { fetchRoleList } from '../../../services/SystemService'
-import { Button, Flex, Form, Input, Popconfirm, Select, Space, Table, Tag, Typography } from 'antd'
+import { createRole, deleteRoleById, fetchRoleList, updateRole, updateRoleEnabled } from '../../../services/SystemService'
+import { Button, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Space, Table, Tag, Typography } from 'antd'
 
 const initQueryParam = {
     pageNum: 1,
@@ -13,13 +13,22 @@ const initQueryParam = {
 
 const RoleManage = () => {
 
-    const [form] = Form.useForm()
+    const [searchForm] = Form.useForm()
+
+    const [editForm] = Form.useForm()
 
     const [queryParam, setQueryParam] = useState(initQueryParam)
 
     const [roleData, setRoleData] = useState({})
 
     const [loading, setLoading] = useState(false)
+
+    const [roleOperation, setRoleOperation] = useState({
+        open: false,
+        title: null,
+        operationType: null,
+        roleItem: null,
+    })
 
     useEffect(() => {
         const getData = async () => {
@@ -35,9 +44,15 @@ const RoleManage = () => {
         getData()
     }, [queryParam])
 
+    useEffect(() => {
+        if (roleOperation && roleOperation.open === true && roleOperation.roleItem) {
+            editForm.setFieldsValue(roleOperation.roleItem)
+        }
+    }, [roleOperation])
+
 
     const handleSearch = () => {
-        form.validateFields()
+        searchForm.validateFields()
             .then(values => {
                 const newQueryParam = { ...queryParam, ...values, pageNum: 1 }
                 setQueryParam(newQueryParam)
@@ -45,25 +60,99 @@ const RoleManage = () => {
     }
 
     const handleReset = () => {
-        form.resetFields()
+        searchForm.resetFields()
         setQueryParam({ ...initQueryParam })
     }
 
-    const handleCreateRole = () => {
+    const handleRefresh = () => {
+        const newQueryParam = { ...queryParam }
+        setQueryParam(newQueryParam)
+    }
 
+    const handleAddRole = () => {
+        setRoleOperation({
+            open: true,
+            title: '新增角色',
+            operationType: 'ADD',
+            roleItem: null,
+        })
+    }
+
+    const handleEditRole = (roleItem) => {
+        setRoleOperation({
+            open: true,
+            title: '编辑角色',
+            operationType: 'EDIT',
+            roleItem: roleItem,
+        })
+    }
+
+    const handleClose = () => {
+        editForm.resetFields()
+        setRoleOperation({
+            open: false,
+            title: null,
+            operationType: null,
+            roleItem: null,
+        })
+    }
+
+    const handleSaveRole = () => {
+        editForm.validateFields()
+            .then(
+                (values) => {
+                    if (roleOperation.operationType === 'ADD') {
+                        createRole(values)
+                            .then(
+                                () => {
+                                    handleClose()
+                                    handleRefresh()
+                                }
+                            )
+                    } else {
+                        updateRole(values)
+                            .then(
+                                () => {
+                                    handleClose()
+                                    handleRefresh()
+                                }
+                            )
+                    }
+
+                }
+            )
+    }
+
+    const handleUpdateEnabled = (id, enabled) => {
+        updateRoleEnabled(id, enabled)
+            .then(
+                () => {
+                    handleRefresh()
+                }
+            )
+    }
+
+    const handleDelete = (id) => {
+        deleteRoleById(id)
+            .then(
+                () => {
+                    handleRefresh()
+                }
+            )
     }
 
     const columns = [
         {
-            key: 'code',
-            title: '角色编码',
-            dataIndex: 'code',
-            align: 'center',
-        },
-        {
             key: 'name',
             title: '角色名称',
             dataIndex: 'name',
+            align: 'center',
+            fixed: 'left',
+        },
+        {
+            key: 'code',
+            title: '角色编码',
+            dataIndex: 'code',
             align: 'center',
         },
         {
@@ -96,30 +185,33 @@ const RoleManage = () => {
             title: '操作',
             dataIndex: 'operation',
             align: 'center',
+            fixed: 'right',
             render: (_, record) => {
                 return (
                     <span>
                         <Typography.Link style={{ marginInlineEnd: 8 }}>
                             绑定权限
                         </Typography.Link>
-                        <Typography.Link style={{ marginInlineEnd: 8 }}>
+                        <Typography.Link onClick={() => handleEditRole(record)} style={{ marginInlineEnd: 8 }}>
                             编辑
                         </Typography.Link>
                         {record.enabled === true
                             ?
                             (
-                                <Typography.Link style={{ marginInlineEnd: 8 }}>
-                                    停用
-                                </Typography.Link>
+                                <Popconfirm okText='确定' cancelText='取消' title="确定停用？" onConfirm={() => handleUpdateEnabled(record.id, false)} style={{ marginInlineEnd: 8 }}>
+                                    <Typography.Link style={{ marginInlineEnd: 8 }}>
+                                        停用
+                                    </Typography.Link>
+                                </Popconfirm>
                             )
                             :
                             (
-                                <Typography.Link style={{ marginInlineEnd: 8 }}>
+                                <Typography.Link onClick={() => handleUpdateEnabled(record.id, true)} style={{ marginInlineEnd: 8 }}>
                                     启用
                                 </Typography.Link>
                             )
                         }
-                        <Popconfirm okText='确定' cancelText='取消' title="确定删除？" onConfirm={null} style={{ marginInlineEnd: 8 }}>
+                        <Popconfirm okText='确定' cancelText='取消' title="确定删除？" onConfirm={() => handleDelete(record.id)} style={{ marginInlineEnd: 8 }}>
                             <Typography.Link style={{ marginInlineEnd: 8 }}>
                                 删除
                             </Typography.Link>
@@ -138,7 +230,7 @@ const RoleManage = () => {
             <Flex
             >
                 <Form
-                    form={form}
+                    form={searchForm}
                     layout='inline'
                 >
                     <Form.Item name="name" label="角色名称">
@@ -169,14 +261,14 @@ const RoleManage = () => {
             </Flex>
             <Flex>
                 <Space>
-                    <Button type="primary" onClick={handleCreateRole}>新增</Button>
+                    <Button type="primary" onClick={handleAddRole}>新增</Button>
                 </Space>
             </Flex>
             <Table
                 className='w-full'
                 columns={columns}
                 dataSource={roleData.list}
-                scroll={roleData?.list?.length > 10 ? { y: 1200 } : undefined}
+                scroll={roleData?.list?.length > 10 ? { y: 1200, x: 'max-content' } : { x: 'max-content' }}
                 rowKey={(record) => record.id}
                 loading={loading}
                 pagination={{
@@ -194,6 +286,74 @@ const RoleManage = () => {
                     }
                 }}
             />
+            <Modal
+                title={roleOperation.title}
+                width={400}
+                centered
+                open={roleOperation.open}
+                onOk={handleSaveRole}
+                onCancel={handleClose}
+                onClose={handleClose}
+                okText="保存"
+                cancelText="取消"
+                destroyOnClose
+            >
+                <div
+                    className='w-full mt-5'
+                >
+                    <Form
+                        form={editForm}
+                        labelCol={{ span: 6 }}
+                        wrapperCol={{ span: 18 }}
+                        layout="horizontal"
+                    >
+                        <Form.Item name="id" hidden>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            label="角色名称"
+                            name="name"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: `角色名称不能为空`,
+                                },
+                            ]}
+                        >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            label="角色编码"
+                            name="code"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: `角色编码不能为空`,
+                                },
+                            ]}
+                        >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            label="启用状态"
+                            name="enabled"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: `启用状态不能为空`,
+                                },
+                            ]}
+                        >
+                            <Radio.Group
+                                options={[
+                                    { value: true, label: '启用' },
+                                    { value: false, label: '停用' }
+                                ]}
+                            />
+                        </Form.Item>
+                    </Form>
+                </div>
+            </Modal>
         </Flex>
     )
 }
