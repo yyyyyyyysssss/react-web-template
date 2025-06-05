@@ -56,6 +56,20 @@ export const fetchRoleList = async (queryParam) => {
 }
 
 
+export const bindAuthorityByRoleId = async (roleId, authorityIds) => {
+    const req = {
+        id: roleId,
+        authorityIds: authorityIds
+    }
+    try {
+        const res = await httpWrapper.post('/api/system/role/bindAuthority', req)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
 export const fetchMenuTree = async () => {
     try {
         const res = await httpWrapper.get('/api/system/menu/tree')

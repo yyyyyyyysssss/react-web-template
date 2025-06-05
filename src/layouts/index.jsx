@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { Suspense, useContext } from 'react';
 import { Layout, theme } from 'antd';
 import './index.css';
 import { Outlet } from 'react-router-dom';
@@ -7,11 +7,14 @@ import { useSelector } from 'react-redux';
 import Sider from './sider';
 import Loading from '../component/loading';
 import Header from './header';
+import { ThemeContext } from '../context/ThemeContext';
 
 
 const { Header: LayoutHeader, Content: LayoutContent, Sider: LayoutSider } = Layout;
 
 const AppLayout = () => {
+
+    const themeContext = useContext(ThemeContext)
 
     const collapsed = useSelector(state => state.layout.menuCollapsed)
 
@@ -27,6 +30,7 @@ const AppLayout = () => {
             {/* 侧边菜单 */}
             <LayoutSider
                 width='240px'
+                theme={themeContext}
                 style={{
                     overflow: 'auto',
                     height: '100vh',

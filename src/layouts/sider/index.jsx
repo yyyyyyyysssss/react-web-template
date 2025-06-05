@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import './index.css'
 import {
     SettingOutlined,
@@ -8,6 +8,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadMenuItems, setActiveKey, setOpenKeys } from '../../redux/slices/layoutSlice';
 import { fetchMenuTree } from '../../services/SystemService';
+import { ThemeContext } from '../../context/ThemeContext';
 
 const formatMenuItems = (items) => {
     return items.map(item => ({
@@ -20,6 +21,8 @@ const formatMenuItems = (items) => {
 }
 
 const Sider = () => {
+
+    const themeContext = useContext(ThemeContext)
 
     const menuItems = useSelector(state => state.layout.menuItems)
 
@@ -86,7 +89,7 @@ const Sider = () => {
             <div onClick={goHome} className="logo-vertical" />
             <Menu
                 key={collapsed ? 'collapsed' : 'expanded'}
-                theme="dark"
+                theme={themeContext}
                 inlineCollapsed={collapsed}
                 selectedKeys={matchMenuKey}
                 openKeys={openKeys}

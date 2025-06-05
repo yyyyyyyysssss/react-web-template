@@ -127,8 +127,8 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
     }, [data])
 
     const handleDelete = key => {
-        const newData = dataSource.filter(item => item.key !== key);
-        setDataSource(newData);
+        const newData = dataSource.filter(item => item.key !== key)
+        setDataSource(newData)
         formMapRef.current.delete(key)
     };
     const defaultColumns = [
@@ -194,7 +194,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
             row: (props) => {
                 const { 'data-row-key': key } = props
                 const record = dataSource.find(item => item.key === key)
-                return <EditableRow key={record.key} {...props} record={record} />
+                return <EditableRow key={record?.key} {...props} record={record} />
             },
             cell: EditableCell,
         },
@@ -285,7 +285,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
     return (
         <Modal
             title={title}
-            width={500}
+            width={type === AuthorityType.MENU ? 400 : 450}
             centered
             open={open}
             onOk={handleSaveMenuAuthority}
@@ -296,15 +296,15 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
             destroyOnClose
         >
             <Flex
-                className='w-full h-[550px]'
+                className={`w-full h-[${type === AuthorityType.MENU ? 300 : 550}px]`}
                 style={{ marginTop: '20px' }}
                 gap={10}
                 vertical
             >
                 <Form
                     form={form}
-                    labelCol={{ span: 4 }}
-                    wrapperCol={{ span: 20 }}
+                    labelCol={{ span: 6 }}
+                    wrapperCol={{ span: 18 }}
                     layout="horizontal"
                 >
                     <Form.Item name="id" hidden>
@@ -368,7 +368,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
                         label="排序:"
                         name="sort"
                     >
-                        <InputNumber className='w-full' />
+                        <InputNumber style={{ width: '100%' }} />
                     </Form.Item>
                 </Form>
 

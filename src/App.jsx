@@ -9,6 +9,7 @@ import 'antd/dist/reset.css';
 
 import NProgress from 'nprogress';
 import { setMessageApi } from './utils/MessageUtil.jx';
+import { ThemeContext } from './context/ThemeContext';
 
 NProgress.configure({
   parent: '.layout-header',
@@ -49,7 +50,8 @@ const App = () => {
           colorText: 'rgba(0,0,0,0.88)',
           colorPrimary: colorPrimary,
           borderRadius: 8,
-          colorBgContainer: 'white'
+          colorBgContainer: 'white',
+          fontSize: 14
         },
         components: {
           Breadcrumb: {
@@ -70,6 +72,9 @@ const App = () => {
             headerHeight: 64,
             //顶部内边距
             headerPadding: 0
+          },
+          Menu: {
+
           }
         }
       }}
@@ -77,13 +82,15 @@ const App = () => {
     >
       <Provider store={store}>
         {contextHolder}
-        <RouterProvider
-          future={{
-            v7_startTransition: true,
-            v7_relativeSplatPath: true
-          }}
-          router={router}
-        />
+        <ThemeContext.Provider value='dark'>
+          <RouterProvider
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true
+            }}
+            router={router}
+          />
+        </ThemeContext.Provider>
       </Provider>
     </ConfigProvider>
   );

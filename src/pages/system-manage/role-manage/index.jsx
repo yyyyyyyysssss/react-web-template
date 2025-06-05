@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import './index.css'
-import { createRole, deleteRoleById, fetchRoleList, updateRole, updateRoleEnabled } from '../../../services/SystemService'
-import { Button, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Space, Table, Tag, Typography } from 'antd'
+import { bindAuthorityByRoleId, createRole, deleteRoleById, fetchRoleList, updateRole, updateRoleEnabled } from '../../../services/SystemService'
+import { Button, Drawer, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Space, Table, Tag, Tree, Typography } from 'antd'
+import AuthorityTreeSelect from '../../../component/AuthorityTreeSelect'
+import AuthorityTree from '../../../component/AuthorityTree'
 
 const initQueryParam = {
     pageNum: 1,
@@ -17,6 +19,8 @@ const RoleManage = () => {
 
     const [editForm] = Form.useForm()
 
+    const [bindAuthorityForm] = Form.useForm()
+
     const [queryParam, setQueryParam] = useState(initQueryParam)
 
     const [roleData, setRoleData] = useState({})
@@ -27,6 +31,12 @@ const RoleManage = () => {
         open: false,
         title: null,
         operationType: null,
+        roleItem: null,
+    })
+
+    const [bindAuthority, setBindAuthority] = useState({
+        open: false,
+        title: null,
         roleItem: null,
     })
 
@@ -45,10 +55,16 @@ const RoleManage = () => {
     }, [queryParam])
 
     useEffect(() => {
-        if (roleOperation && roleOperation.open === true && roleOperation.roleItem) {
+        if (roleOperation && roleOperation.open === true && roleOperation.operationType === 'EDIT') {
             editForm.setFieldsValue(roleOperation.roleItem)
         }
     }, [roleOperation])
+
+    useEffect(() => {
+        if (bindAuthority && bindAuthority.open === true) {
+            bindAuthorityForm.setFieldsValue(bindAuthority.roleItem)
+        }
+    }, [bindAuthority])
 
 
     const handleSearch = () => {
@@ -88,13 +104,13 @@ const RoleManage = () => {
     }
 
     const handleClose = () => {
-        editForm.resetFields()
         setRoleOperation({
             open: false,
             title: null,
             operationType: null,
             roleItem: null,
         })
+        editForm.resetFields()
     }
 
     const handleSaveRole = () => {
@@ -139,6 +155,35 @@ const RoleManage = () => {
                     handleRefresh()
                 }
             )
+    }
+
+    const handleBindAuthority = (roleItem) => {
+        setBindAuthority({
+            open: true,
+            title: `绑定权限[${roleItem.name}]`,
+            roleItem: roleItem,
+        })
+    }
+
+    const handleBindAuthoritySave = () => {
+        bindAuthorityForm.validateFields()
+            .then(values => {
+                bindAuthorityByRoleId(values.id, values.authorityIds)
+                    .then(
+                        () => {
+                            handleBindAuthorityClose()
+                            handleRefresh()
+                        }
+                    )
+            })
+    }
+
+    const handleBindAuthorityClose = () => {
+        setBindAuthority({
+            open: false,
+            title: null,
+            roleItem: null,
+        })
     }
 
     const columns = [
@@ -187,9 +232,12 @@ const RoleManage = () => {
             align: 'center',
             fixed: 'right',
             render: (_, record) => {
+                if (record.code === 'super_admin') {
+                    return <></>
+                }
                 return (
                     <span>
-                        <Typography.Link style={{ marginInlineEnd: 8 }}>
+                        <Typography.Link onClick={() => handleBindAuthority(record)} style={{ marginInlineEnd: 8 }}>
                             绑定权限
                         </Typography.Link>
                         <Typography.Link onClick={() => handleEditRole(record)} style={{ marginInlineEnd: 8 }}>
@@ -291,12 +339,13 @@ const RoleManage = () => {
                 width={400}
                 centered
                 open={roleOperation.open}
+                maskClosable={false}
+                keyboard={false}
                 onOk={handleSaveRole}
                 onCancel={handleClose}
                 onClose={handleClose}
                 okText="保存"
                 cancelText="取消"
-                destroyOnClose
             >
                 <div
                     className='w-full mt-5'
@@ -351,9 +400,42 @@ const RoleManage = () => {
                                 ]}
                             />
                         </Form.Item>
+                        <Form.Item
+                            label="绑定权限"
+                            name="authorityIds"
+                        >
+                            <AuthorityTreeSelect />
+                        </Form.Item>
                     </Form>
                 </div>
             </Modal>
+            <Drawer
+                title={bindAuthority.title}
+                closable={{ 'aria-label': 'Close Button' }}
+                onClose={handleBindAuthorityClose}
+                open={bindAuthority.open}
+                width={400}
+                footer={
+                    <Space>
+                        <Button type="primary" onClick={handleBindAuthoritySave}>保存</Button>
+                        <Button onClick={handleBindAuthorityClose}>取消</Button>
+                    </Space>
+                }
+            >
+                <Form
+                    form={bindAuthorityForm}
+                >
+                    <Form.Item name="id" hidden>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="authorityIds"
+                    >
+                        <AuthorityTree />
+                    </Form.Item>
+                </Form>
+
+            </Drawer>
         </Flex>
     )
 }

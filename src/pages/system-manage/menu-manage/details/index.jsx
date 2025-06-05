@@ -243,7 +243,7 @@ const MenuDetails = ({ menuId }) => {
                 onSuccess={handleSuccessMenuAuthority}
             />
             <Drawer
-                title={openInfo.title}
+                title={`绑定API[${openInfo.title}]`}
                 closable={{ 'aria-label': 'Close Button' }}
                 onClose={onClose}
                 open={openInfo.open}
