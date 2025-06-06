@@ -1,6 +1,40 @@
 import httpWrapper from "./AxiosWrapper"
 
 
+export const fetchUserList = async (queryParam) => {
+    try {
+        const res = await httpWrapper.post('/api/system/user/query', queryParam)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
+export const updateUserEnabled = async (userId, enabled) => {
+    const roleBody = {
+        id: userId,
+        enabled: enabled
+    }
+    try {
+        const res = await httpWrapper.patch('/api/system/user', roleBody)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
+export const deleteUserById = async (userId) => {
+    try {
+        const res = await httpWrapper.delete(`/api/system/user/${userId}`)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
 export const createRole = async (roleBody) => {
     try {
         const res = await httpWrapper.post('/api/system/role', roleBody)
@@ -58,11 +92,10 @@ export const fetchRoleList = async (queryParam) => {
 
 export const bindAuthorityByRoleId = async (roleId, authorityIds) => {
     const req = {
-        id: roleId,
         authorityIds: authorityIds
     }
     try {
-        const res = await httpWrapper.post('/api/system/role/bindAuthority', req)
+        const res = await httpWrapper.post(`/api/system/role/${roleId}/authorities`, req)
         return res.data
     } catch (error) {
         handleError(error)

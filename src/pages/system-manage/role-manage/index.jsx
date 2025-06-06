@@ -8,8 +8,7 @@ import AuthorityTree from '../../../component/AuthorityTree'
 const initQueryParam = {
     pageNum: 1,
     pageSize: 10,
-    code: null,
-    name: null,
+    keyword: null,
     enabled: null
 }
 
@@ -276,13 +275,14 @@ const RoleManage = () => {
             vertical
         >
             <Flex
+                justify='center'
             >
                 <Form
                     form={searchForm}
                     layout='inline'
                 >
-                    <Form.Item name="name" label="角色名称">
-                        <Input placeholder="请输入角色名称" allowClear />
+                    <Form.Item name="keyword" label="角色信息" style={{ width: 350 }}>
+                        <Input placeholder="请输入角色名称或编码" allowClear />
                     </Form.Item>
                     <Form.Item name="enabled" label="状态">
                         <Select
@@ -328,7 +328,6 @@ const RoleManage = () => {
                     pageSizeOptions: ['10', '20', '50', '100'],
                     showTotal: total => `共 ${total} 条`,
                     onChange: (pageNum, pageSize) => {
-                        console.log(pageNum, pageSize)
                         const newQueryParam = { ...queryParam, pageNum: pageNum, pageSize: pageSize }
                         setQueryParam(newQueryParam)
                     }
@@ -401,7 +400,7 @@ const RoleManage = () => {
                             />
                         </Form.Item>
                         <Form.Item
-                            label="绑定权限"
+                            label="授权"
                             name="authorityIds"
                         >
                             <AuthorityTreeSelect />
