@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import router from './router/router';
 import { RouterProvider } from 'react-router-dom';
@@ -8,7 +8,7 @@ import { ConfigProvider, Empty, message } from 'antd';
 import 'antd/dist/reset.css';
 
 import NProgress from 'nprogress';
-import { setMessageApi } from './utils/MessageUtil.jx';
+import { setMessageApi } from './utils/MessageUtil.jsx';
 import { ThemeContext } from './context/ThemeContext';
 
 NProgress.configure({
@@ -16,11 +16,18 @@ NProgress.configure({
   showSpinner: false
 })
 
-const colorPrimary = '#1DA57A'
+const defaultColorPrimary = '#1DA57A'
+
 
 const App = () => {
 
   const [api, contextHolder] = message.useMessage()
+
+  const [colorPrimary, setColorPrimary] = useState(defaultColorPrimary)
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--color-primary', defaultColorPrimary)
+  }, [colorPrimary])
 
   setMessageApi(api)
 
@@ -51,7 +58,8 @@ const App = () => {
           colorPrimary: colorPrimary,
           borderRadius: 8,
           colorBgContainer: 'white',
-          fontSize: 14
+          fontSize: 14,
+          colorSplit: 'rgba(5,5,5,0.06)'
         },
         components: {
           Breadcrumb: {

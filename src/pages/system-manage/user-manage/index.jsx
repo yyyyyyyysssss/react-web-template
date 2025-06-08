@@ -1,10 +1,12 @@
-import { Button, Dropdown, Flex, Form, Input, Menu, Modal, Popconfirm, Select, Space, Table, Tag, Typography } from 'antd'
+import { Button, Drawer, Dropdown, Flex, Form, Input, Menu, message, Modal, Popconfirm, Radio, Select, Space, Table, Tag, Typography } from 'antd'
 import './index.css'
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { deleteUserById, fetchUserList, updateUserEnabled } from '../../../services/SystemService';
-import { DownOutlined } from '@ant-design/icons';
+import { bindRoleByUserId, createUser, deleteUserById, fetchUserList, resetPassword, updateUser, updateUserEnabled } from '../../../services/SystemService';
+import { CopyOutlined, DownOutlined } from '@ant-design/icons';
 import Highlight from '../../../component/Highlight';
+import { getMessageApi } from '../../../utils/MessageUtil';
+import RoleSelect from '../../../component/RoleSelect';
 
 
 const initQueryParam = {
@@ -20,6 +22,10 @@ const UserManage = () => {
 
     const navigate = useNavigate()
 
+    const [editForm] = Form.useForm()
+
+    const [bindRoleForm] = Form.useForm()
+
     const [searchForm] = Form.useForm()
 
     const [userData, setUserData] = useState({})
@@ -27,6 +33,19 @@ const UserManage = () => {
     const [loading, setLoading] = useState(false)
 
     const [queryParam, setQueryParam] = useState(initQueryParam)
+
+    const [userOperation, setUserOperation] = useState({
+        open: false,
+        title: null,
+        operationType: null,
+        userItem: null,
+    })
+
+    const [bindRole, setBindRole] = useState({
+        open: false,
+        title: null,
+        userItem: null,
+    })
 
 
     useEffect(() => {
@@ -42,6 +61,18 @@ const UserManage = () => {
         }
         getData()
     }, [queryParam])
+
+    useEffect(() => {
+        if (userOperation && userOperation.open === true && userOperation.operationType === 'EDIT') {
+            editForm.setFieldsValue(userOperation.userItem)
+        }
+    }, [userOperation])
+
+    useEffect(() => {
+        if (bindRole && bindRole.open === true) {
+            bindRoleForm.setFieldsValue(bindRole.userItem)
+        }
+    }, [bindRole])
 
 
     const handleSearch = () => {
@@ -62,11 +93,115 @@ const UserManage = () => {
         setQueryParam(newQueryParam)
     }
 
+    const handleAddUser = () => {
+        setUserOperation({
+            open: true,
+            title: '新增用户',
+            operationType: 'ADD',
+            userItem: null,
+        })
+    }
+
+    const handleEditUser = (userItem) => {
+        setUserOperation({
+            open: true,
+            title: '编辑用户',
+            operationType: 'EDIT',
+            userItem: userItem,
+        })
+    }
+
+    const handleSaveUser = () => {
+        editForm.validateFields()
+            .then(
+                (values) => {
+                    if (userOperation.operationType === 'ADD') {
+                        createUser(values)
+                            .then(
+                                (data) => {
+                                    handleClose()
+                                    handleRefresh()
+                                    modal.success({
+                                        title: `用户创建成功`,
+                                        okText: '知道了',
+                                        content: (
+                                            <div style={{ userSelect: 'text' }}>
+                                                <p>
+                                                    用户 <strong>{values.nickname}</strong> 的初始密码为：
+                                                </p>
+                                                <div className='bg-gray-100 py-2 px-3 rounded-md flex justify-between items-center font-mono'>
+                                                    <span>{data.initialPassword}</span>
+                                                    <CopyOutlined
+                                                        className='cursor-pointer ml-2 p-1 rounded hover:bg-gray-200'
+                                                        onClick={() => {
+                                                            navigator.clipboard.writeText(data.initialPassword)
+                                                            getMessageApi().success('已复制到剪贴板')
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        ),
+                                    })
+                                }
+                            )
+                    } else {
+                        updateUser(values)
+                            .then(
+                                () => {
+                                    handleClose()
+                                    handleRefresh()
+                                }
+                            )
+                    }
+
+                }
+            )
+    }
+
+    const handleClose = () => {
+        setUserOperation({
+            open: false,
+            title: null,
+            operationType: null,
+            userItem: null,
+        })
+        editForm.resetFields()
+    }
+
     const handleUpdateEnabled = (id, enabled) => {
         updateUserEnabled(id, enabled)
             .then(
                 () => {
                     handleRefresh()
+                }
+            )
+    }
+
+    const handleResetPassword = (userItem) => {
+        resetPassword(userItem.id)
+            .then(
+                (newPassword) => {
+                    modal.success({
+                        title: '新密码已生成',
+                        okText: '知道了',
+                        content: (
+                            <div style={{ userSelect: 'text' }}>
+                                <p>
+                                    用户 <strong>{userItem.nickname}</strong> 的新密码为：
+                                </p>
+                                <div className='bg-gray-100 py-2 px-3 rounded-md flex justify-between items-center font-mono'>
+                                    <span>{newPassword}</span>
+                                    <CopyOutlined
+                                        className='cursor-pointer ml-2 p-1 rounded hover:bg-gray-200'
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(newPassword)
+                                            getMessageApi().success('已复制到剪贴板')
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        ),
+                    })
                 }
             )
     }
@@ -78,6 +213,35 @@ const UserManage = () => {
                     handleRefresh()
                 }
             )
+    }
+
+    const handleBindRole = (userItem) => {
+        setBindRole({
+            open: true,
+            title: `绑定角色[${userItem.nickname}]`,
+            userItem: userItem,
+        })
+    }
+
+    const handleBindRoleSave = () => {
+        bindRoleForm.validateFields()
+            .then(values => {
+                bindRoleByUserId(values.id, values.roleIds)
+                    .then(
+                        () => {
+                            handleBindRoleClose()
+                            handleRefresh()
+                        }
+                    )
+            })
+    }
+
+    const handleBindRoleClose = () => {
+        setBindRole({
+            open: false,
+            title: null,
+            userItem: null,
+        })
     }
 
     const columns = [
@@ -143,10 +307,10 @@ const UserManage = () => {
                 }
                 return (
                     <span>
-                        <Typography.Link onClick={() => null} style={{ marginInlineEnd: 8 }}>
+                        <Typography.Link onClick={() => handleBindRole(record)} style={{ marginInlineEnd: 8 }}>
                             绑定角色
                         </Typography.Link>
-                        <Typography.Link onClick={() => null} style={{ marginInlineEnd: 8 }}>
+                        <Typography.Link onClick={() => handleEditUser(record)} style={{ marginInlineEnd: 8 }}>
                             编辑
                         </Typography.Link>
                         {record.enabled === true
@@ -171,7 +335,22 @@ const UserManage = () => {
                                     {
                                         key: 'reset',
                                         label: (
-                                            <Typography.Link onClick={() => null} style={{ marginInlineEnd: 8 }}>
+                                            <Typography.Link
+                                                style={{ marginInlineEnd: 8 }}
+                                                onClick={() => {
+                                                    modal.confirm({
+                                                        title: '确定重置？',
+                                                        okText: '确定',
+                                                        cancelText: '取消',
+                                                        content: (
+                                                            <>
+                                                                是否重置 <Highlight>{record.nickname}</Highlight> 的密码？
+                                                            </>
+                                                        ),
+                                                        onOk: () => handleResetPassword(record),
+                                                    })
+                                                }}
+                                            >
                                                 重置密码
                                             </Typography.Link>
                                         )
@@ -236,9 +415,10 @@ const UserManage = () => {
                 <Form
                     form={searchForm}
                     layout='inline'
+                    onFinish={handleSearch}
                 >
-                    <Form.Item name="keyword" label="用户信息" style={{ width: 350 }}>
-                        <Input placeholder="请输入用户名称、手机号、邮箱等" allowClear />
+                    <Form.Item name="keyword" label="用户信息" style={{ width: 365 }}>
+                        <Input placeholder="请输入用户名称、账号、手机号、邮箱" allowClear />
                     </Form.Item>
                     <Form.Item name="enabled" label="状态">
                         <Select
@@ -257,6 +437,9 @@ const UserManage = () => {
                             ]}
                         />
                     </Form.Item>
+                    <Form.Item style={{ display: 'none' }}>
+                        <Button htmlType="submit" />
+                    </Form.Item>
                 </Form>
                 <Space>
                     <Button type="primary" onClick={handleSearch}>查询</Button>
@@ -265,7 +448,7 @@ const UserManage = () => {
             </Flex>
             <Flex>
                 <Space>
-                    <Button type="primary" onClick={null}>新增</Button>
+                    <Button type="primary" onClick={handleAddUser}>新增</Button>
                 </Space>
             </Flex>
             <Table
@@ -289,6 +472,117 @@ const UserManage = () => {
                     }
                 }}
             />
+            <Modal
+                title={userOperation.title}
+                width={400}
+                centered
+                open={userOperation.open}
+                onOk={handleSaveUser}
+                onCancel={handleClose}
+                onClose={handleClose}
+                okText="保存"
+                cancelText="取消"
+            >
+                <div
+                    className='w-full mt-5'
+                >
+                    <Form
+                        form={editForm}
+                        labelCol={{ span: 6 }}
+                        wrapperCol={{ span: 18 }}
+                        layout="horizontal"
+                    >
+                        <Form.Item name="id" hidden>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            label="用户姓名"
+                            name="nickname"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: `用户姓名不能为空`,
+                                },
+                            ]}
+                        >
+                            <Input placeholder="请输入用户姓名" />
+                        </Form.Item>
+                        <Form.Item
+                            label="用户账号"
+                            name="username"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: `角色账号不能为空`,
+                                },
+                            ]}
+                        >
+                            <Input placeholder="请输入用户账号" />
+                        </Form.Item>
+                        <Form.Item
+                            label="用户邮箱"
+                            name="email"
+                        >
+                            <Input placeholder="请输入用户邮箱" />
+                        </Form.Item>
+                        <Form.Item
+                            label="用户手机号"
+                            name="phone"
+                        >
+                            <Input placeholder="请输入用户手机号" />
+                        </Form.Item>
+                        <Form.Item
+                            label="启用状态"
+                            name="enabled"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: `启用状态不能为空`,
+                                },
+                            ]}
+                        >
+                            <Radio.Group
+                                options={[
+                                    { value: true, label: '启用' },
+                                    { value: false, label: '停用' }
+                                ]}
+                            />
+                        </Form.Item>
+                        <Form.Item
+                            label="绑定角色"
+                            name="roleIds"
+                        >
+                            <RoleSelect />
+                        </Form.Item>
+                    </Form>
+                </div>
+            </Modal>
+            <Drawer
+                title={bindRole.title}
+                closable={{ 'aria-label': 'Close Button' }}
+                onClose={handleBindRoleClose}
+                open={bindRole.open}
+                width={400}
+                footer={
+                    <Space>
+                        <Button type="primary" onClick={handleBindRoleSave}>保存</Button>
+                        <Button onClick={handleBindRoleClose}>取消</Button>
+                    </Space>
+                }
+            >
+                <Form
+                    form={bindRoleForm}
+                >
+                    <Form.Item name="id" hidden>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="roleIds"
+                    >
+                        <RoleSelect type='checkbox'/>
+                    </Form.Item>
+                </Form>
+            </Drawer>
             {contextHolder}
         </Flex>
     )

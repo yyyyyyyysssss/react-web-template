@@ -25,9 +25,52 @@ export const updateUserEnabled = async (userId, enabled) => {
     }
 }
 
+export const createUser = async (userBody) => {
+    try {
+        const res = await httpWrapper.post('/api/system/user', userBody)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
+export const updateUser = async (userBody) => {
+    try {
+        const res = await httpWrapper.put('/api/system/user', userBody)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
+export const bindRoleByUserId = async (userId, roleIds) => {
+    const req = {
+        roleIds: roleIds
+    }
+    try {
+        const res = await httpWrapper.post(`/api/system/user/${userId}/roles`, req)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
 export const deleteUserById = async (userId) => {
     try {
         const res = await httpWrapper.delete(`/api/system/user/${userId}`)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
+export const resetPassword = async (userId) => {
+    try {
+        const res = await httpWrapper.put(`/api/system/user/${userId}/password`)
         return res.data
     } catch (error) {
         handleError(error)
@@ -82,6 +125,16 @@ export const deleteRoleById = async (roleId) => {
 export const fetchRoleList = async (queryParam) => {
     try {
         const res = await httpWrapper.post('/api/system/role/query', queryParam)
+        return res.data
+    } catch (error) {
+        handleError(error)
+        throw error
+    }
+}
+
+export const fetchRoleOptions = async () => {
+    try {
+        const res = await httpWrapper.get('/api/system/role/options')
         return res.data
     } catch (error) {
         handleError(error)

@@ -4,12 +4,6 @@ import { fetchAuthorityTree } from "../services/SystemService"
 import { DataNode } from "antd/es/tree"
 
 
-interface Permission {
-  id: string;
-  name: string;
-  children?: Permission[];
-}
-
 interface AuthorityTreeProps {
     value?: string[]
     onChange?: (value: string[]) => void

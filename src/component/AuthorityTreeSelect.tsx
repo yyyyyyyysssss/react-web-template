@@ -13,11 +13,10 @@ interface Permission {
 interface PermissionTreeSelectProps {
   value?: string[];
   onChange?: (value: string[]) => void;
-  data?: Permission[]
 }
 
 
-const AuthorityTreeSelect: React.FC<PermissionTreeSelectProps> = ({ value, onChange, data }) => {
+const AuthorityTreeSelect: React.FC<PermissionTreeSelectProps> = ({ value, onChange }) => {
 
   const [treeData, setTreeData] = useState<Permission[]>([])
 
@@ -27,10 +26,6 @@ const AuthorityTreeSelect: React.FC<PermissionTreeSelectProps> = ({ value, onCha
 
   const fetchData = async () => {
     if (loaded) return
-    if (data && data.length > 0) {
-      setTreeData(data)
-      return
-    }
     setLoading(true)
     try {
       const list = await fetchAuthorityTree()

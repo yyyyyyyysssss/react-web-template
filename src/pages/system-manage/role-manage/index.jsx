@@ -4,6 +4,7 @@ import { bindAuthorityByRoleId, createRole, deleteRoleById, fetchRoleList, updat
 import { Button, Drawer, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Space, Table, Tag, Tree, Typography } from 'antd'
 import AuthorityTreeSelect from '../../../component/AuthorityTreeSelect'
 import AuthorityTree from '../../../component/AuthorityTree'
+import Highlight from '../../../component/Highlight'
 
 const initQueryParam = {
     pageNum: 1,
@@ -13,6 +14,8 @@ const initQueryParam = {
 }
 
 const RoleManage = () => {
+
+    const [modal, contextHolder] = Modal.useModal()
 
     const [searchForm] = Form.useForm()
 
@@ -258,11 +261,24 @@ const RoleManage = () => {
                                 </Typography.Link>
                             )
                         }
-                        <Popconfirm okText='确定' cancelText='取消' title="确定删除？" onConfirm={() => handleDelete(record.id)} style={{ marginInlineEnd: 8 }}>
-                            <Typography.Link style={{ marginInlineEnd: 8 }}>
-                                删除
-                            </Typography.Link>
-                        </Popconfirm>
+                        <Typography.Link
+                            style={{ marginInlineEnd: 8 }}
+                            onClick={() => {
+                                modal.confirm({
+                                    title: '确定删除？',
+                                    okText: '确定',
+                                    cancelText: '取消',
+                                    content: (
+                                        <>
+                                            是否删除 <Highlight>{record.name}</Highlight> 角色？删除后将无法恢复！
+                                        </>
+                                    ),
+                                    onOk: () => handleDelete(record.id),
+                                })
+                            }}
+                        >
+                            删除
+                        </Typography.Link>
                     </span>
                 )
             }
@@ -280,6 +296,7 @@ const RoleManage = () => {
                 <Form
                     form={searchForm}
                     layout='inline'
+                    onFinish={handleSearch}
                 >
                     <Form.Item name="keyword" label="角色信息" style={{ width: 350 }}>
                         <Input placeholder="请输入角色名称或编码" allowClear />
@@ -300,6 +317,9 @@ const RoleManage = () => {
                                 }
                             ]}
                         />
+                    </Form.Item>
+                    <Form.Item style={{ display: 'none' }}>
+                        <Button htmlType="submit" />
                     </Form.Item>
                 </Form>
                 <Space>
@@ -338,8 +358,6 @@ const RoleManage = () => {
                 width={400}
                 centered
                 open={roleOperation.open}
-                maskClosable={false}
-                keyboard={false}
                 onOk={handleSaveRole}
                 onCancel={handleClose}
                 onClose={handleClose}
@@ -433,8 +451,8 @@ const RoleManage = () => {
                         <AuthorityTree />
                     </Form.Item>
                 </Form>
-
             </Drawer>
+            {contextHolder}
         </Flex>
     )
 }

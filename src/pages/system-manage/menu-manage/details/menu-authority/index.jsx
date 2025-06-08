@@ -296,8 +296,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
             destroyOnClose
         >
             <Flex
-                className={`w-full h-[${type === AuthorityType.MENU ? 300 : 550}px]`}
-                style={{ marginTop: '20px' }}
+                style={{ marginTop: '20px', height: type === AuthorityType.MENU ? 300 : 530 }}
                 gap={10}
                 vertical
             >

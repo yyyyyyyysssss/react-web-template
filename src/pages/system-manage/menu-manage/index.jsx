@@ -7,6 +7,7 @@ import MenuDetails from './details';
 import MenuAuthority from './details/menu-authority';
 import { AuthorityType } from '../../../enums';
 import IdGen from '../../../utils/IdGen';
+import Highlight from '../../../component/Highlight';
 
 
 
@@ -243,8 +244,12 @@ const MenuManage = () => {
     const handleDeleteMenu = (menuItem) => {
         handleSelectMenu(menuItem.id)
         modal.confirm({
-            title: '确认删除菜单？',
-            content: '删除该菜单将一并移除其下所有子菜单和权限项，是否确认删除？',
+            title: '确认删除？',
+            content: (
+                <>
+                    是否删除 <Highlight>{menuItem.name}</Highlight> 菜单？删除后将一并移除其下所有子菜单和权限项。
+                </>
+            ),
             okText: '确认',
             cancelText: '取消',
             onOk() {
@@ -392,7 +397,7 @@ const MenuManage = () => {
                 type="vertical"
                 style={{
                     height: 'calc(100% + 40px)',
-                    width: '2px',
+                    width: '1px',
                     backgroundColor: 'lightgray',
                     marginInline: '12px',
                     marginTop: '-20px',

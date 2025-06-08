@@ -5,7 +5,7 @@ import { jwtDecode } from 'jwt-decode'
 import env from "../env";
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
-import { getMessageApi } from "../utils/MessageUtil.jx";
+import { getMessageApi } from "../utils/MessageUtil.jsx";
 
 
 const httpWrapper = axios.create({
