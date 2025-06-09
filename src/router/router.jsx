@@ -2,6 +2,7 @@ import React, { lazy } from "react";
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { matchPath } from "react-router"
 import AuthProvider from "./AuthProvider";
+import { House, Settings, UserCog, Menu, ShieldUser } from "lucide-react";
 
 const AppLayout = lazy(() => import('../layouts'))
 const Home = lazy(() => import('../pages/home'))
@@ -31,16 +32,19 @@ export const routes = [
             {
                 path: 'home',
                 breadcrumbName: '主页',
+                defaultIcon: <House size={18} />,
                 element: <Home />,
             },
             {
                 path: 'system',
                 breadcrumbName: '系统管理',
+                defaultIcon: <Settings size={18} />,
                 children: [
                     {
                         path: 'user',
                         element: <UserManage />,
                         breadcrumbName: '用户管理',
+                        defaultIcon: <UserCog size={18} />,
                     },
                     {
                         path: 'user/details/:id?',
@@ -51,11 +55,13 @@ export const routes = [
                         path: 'role',
                         element: <RoleManage />,
                         breadcrumbName: '角色管理',
+                        defaultIcon: <ShieldUser size={18} />,
                     },
                     {
                         path: 'menu',
                         element: <MenuManage />,
                         breadcrumbName: '菜单管理',
+                        defaultIcon: <Menu size={18} />
                     }
                 ]
             },

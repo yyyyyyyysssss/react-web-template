@@ -185,7 +185,7 @@ const MenuDetails = ({ menuId }) => {
             render: (_, record) => {
                 return (
                     <Space size='middle'>
-                        <a onClick={() => showDrawer(record)}>绑定API</a>
+                        <a onClick={() => showDrawer(record)}>API权限</a>
                         <a onClick={() => handleMenuAuthority('编辑权限', AuthorityType.BUTTON, 'EDIT', record)}>编辑</a>
                         <Popconfirm okText='确定' cancelText='取消' title="确定删除？" onConfirm={() => handleDeleteAuthority(record.id)} style={{ marginInlineEnd: 8 }}>
                             <Typography.Link>
@@ -243,7 +243,7 @@ const MenuDetails = ({ menuId }) => {
                 onSuccess={handleSuccessMenuAuthority}
             />
             <Drawer
-                title={`绑定API[${openInfo.title}]`}
+                title={`API权限[${openInfo.title}]`}
                 closable={{ 'aria-label': 'Close Button' }}
                 onClose={onClose}
                 open={openInfo.open}

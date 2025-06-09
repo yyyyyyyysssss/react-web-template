@@ -1,24 +1,15 @@
 import { useContext, useEffect, useMemo } from 'react';
 import './index.css'
-import {
-    SettingOutlined,
-} from '@ant-design/icons';
 import { Menu } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadMenuItems, setActiveKey, setOpenKeys } from '../../redux/slices/layoutSlice';
 import { fetchMenuTree } from '../../services/SystemService';
 import { ThemeContext } from '../../context/ThemeContext';
+import { findRouteByPath } from '../../router/router';
+import { Square } from 'lucide-react';
 
-const formatMenuItems = (items) => {
-    return items.map(item => ({
-        key: item.id,
-        label: item.name,
-        icon: <SettingOutlined />,
-        path: item.routePath,
-        children: item.children && item.children.length > 0 ? formatMenuItems(item.children) : undefined,
-    }))
-}
+
 
 const Sider = () => {
 
@@ -55,7 +46,7 @@ const Sider = () => {
             dispatch(setActiveKey({ path: location.pathname }))
         }
         // eslint-disable-next-line
-    }, [flattenMenuItems,location.pathname])
+    }, [flattenMenuItems, location.pathname])
 
     const handleOpenChange = (keys) => {
         dispatch(setOpenKeys({ keys: keys }))
@@ -78,6 +69,21 @@ const Sider = () => {
         const menuItem = flattenMenuItems.find(item => item.id === activeKey)
         return menuItem?.id
     }, [activeKey, flattenMenuItems])
+
+    const formatMenuItems = (items) => {
+
+        return items.map(item => {
+            const route = findRouteByPath(item.routePath)
+            const defaultIcon = route?.defaultIcon
+            return {
+                key: item.id,
+                label: item.name,
+                icon: item.icon || defaultIcon || <Square size={18} />,
+                path: item.routePath,
+                children: item.children && item.children.length > 0 ? formatMenuItems(item.children) : undefined,
+            }
+        })
+    }
 
     const items = useMemo(() => {
         return formatMenuItems(menuItems)

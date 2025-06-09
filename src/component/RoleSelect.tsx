@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { fetchRoleOptions } from "../services/SystemService";
 import { Checkbox, Divider, Flex, Select } from "antd";
 
@@ -22,8 +22,11 @@ const RoleSelect: React.FC<RoleSelectProps> = ({ value, onChange, type = 'select
 
     const [loaded, setLoaded] = useState(false)
 
+    const isFetching = useRef(false) 
+
     const fetchData = async () => {
-        if (loaded) return
+        if (loaded || isFetching.current) return
+        isFetching.current = true
         setLoading(true)
         try {
             const roleOptions = await fetchRoleOptions()
@@ -33,6 +36,12 @@ const RoleSelect: React.FC<RoleSelectProps> = ({ value, onChange, type = 'select
             setLoading(false)
         }
     }
+
+    useEffect(() => {
+        if (type === 'checkbox') {
+            fetchData()
+        }
+    }, [type])
 
     useEffect(() => {
         if (value && value.length > 0) {
@@ -87,6 +96,7 @@ const RoleSelect: React.FC<RoleSelectProps> = ({ value, onChange, type = 'select
                             label: 'name',
                             value: 'id',
                         }}
+                        allowClear
                         showSearch
                         optionFilterProp="name"
                         onDropdownVisibleChange={handleDropdownVisibleChange}

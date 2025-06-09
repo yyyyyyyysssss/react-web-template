@@ -1,4 +1,4 @@
-import { Button, Drawer, Dropdown, Flex, Form, Input, Menu, message, Modal, Popconfirm, Radio, Select, Space, Table, Tag, Typography } from 'antd'
+import { Button, Drawer, Dropdown, Flex, Form, Input, Menu, message, Modal, Popconfirm, Radio, Select, Space, Switch, Table, Tag, Typography } from 'antd'
 import './index.css'
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -218,7 +218,7 @@ const UserManage = () => {
     const handleBindRole = (userItem) => {
         setBindRole({
             open: true,
-            title: `绑定角色[${userItem.nickname}]`,
+            title: `分配角色[${userItem.nickname}]`,
             userItem: userItem,
         })
     }
@@ -274,14 +274,39 @@ const UserManage = () => {
             key: 'enabled',
             title: '状态',
             dataIndex: 'enabled',
-            width: '80px',
+            width: '100px',
             align: 'center',
-            render: (_, { enabled }) => {
-                if (enabled === true) {
-                    return <Tag color="success">启用</Tag>
-                } else {
-                    return <Tag color="error">停用</Tag>
+            render: (_, record) => {
+                const { id, enabled } = record
+                const handleChange = (checked) => {
+                    handleUpdateEnabled(id, checked)
                 }
+                return enabled ?
+                    (
+                        <Popconfirm
+                            okText='确定'
+                            cancelText='取消'
+                            title="确定停用？"
+                            onConfirm={() => handleChange(false)}
+                            style={{ marginInlineEnd: 8 }}
+                        >
+                            <Switch
+                                checkedChildren="启用"
+                                unCheckedChildren="停用"
+                                checked={enabled}
+                            />
+                        </Popconfirm>
+
+                    )
+                    :
+                    (
+                        <Switch
+                            checkedChildren="启用"
+                            unCheckedChildren="停用"
+                            checked={enabled}
+                            onChange={handleChange}
+                        />
+                    )
             }
         },
         {
@@ -308,58 +333,42 @@ const UserManage = () => {
                 return (
                     <span>
                         <Typography.Link onClick={() => handleBindRole(record)} style={{ marginInlineEnd: 8 }}>
-                            绑定角色
+                            分配角色
                         </Typography.Link>
                         <Typography.Link onClick={() => handleEditUser(record)} style={{ marginInlineEnd: 8 }}>
                             编辑
                         </Typography.Link>
-                        {record.enabled === true
-                            ?
-                            (
-                                <Popconfirm okText='确定' cancelText='取消' title="确定停用？" onConfirm={() => handleUpdateEnabled(record.id, false)} style={{ marginInlineEnd: 8 }}>
-                                    <Typography.Link style={{ marginInlineEnd: 8 }}>
-                                        停用
-                                    </Typography.Link>
-                                </Popconfirm>
-                            )
-                            :
-                            (
-                                <Typography.Link onClick={() => handleUpdateEnabled(record.id, true)} style={{ marginInlineEnd: 8 }}>
-                                    启用
-                                </Typography.Link>
-                            )
-                        }
+                        <Typography.Link
+                            style={{ marginInlineEnd: 8 }}
+                            onClick={() => {
+                                modal.confirm({
+                                    title: '确定重置？',
+                                    okText: '确定',
+                                    cancelText: '取消',
+                                    content: (
+                                        <>
+                                            是否重置 <Highlight>{record.nickname}</Highlight> 的密码？
+                                        </>
+                                    ),
+                                    onOk: () => handleResetPassword(record),
+                                })
+                            }}
+                        >
+                            重置密码
+                        </Typography.Link>
                         <Dropdown
                             menu={{
                                 items: [
                                     {
-                                        key: 'reset',
-                                        label: (
-                                            <Typography.Link
-                                                style={{ marginInlineEnd: 8 }}
-                                                onClick={() => {
-                                                    modal.confirm({
-                                                        title: '确定重置？',
-                                                        okText: '确定',
-                                                        cancelText: '取消',
-                                                        content: (
-                                                            <>
-                                                                是否重置 <Highlight>{record.nickname}</Highlight> 的密码？
-                                                            </>
-                                                        ),
-                                                        onOk: () => handleResetPassword(record),
-                                                    })
-                                                }}
-                                            >
-                                                重置密码
-                                            </Typography.Link>
-                                        )
-                                    },
-                                    {
                                         key: 'delete',
                                         label: (
                                             <Typography.Link
-                                                style={{ marginInlineEnd: 8 }}
+                                                style={{
+                                                    marginInlineEnd: 8,
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    width: '100%',
+                                                }}
                                                 onClick={() => {
                                                     modal.confirm({
                                                         title: '确定删除？',
@@ -549,7 +558,7 @@ const UserManage = () => {
                             />
                         </Form.Item>
                         <Form.Item
-                            label="绑定角色"
+                            label="分配角色"
                             name="roleIds"
                         >
                             <RoleSelect />
@@ -579,7 +588,7 @@ const UserManage = () => {
                     <Form.Item
                         name="roleIds"
                     >
-                        <RoleSelect type='checkbox'/>
+                        <RoleSelect type='checkbox' />
                     </Form.Item>
                 </Form>
             </Drawer>

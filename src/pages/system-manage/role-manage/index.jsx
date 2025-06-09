@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import './index.css'
 import { bindAuthorityByRoleId, createRole, deleteRoleById, fetchRoleList, updateRole, updateRoleEnabled } from '../../../services/SystemService'
-import { Button, Drawer, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Space, Table, Tag, Tree, Typography } from 'antd'
+import { Button, Drawer, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Space, Switch, Table, Tag, Tree, Typography } from 'antd'
 import AuthorityTreeSelect from '../../../component/AuthorityTreeSelect'
 import AuthorityTree from '../../../component/AuthorityTree'
 import Highlight from '../../../component/Highlight'
@@ -162,7 +162,7 @@ const RoleManage = () => {
     const handleBindAuthority = (roleItem) => {
         setBindAuthority({
             open: true,
-            title: `绑定权限[${roleItem.name}]`,
+            title: `分配权限[${roleItem.name}]`,
             roleItem: roleItem,
         })
     }
@@ -206,14 +206,42 @@ const RoleManage = () => {
             key: 'enabled',
             title: '状态',
             dataIndex: 'enabled',
-            width: '80px',
+            width: '100px',
             align: 'center',
-            render: (_, { enabled }) => {
-                if (enabled === true) {
-                    return <Tag color="success">启用</Tag>
-                } else {
-                    return <Tag color="error">停用</Tag>
+            render: (_, record) => {
+                const { id, enabled } = record
+                const handleChange = (checked) => {
+                    if (checked) {
+                        handleUpdateEnabled(id, true)
+                    }
                 }
+                return enabled ?
+                    (
+                        <Popconfirm
+                            okText='确定'
+                            cancelText='取消'
+                            title="确定停用？"
+                            onConfirm={() => handleUpdateEnabled(record.id, false)}
+                            style={{ marginInlineEnd: 8 }}
+                        >
+                            <Switch
+                                checkedChildren="启用"
+                                unCheckedChildren="停用"
+                                checked={enabled}
+                                onChange={handleChange}
+                            />
+                        </Popconfirm>
+
+                    )
+                    :
+                    (
+                        <Switch
+                            checkedChildren="启用"
+                            unCheckedChildren="停用"
+                            checked={enabled}
+                            onChange={handleChange}
+                        />
+                    )
             }
         },
         {
@@ -234,33 +262,20 @@ const RoleManage = () => {
             align: 'center',
             fixed: 'right',
             render: (_, record) => {
-                if (record.code === 'super_admin') {
+                if (record.type === 'SUPER_ADMIN') {
                     return <></>
                 }
                 return (
                     <span>
                         <Typography.Link onClick={() => handleBindAuthority(record)} style={{ marginInlineEnd: 8 }}>
-                            绑定权限
+                            分配权限
                         </Typography.Link>
+                        {/* <Typography.Link onClick={null} style={{ marginInlineEnd: 8 }}>
+                            分配用户
+                        </Typography.Link> */}
                         <Typography.Link onClick={() => handleEditRole(record)} style={{ marginInlineEnd: 8 }}>
                             编辑
                         </Typography.Link>
-                        {record.enabled === true
-                            ?
-                            (
-                                <Popconfirm okText='确定' cancelText='取消' title="确定停用？" onConfirm={() => handleUpdateEnabled(record.id, false)} style={{ marginInlineEnd: 8 }}>
-                                    <Typography.Link style={{ marginInlineEnd: 8 }}>
-                                        停用
-                                    </Typography.Link>
-                                </Popconfirm>
-                            )
-                            :
-                            (
-                                <Typography.Link onClick={() => handleUpdateEnabled(record.id, true)} style={{ marginInlineEnd: 8 }}>
-                                    启用
-                                </Typography.Link>
-                            )
-                        }
                         <Typography.Link
                             style={{ marginInlineEnd: 8 }}
                             onClick={() => {
@@ -418,7 +433,7 @@ const RoleManage = () => {
                             />
                         </Form.Item>
                         <Form.Item
-                            label="授权"
+                            label="分配权限"
                             name="authorityIds"
                         >
                             <AuthorityTreeSelect />
