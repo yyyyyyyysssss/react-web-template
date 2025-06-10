@@ -128,6 +128,7 @@ const RoleManage = () => {
                                 }
                             )
                     } else {
+                        console.log('values',values)
                         updateRole(values)
                             .then(
                                 () => {
@@ -270,9 +271,6 @@ const RoleManage = () => {
                         <Typography.Link onClick={() => handleBindAuthority(record)} style={{ marginInlineEnd: 8 }}>
                             分配权限
                         </Typography.Link>
-                        {/* <Typography.Link onClick={null} style={{ marginInlineEnd: 8 }}>
-                            分配用户
-                        </Typography.Link> */}
                         <Typography.Link onClick={() => handleEditRole(record)} style={{ marginInlineEnd: 8 }}>
                             编辑
                         </Typography.Link>

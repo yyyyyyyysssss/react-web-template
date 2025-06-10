@@ -1,11 +1,11 @@
 import axios from "axios";
 import Cookies from 'js-cookie'
-import router from '../router/router';
 import { jwtDecode } from 'jwt-decode'
 import env from "../env";
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { getMessageApi } from "../utils/MessageUtil.jsx";
+import { useGlobalSignout } from "../router/auth.js";
 
 
 const httpWrapper = axios.create({
@@ -55,7 +55,7 @@ httpWrapper.interceptors.response.use(
     (res) => {
         stopProgress()
         const result = res.data
-        if(result.code !== 0){
+        if (result && result.code !== 0) {
             getMessageApi().error(result.message)
             return Promise.reject(new Error(result.message))
         }
@@ -70,10 +70,10 @@ httpWrapper.interceptors.response.use(
         const { status, message: errorMessage } = error.response;
         switch (status) {
             case 401:
-                Cookies.remove('accessToken');
-                Cookies.remove('refreshToken');
                 if (error.config.url !== '/login') {
-                    return router.navigate('/login');
+                    const signout = useGlobalSignout()
+                    signout()
+                    return;
                 }
                 break
             case 403:

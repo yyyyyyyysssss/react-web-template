@@ -10,9 +10,9 @@ import 'antd/dist/reset.css';
 import NProgress from 'nprogress';
 import { setMessageApi } from './utils/MessageUtil.jsx';
 import { ThemeContext } from './context/ThemeContext';
+import { AuthProvider } from './router/AuthProvider.jsx';
 
 NProgress.configure({
-  parent: '.layout-header',
   showSpinner: false
 })
 
@@ -89,16 +89,18 @@ const App = () => {
       renderEmpty={() => (<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无数据" />)}
     >
       <Provider store={store}>
-        {contextHolder}
-        <ThemeContext.Provider value='dark'>
-          <RouterProvider
-            future={{
-              v7_startTransition: true,
-              v7_relativeSplatPath: true
-            }}
-            router={router}
-          />
-        </ThemeContext.Provider>
+        <AuthProvider>
+          {contextHolder}
+          <ThemeContext.Provider value='dark'>
+            <RouterProvider
+              future={{
+                v7_startTransition: true,
+                v7_relativeSplatPath: true
+              }}
+              router={router}
+            />
+          </ThemeContext.Provider>
+        </AuthProvider>
       </Provider>
     </ConfigProvider>
   );

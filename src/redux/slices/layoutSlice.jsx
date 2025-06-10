@@ -50,8 +50,10 @@ export const layoutSlice = createSlice({
             } else {
                 menuItem = findBestMatchMenu(path, state.flattenMenuItems)
             }
-            state.activeKey = menuItem.id
-            state.openKeys = state.menuCollapsed ? [] : menuItem.parentPath
+            if (menuItem) {
+                state.activeKey = menuItem.id
+                state.openKeys = state.menuCollapsed ? [] : menuItem.parentPath
+            }
         },
         menuCollapsed: (state, action) => {
             state.menuCollapsed = !state.menuCollapsed

@@ -1,284 +1,170 @@
+import { apiRequestWrapper } from "./ApiRequestWrapper"
 import httpWrapper from "./AxiosWrapper"
 
-
+// 用户列表
 export const fetchUserList = async (queryParam) => {
-    try {
-        const res = await httpWrapper.post('/api/system/user/query', queryParam)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+
+    return apiRequestWrapper(() => httpWrapper.post('/api/system/user/query', queryParam))
 }
 
+// 用户停启用
 export const updateUserEnabled = async (userId, enabled) => {
     const roleBody = {
         id: userId,
         enabled: enabled
     }
-    try {
-        const res = await httpWrapper.patch('/api/system/user', roleBody)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+    return apiRequestWrapper(() => httpWrapper.patch('/api/system/user', roleBody))
 }
 
+// 创建用户
 export const createUser = async (userBody) => {
-    try {
-        const res = await httpWrapper.post('/api/system/user', userBody)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+
+    return apiRequestWrapper(() => httpWrapper.post('/api/system/user', userBody))
 }
 
+// 更新用户
 export const updateUser = async (userBody) => {
-    try {
-        const res = await httpWrapper.put('/api/system/user', userBody)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+
+    return apiRequestWrapper(() => httpWrapper.put('/api/system/user', userBody))
 }
 
+// 用户分配角色
 export const bindRoleByUserId = async (userId, roleIds) => {
     const req = {
         roleIds: roleIds
     }
-    try {
-        const res = await httpWrapper.post(`/api/system/user/${userId}/roles`, req)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+    return apiRequestWrapper(() => httpWrapper.post(`/api/system/user/${userId}/roles`, req))
 }
 
+// 删除用户
 export const deleteUserById = async (userId) => {
-    try {
-        const res = await httpWrapper.delete(`/api/system/user/${userId}`)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+
+    return apiRequestWrapper(() => httpWrapper.delete(`/api/system/user/${userId}`))
 }
 
+// 重置用户密码
 export const resetPassword = async (userId) => {
-    try {
-        const res = await httpWrapper.put(`/api/system/user/${userId}/password`)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+
+    return apiRequestWrapper(() => httpWrapper.put(`/api/system/user/${userId}/password`))
 }
 
+// 创建角色
 export const createRole = async (roleBody) => {
-    try {
-        const res = await httpWrapper.post('/api/system/role', roleBody)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+
+    return apiRequestWrapper(() => httpWrapper.post('/api/system/role', roleBody))
 }
 
+
+// 更新角色
 export const updateRole = async (roleBody) => {
-    try {
-        const res = await httpWrapper.put('/api/system/role', roleBody)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+
+    return apiRequestWrapper(() => httpWrapper.put('/api/system/role', roleBody))
 }
 
+// 角色停启用
 export const updateRoleEnabled = async (roleId, enabled) => {
     const roleBody = {
         id: roleId,
         enabled: enabled
     }
-    try {
-        const res = await httpWrapper.patch('/api/system/role', roleBody)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+    return apiRequestWrapper(() => httpWrapper.patch('/api/system/role', roleBody))
 }
 
+// 删除角色
 export const deleteRoleById = async (roleId) => {
-    try {
-        const res = await httpWrapper.delete(`/api/system/role/${roleId}`)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+
+    return apiRequestWrapper(() => httpWrapper.delete(`/api/system/role/${roleId}`))
 }
 
+// 角色列表
 export const fetchRoleList = async (queryParam) => {
-    try {
-        const res = await httpWrapper.post('/api/system/role/query', queryParam)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+
+    return apiRequestWrapper(() => httpWrapper.post('/api/system/role/query', queryParam))
 }
 
+// 角色选择
 export const fetchRoleOptions = async () => {
-    try {
-        const res = await httpWrapper.get('/api/system/role/options')
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+
+    return apiRequestWrapper(() => httpWrapper.get('/api/system/role/options'))
 }
 
-
+// 角色分配权限
 export const bindAuthorityByRoleId = async (roleId, authorityIds) => {
     const req = {
         authorityIds: authorityIds
     }
-    try {
-        const res = await httpWrapper.post(`/api/system/role/${roleId}/authorities`, req)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+    return apiRequestWrapper(() => httpWrapper.post(`/api/system/role/${roleId}/authorities`, req))
 }
 
+// 菜单树
 export const fetchMenuTree = async () => {
-    try {
-        const res = await httpWrapper.get('/api/system/menu/tree')
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+
+    return apiRequestWrapper(() => httpWrapper.get('/api/system/menu/tree'))
 }
 
+// 菜单详情
 export const fetchMenuDetails = async (menuId) => {
-    try {
-        const res = await httpWrapper.get(`/api/system/menu/${menuId}`)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+
+    return apiRequestWrapper(() => httpWrapper.get(`/api/system/menu/${menuId}`))
 }
 
+// 菜单拖动
 export const menuDrag = async (dragId, targetId, position) => {
-    try {
-        const res = await httpWrapper.post('/api/system/menu/drag', {
-            dragId: dragId,
-            targetId: targetId,
-            position: position
-        })
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
+    const req = {
+        dragId: dragId,
+        targetId: targetId,
+        position: position
     }
+    return apiRequestWrapper(() => httpWrapper.post('/api/system/menu/drag', req))
 }
 
-
+// 创建菜单
 export const createMenu = async (req) => {
-    try {
-        const res = await httpWrapper.post('/api/system/menu', req)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+
+    return apiRequestWrapper(() => httpWrapper.post('/api/system/menu', req))
 }
 
+// 更新菜单
 export const updateMenu = async (req) => {
-    try {
-        const res = await httpWrapper.put('/api/system/menu', req)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+
+    return apiRequestWrapper(() => httpWrapper.put('/api/system/menu', req))
 }
 
+// 删除菜单
 export const deleteMenu = async (id) => {
-    try {
-        const res = await httpWrapper.delete(`/api/system/menu/${id}`)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+
+    return apiRequestWrapper(() => httpWrapper.delete(`/api/system/menu/${id}`))
 }
 
-
+// 添加权限
 export const addAuthority = async (req) => {
-    try {
-        const res = await httpWrapper.post('/api/system/authority', req)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+
+    return apiRequestWrapper(() => httpWrapper.post('/api/system/authority', req))
 }
 
+// 更新权限
 export const updateAuthority = async (req) => {
-    try {
-        const res = await httpWrapper.put('/api/system/authority', req)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+
+    return apiRequestWrapper(() => httpWrapper.put('/api/system/authority', req))
 }
 
+// 删除权限
 export const deleteAuthorityById = async (id) => {
-    try {
-        const res = await httpWrapper.delete(`/api/system/authority/${id}`)
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
+
+    return apiRequestWrapper(() => httpWrapper.delete(`/api/system/authority/${id}`))
 }
 
+// 更新权限api路径
 export const updateAuthorityUrlsById = async (id, authorityUrls) => {
-    try {
-        const res = await httpWrapper.patch('/api/system/authority',
-            {
-                id: id,
-                urls: authorityUrls,
-            }
-        )
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
+    const req = {
+        id: id,
+        urls: authorityUrls,
     }
+    return apiRequestWrapper(() => httpWrapper.patch('/api/system/authority',req))
 }
 
+// 获取权限树
 export const fetchAuthorityTree = async () => {
-    try {
-        const res = await httpWrapper.get('/api/system/authority/tree')
-        return res.data
-    } catch (error) {
-        handleError(error)
-        throw error
-    }
-}
 
-
-
-const handleError = (error) => {
-    // 这里可以加入更多的错误处理逻辑，比如发送错误日志、显示错误信息等
+    return apiRequestWrapper(() => httpWrapper.get('/api/system/authority/tree'))
 }

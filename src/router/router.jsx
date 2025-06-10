@@ -1,8 +1,9 @@
 import React, { lazy } from "react";
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { matchPath } from "react-router"
-import AuthProvider from "./AuthProvider";
 import { House, Settings, UserCog, Menu, ShieldUser } from "lucide-react";
+import { LoginRoute } from "./LoginRoute";
+import { ProtectedRoute } from "./ProtectedRoute";
 
 const AppLayout = lazy(() => import('../layouts'))
 const Home = lazy(() => import('../pages/home'))
@@ -16,7 +17,7 @@ const MenuManage = lazy(() => import('../pages/system-manage/menu-manage'))
 export const routes = [
     {
         path: 'login',
-        element: <Login />,
+        element: <LoginRoute><Login /></LoginRoute>,
         protected: false,
     },
     {
@@ -127,7 +128,7 @@ export const findRouteByHierarchy = (paths) => {
 const finalRoutes = routes.map((route) => {
     return {
         ...route,
-        element: route.protected ? (<AuthProvider>{route.element}</AuthProvider>) : route.element
+        element: route.protected ? (<ProtectedRoute>{route.element}</ProtectedRoute>) : route.element
     }
 })
 

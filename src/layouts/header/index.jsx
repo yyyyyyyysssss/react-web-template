@@ -8,10 +8,14 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { menuCollapsed } from '../../redux/slices/layoutSlice';
 import TopBreadcrumbTab from '../breadcrumb-tab';
-import { LogOut, Lock, UserPen  } from 'lucide-react';
+import { LogOut, Lock, UserPen } from 'lucide-react';
+import { logout } from '../../services/LoginService';
+import { useAuth } from '../../router/AuthProvider';
 
 
 const Header = () => {
+
+    const { signout } = useAuth()
 
     const collapsed = useSelector(state => state.layout.menuCollapsed)
 
@@ -19,6 +23,15 @@ const Header = () => {
 
     const handleCollapsed = () => {
         dispatch(menuCollapsed())
+    }
+
+    const handleLogout = () => {
+        logout()
+            .then(
+                () => {
+                    signout()
+                }
+            )
     }
 
     return (
@@ -79,7 +92,7 @@ const Header = () => {
                             {
                                 key: 'logout',
                                 label: (
-                                    <Typography.Link>
+                                    <Typography.Link onClick={handleLogout}>
                                         <Flex
                                             gap={8}
                                             align='center'

@@ -1,13 +1,13 @@
-import { useContext, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useEffect, useMemo } from 'react';
 import './index.css'
 import { Menu } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadMenuItems, setActiveKey, setOpenKeys } from '../../redux/slices/layoutSlice';
-import { fetchMenuTree } from '../../services/SystemService';
 import { ThemeContext } from '../../context/ThemeContext';
 import { findRouteByPath } from '../../router/router';
 import { Square } from 'lucide-react';
+import { fetchUserMenuTree } from '../../services/UserProfileService';
 
 
 
@@ -33,8 +33,12 @@ const Sider = () => {
 
     useEffect(() => {
         const fetchMenus = async () => {
-            fetchMenuTree()
-                .then(data => dispatch(loadMenuItems({ menuItems: data })))
+            fetchUserMenuTree()
+                .then(
+                    (data) => {
+                        dispatch(loadMenuItems({ menuItems: data }))
+                    }
+                )
         }
         fetchMenus()
         // eslint-disable-next-line
@@ -48,9 +52,9 @@ const Sider = () => {
         // eslint-disable-next-line
     }, [flattenMenuItems, location.pathname])
 
-    const handleOpenChange = (keys) => {
+    const handleOpenChange = useCallback((keys) => {
         dispatch(setOpenKeys({ keys: keys }))
-    }
+    },[])
 
     const switchMenu = (e) => {
         const menuItem = flattenMenuItems.find(item => item.id === e.key)
