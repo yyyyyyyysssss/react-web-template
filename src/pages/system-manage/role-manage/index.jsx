@@ -5,6 +5,7 @@ import { Button, Drawer, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Sp
 import AuthorityTreeSelect from '../../../component/AuthorityTreeSelect'
 import AuthorityTree from '../../../component/AuthorityTree'
 import Highlight from '../../../component/Highlight'
+import HasPermission from '../../../component/HasPermission'
 
 const initQueryParam = {
     pageNum: 1,
@@ -128,7 +129,7 @@ const RoleManage = () => {
                                 }
                             )
                     } else {
-                        console.log('values',values)
+                        console.log('values', values)
                         updateRole(values)
                             .then(
                                 () => {
@@ -218,12 +219,45 @@ const RoleManage = () => {
                 }
                 return enabled ?
                     (
-                        <Popconfirm
-                            okText='确定'
-                            cancelText='取消'
-                            title="确定停用？"
-                            onConfirm={() => handleUpdateEnabled(record.id, false)}
-                            style={{ marginInlineEnd: 8 }}
+                        <HasPermission
+                            hasPermissions='system:role:write'
+                            fallback={
+                                <Switch
+                                    disabled
+                                    checkedChildren="启用"
+                                    unCheckedChildren="停用"
+                                    checked={enabled}
+                                />
+                            }
+                        >
+                            <Popconfirm
+                                okText='确定'
+                                cancelText='取消'
+                                title="确定停用？"
+                                onConfirm={() => handleUpdateEnabled(record.id, false)}
+                                style={{ marginInlineEnd: 8 }}
+                            >
+                                <Switch
+                                    checkedChildren="启用"
+                                    unCheckedChildren="停用"
+                                    checked={enabled}
+                                    onChange={handleChange}
+                                />
+                            </Popconfirm>
+                        </HasPermission>
+                    )
+                    :
+                    (
+                        <HasPermission
+                            hasPermissions='system:user:write'
+                            fallback={
+                                <Switch
+                                    disabled
+                                    checkedChildren="启用"
+                                    unCheckedChildren="停用"
+                                    checked={enabled}
+                                />
+                            }
                         >
                             <Switch
                                 checkedChildren="启用"
@@ -231,17 +265,7 @@ const RoleManage = () => {
                                 checked={enabled}
                                 onChange={handleChange}
                             />
-                        </Popconfirm>
-
-                    )
-                    :
-                    (
-                        <Switch
-                            checkedChildren="启用"
-                            unCheckedChildren="停用"
-                            checked={enabled}
-                            onChange={handleChange}
-                        />
+                        </HasPermission>
                     )
             }
         },
@@ -268,30 +292,34 @@ const RoleManage = () => {
                 }
                 return (
                     <span>
-                        <Typography.Link onClick={() => handleBindAuthority(record)} style={{ marginInlineEnd: 8 }}>
-                            分配权限
-                        </Typography.Link>
-                        <Typography.Link onClick={() => handleEditRole(record)} style={{ marginInlineEnd: 8 }}>
-                            编辑
-                        </Typography.Link>
-                        <Typography.Link
-                            style={{ marginInlineEnd: 8 }}
-                            onClick={() => {
-                                modal.confirm({
-                                    title: '确定删除？',
-                                    okText: '确定',
-                                    cancelText: '取消',
-                                    content: (
-                                        <>
-                                            是否删除 <Highlight>{record.name}</Highlight> 角色？删除后将无法恢复！
-                                        </>
-                                    ),
-                                    onOk: () => handleDelete(record.id),
-                                })
-                            }}
-                        >
-                            删除
-                        </Typography.Link>
+                        <HasPermission hasPermissions='system:role:write'>
+                            <Typography.Link onClick={() => handleBindAuthority(record)} style={{ marginInlineEnd: 8 }}>
+                                分配权限
+                            </Typography.Link>
+                            <Typography.Link onClick={() => handleEditRole(record)} style={{ marginInlineEnd: 8 }}>
+                                编辑
+                            </Typography.Link>
+                        </HasPermission>
+                        <HasPermission hasPermissions='system:role:delete'>
+                            <Typography.Link
+                                style={{ marginInlineEnd: 8 }}
+                                onClick={() => {
+                                    modal.confirm({
+                                        title: '确定删除？',
+                                        okText: '确定',
+                                        cancelText: '取消',
+                                        content: (
+                                            <>
+                                                是否删除 <Highlight>{record.name}</Highlight> 角色？删除后将无法恢复！
+                                            </>
+                                        ),
+                                        onOk: () => handleDelete(record.id),
+                                    })
+                                }}
+                            >
+                                删除
+                            </Typography.Link>
+                        </HasPermission>
                     </span>
                 )
             }

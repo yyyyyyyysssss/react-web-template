@@ -7,6 +7,7 @@ import { CopyOutlined, DownOutlined } from '@ant-design/icons';
 import Highlight from '../../../component/Highlight';
 import { getMessageApi } from '../../../utils/MessageUtil';
 import RoleSelect from '../../../component/RoleSelect';
+import HasPermission from '../../../component/HasPermission';
 
 
 const initQueryParam = {
@@ -283,29 +284,55 @@ const UserManage = () => {
                 }
                 return enabled ?
                     (
-                        <Popconfirm
-                            okText='确定'
-                            cancelText='取消'
-                            title="确定停用？"
-                            onConfirm={() => handleChange(false)}
-                            style={{ marginInlineEnd: 8 }}
+                        <HasPermission
+                            hasPermissions='system:user:write'
+                            fallback={
+                                <Switch
+                                    disabled
+                                    checkedChildren="启用"
+                                    unCheckedChildren="停用"
+                                    checked={enabled}
+                                />
+                            }
+
+                        >
+                            <Popconfirm
+                                okText='确定'
+                                cancelText='取消'
+                                title="确定停用？"
+                                onConfirm={() => handleChange(false)}
+                                style={{ marginInlineEnd: 8 }}
+                            >
+                                <Switch
+                                    checkedChildren="启用"
+                                    unCheckedChildren="停用"
+                                    checked={enabled}
+                                />
+                            </Popconfirm>
+                        </HasPermission>
+
+
+                    )
+                    :
+                    (
+                        <HasPermission
+                            hasPermissions='system:user:write'
+                            fallback={
+                                <Switch
+                                    disabled
+                                    checkedChildren="启用"
+                                    unCheckedChildren="停用"
+                                    checked={enabled}
+                                />
+                            }
                         >
                             <Switch
                                 checkedChildren="启用"
                                 unCheckedChildren="停用"
                                 checked={enabled}
+                                onChange={handleChange}
                             />
-                        </Popconfirm>
-
-                    )
-                    :
-                    (
-                        <Switch
-                            checkedChildren="启用"
-                            unCheckedChildren="停用"
-                            checked={enabled}
-                            onChange={handleChange}
-                        />
+                        </HasPermission>
                     )
             }
         },
@@ -332,69 +359,77 @@ const UserManage = () => {
                 }
                 return (
                     <span>
-                        <Typography.Link onClick={() => handleBindRole(record)} style={{ marginInlineEnd: 8 }}>
-                            分配角色
-                        </Typography.Link>
-                        <Typography.Link onClick={() => handleEditUser(record)} style={{ marginInlineEnd: 8 }}>
-                            编辑
-                        </Typography.Link>
-                        <Typography.Link
-                            style={{ marginInlineEnd: 8 }}
-                            onClick={() => {
-                                modal.confirm({
-                                    title: '确定重置？',
-                                    okText: '确定',
-                                    cancelText: '取消',
-                                    content: (
-                                        <>
-                                            是否重置 <Highlight>{record.nickname}</Highlight> 的密码？
-                                        </>
-                                    ),
-                                    onOk: () => handleResetPassword(record),
-                                })
-                            }}
+                        <HasPermission
+                            hasPermissions='system:user:write'
                         >
-                            重置密码
-                        </Typography.Link>
-                        <Dropdown
-                            menu={{
-                                items: [
-                                    {
-                                        key: 'delete',
-                                        label: (
-                                            <Typography.Link
-                                                style={{
-                                                    marginInlineEnd: 8,
-                                                    display: 'flex',
-                                                    justifyContent: 'center',
-                                                    width: '100%',
-                                                }}
-                                                onClick={() => {
-                                                    modal.confirm({
-                                                        title: '确定删除？',
-                                                        okText: '确定',
-                                                        cancelText: '取消',
-                                                        content: (
-                                                            <>
-                                                                是否删除 <Highlight>{record.nickname}</Highlight> 的账号？删除后将无法恢复！
-                                                            </>
-                                                        ),
-                                                        onOk: () => handleDelete(record.id),
-                                                    })
-                                                }}
-                                            >
-                                                删除
-                                            </Typography.Link>
-                                        )
-                                    }
-                                ]
-                            }}
-                            trigger={['click']}
-                        >
-                            <Typography.Link>
-                                更多 <DownOutlined />
+                            <Typography.Link onClick={() => handleBindRole(record)} style={{ marginInlineEnd: 8 }}>
+                                分配角色
                             </Typography.Link>
-                        </Dropdown>
+                            <Typography.Link onClick={() => handleEditUser(record)} style={{ marginInlineEnd: 8 }}>
+                                编辑
+                            </Typography.Link>
+                            <Typography.Link
+                                style={{ marginInlineEnd: 8 }}
+                                onClick={() => {
+                                    modal.confirm({
+                                        title: '确定重置？',
+                                        okText: '确定',
+                                        cancelText: '取消',
+                                        content: (
+                                            <>
+                                                是否重置 <Highlight>{record.nickname}</Highlight> 的密码？
+                                            </>
+                                        ),
+                                        onOk: () => handleResetPassword(record),
+                                    })
+                                }}
+                            >
+                                重置密码
+                            </Typography.Link>
+                        </HasPermission>
+                        <HasPermission
+                            hasPermissions='system:user:delete'
+                        >
+                            <Dropdown
+                                menu={{
+                                    items: [
+                                        {
+                                            key: 'delete',
+                                            label: (
+                                                <Typography.Link
+                                                    style={{
+                                                        marginInlineEnd: 8,
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        width: '100%',
+                                                    }}
+                                                    onClick={() => {
+                                                        modal.confirm({
+                                                            title: '确定删除？',
+                                                            okText: '确定',
+                                                            cancelText: '取消',
+                                                            content: (
+                                                                <>
+                                                                    是否删除 <Highlight>{record.nickname}</Highlight> 的账号？删除后将无法恢复！
+                                                                </>
+                                                            ),
+                                                            onOk: () => handleDelete(record.id),
+                                                        })
+                                                    }}
+                                                >
+                                                    删除
+                                                </Typography.Link>
+                                            )
+                                        }
+                                    ]
+                                }}
+                                trigger={['click']}
+                            >
+                                <Typography.Link>
+                                    更多 <DownOutlined />
+                                </Typography.Link>
+                            </Dropdown>
+                        </HasPermission>
                     </span>
                 )
             }

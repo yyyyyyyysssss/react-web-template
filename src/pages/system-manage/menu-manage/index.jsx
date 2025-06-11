@@ -8,6 +8,7 @@ import MenuAuthority from './details/menu-authority';
 import { AuthorityType } from '../../../enums';
 import IdGen from '../../../utils/IdGen';
 import Highlight from '../../../component/Highlight';
+import HasPermission from '../../../component/HasPermission';
 
 
 
@@ -30,56 +31,58 @@ const MenuItem = ({ item, onAddMenu, onEditMenu, onDeleteMenu }) => {
             <div>
                 {item.name}
             </div>
-            <div className={`flex items-center transition-opacity ${showOps ? 'opacity-100' : 'opacity-0'}`}>
-                <Dropdown
-                    menu={{
-                        items: [
-                            {
-                                key: 'child',
-                                label: '新增子菜单'
-                            },
-                            {
-                                key: 'brother',
-                                label: '新增同级菜单'
+            <HasPermission requireAll={true} hasPermissions={['system:menu:write','system:menu:delete']}>
+                <div className={`flex items-center transition-opacity ${showOps ? 'opacity-100' : 'opacity-0'}`}>
+                    <Dropdown
+                        menu={{
+                            items: [
+                                {
+                                    key: 'child',
+                                    label: '新增子菜单'
+                                },
+                                {
+                                    key: 'brother',
+                                    label: '新增同级菜单'
+                                }
+                            ],
+                            onClick: (info) => {
+                                const event = info.domEvent
+                                const key = info.key
+                                event.stopPropagation()
+                                onAddMenu(key, item)
                             }
-                        ],
-                        onClick: (info) => {
-                            const event = info.domEvent
-                            const key = info.key
-                            event.stopPropagation()
-                            onAddMenu(key, item)
-                        }
-                    }}
-                    onOpenChange={(open) => setDropdownOpen(open)}
-                >
+                        }}
+                        onOpenChange={(open) => setDropdownOpen(open)}
+                    >
+                        <div
+                            className='menu-ops-btn'
+                            onClick={e => {
+                                e.stopPropagation()
+                            }}
+                        >
+                            <Plus size={18} color='gray' />
+                        </div>
+                    </Dropdown>
                     <div
                         className='menu-ops-btn'
-                        onClick={e => {
+                        onClick={(e) => {
                             e.stopPropagation()
+                            onEditMenu(item)
                         }}
                     >
-                        <Plus size={18} color='gray' />
+                        <Pencil size={16} color='gray' />
                     </div>
-                </Dropdown>
-                <div
-                    className='menu-ops-btn'
-                    onClick={(e) => {
-                        e.stopPropagation()
-                        onEditMenu(item)
-                    }}
-                >
-                    <Pencil size={16} color='gray' />
+                    <div
+                        className='menu-ops-btn'
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            onDeleteMenu(item)
+                        }}
+                    >
+                        <Trash2 size={16} color='gray' />
+                    </div>
                 </div>
-                <div
-                    className='menu-ops-btn'
-                    onClick={(e) => {
-                        e.stopPropagation()
-                        onDeleteMenu(item)
-                    }}
-                >
-                    <Trash2 size={16} color='gray' />
-                </div>
-            </div>
+            </HasPermission>
         </div>
     )
 }

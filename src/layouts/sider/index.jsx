@@ -3,11 +3,10 @@ import './index.css'
 import { Menu } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { loadMenuItems, setActiveKey, setOpenKeys } from '../../redux/slices/layoutSlice';
+import { setActiveKey, setOpenKeys } from '../../redux/slices/layoutSlice';
 import { ThemeContext } from '../../context/ThemeContext';
 import { findRouteByPath } from '../../router/router';
 import { Square } from 'lucide-react';
-import { fetchUserMenuTree } from '../../services/UserProfileService';
 
 
 
@@ -30,20 +29,6 @@ const Sider = () => {
     const navigate = useNavigate()
 
     const location = useLocation()
-
-    useEffect(() => {
-        const fetchMenus = async () => {
-            fetchUserMenuTree()
-                .then(
-                    (data) => {
-                        dispatch(loadMenuItems({ menuItems: data }))
-                    }
-                )
-        }
-        fetchMenus()
-        // eslint-disable-next-line
-    }, [])
-
 
     useEffect(() => {
         if (location.pathname && location.pathname !== '/' && flattenMenuItems && flattenMenuItems.length > 0) {

@@ -6,6 +6,7 @@ import { deleteAuthorityById, fetchMenuDetails, updateAuthorityUrlsById } from '
 import IdGen from '../../../../utils/IdGen';
 import AuthorityUrl from './AuthorityUrl';
 import MenuAuthority from './menu-authority';
+import HasPermission from '../../../../component/HasPermission';
 
 
 const MenuDetails = ({ menuId }) => {
@@ -185,13 +186,19 @@ const MenuDetails = ({ menuId }) => {
             render: (_, record) => {
                 return (
                     <Space size='middle'>
-                        <a onClick={() => showDrawer(record)}>API权限</a>
-                        <a onClick={() => handleMenuAuthority('编辑权限', AuthorityType.BUTTON, 'EDIT', record)}>编辑</a>
-                        <Popconfirm okText='确定' cancelText='取消' title="确定删除？" onConfirm={() => handleDeleteAuthority(record.id)} style={{ marginInlineEnd: 8 }}>
-                            <Typography.Link>
-                                删除
-                            </Typography.Link>
-                        </Popconfirm>
+                        <HasPermission hasPermissions='system:menu:read'>
+                            <Typography.Link onClick={() => showDrawer(record)}>API权限</Typography.Link>
+                        </HasPermission>
+                        <HasPermission hasPermissions='system:menu:write'>
+                            <Typography.Link onClick={() => handleMenuAuthority('编辑权限', AuthorityType.BUTTON, 'EDIT', record)}>编辑</Typography.Link>
+                        </HasPermission>
+                        <HasPermission hasPermissions='system:menu:delete'>
+                            <Popconfirm okText='确定' cancelText='取消' title="确定删除？" onConfirm={() => handleDeleteAuthority(record.id)} style={{ marginInlineEnd: 8 }}>
+                                <Typography.Link>
+                                    删除
+                                </Typography.Link>
+                            </Popconfirm>
+                        </HasPermission>
                     </Space>
                 )
             }

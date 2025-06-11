@@ -85,7 +85,7 @@ export const fetchRoleList = async (queryParam) => {
 // 角色选择
 export const fetchRoleOptions = async () => {
 
-    return apiRequestWrapper(() => httpWrapper.get('/api/system/role/options'))
+    return apiRequestWrapper(() => httpWrapper.get('/api/authenticated/role/options'))
 }
 
 // 角色分配权限
@@ -166,5 +166,5 @@ export const updateAuthorityUrlsById = async (id, authorityUrls) => {
 // 获取权限树
 export const fetchAuthorityTree = async () => {
 
-    return apiRequestWrapper(() => httpWrapper.get('/api/system/authority/tree'))
+    return apiRequestWrapper(() => httpWrapper.get('/api/authenticated/authority/options'))
 }

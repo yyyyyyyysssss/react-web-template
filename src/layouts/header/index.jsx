@@ -19,6 +19,8 @@ const Header = () => {
 
     const collapsed = useSelector(state => state.layout.menuCollapsed)
 
+    const nickname = useSelector(state => state.auth.userInfo.nickname)
+
     const dispatch = useDispatch()
 
     const handleCollapsed = () => {
@@ -114,7 +116,7 @@ const Header = () => {
                     trigger={['click']}
                 >
                     <Typography.Link>
-                        <span className='text-lg'>admin</span> <DownOutlined className='text-xs' />
+                        <span>{nickname}</span> <DownOutlined className='text-xs' />
                     </Typography.Link>
                 </Dropdown>
             </Flex>

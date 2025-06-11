@@ -3,7 +3,10 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { checkTokenValid, clearToken, saveToken } from '../services/LoginService';
 import { setGlobalSignout } from './auth';
 import reduxStore from '../redux/store';
-import { reset } from '../redux/slices/layoutSlice';
+import { loadMenuItems, reset } from '../redux/slices/layoutSlice';
+import { fetchUserInfo } from '../services/UserProfileService';
+import { useDispatch } from 'react-redux';
+import { setUserInfo } from '../redux/slices/authSlice';
 
 const AuthContext = createContext({
     isLoginIn: null,
@@ -16,18 +19,34 @@ export const AuthProvider = ({ children }) => {
 
     const [isLoginIn, setIsLoginIn] = useState(null)
 
+    const dispatch = useDispatch()
+
     useEffect(() => {
         const check = async () => {
             const isValid = await checkTokenValid()
-            setIsLoginIn(isValid)
+            if (isValid) {
+                signin()
+            } else {
+                signout()
+            }
         }
         check()
         setGlobalSignout(signout)
     }, [])
 
     const signin = async (tokenInfo) => {
-        saveToken(tokenInfo)
-        setIsLoginIn(true)
+        if (tokenInfo) {
+            saveToken(tokenInfo)
+        }
+        fetchUserInfo()
+            .then(
+                (userInfo) => {
+                    dispatch(setUserInfo({userInfo: userInfo}))
+                    dispatch(loadMenuItems({menuItems: userInfo.menuTree}))
+                    setIsLoginIn(true)
+                }
+            )
+
     }
 
     const signout = async () => {

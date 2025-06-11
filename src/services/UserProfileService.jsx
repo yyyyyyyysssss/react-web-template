@@ -6,7 +6,7 @@
 import { apiRequestWrapper } from "./ApiRequestWrapper"
 import httpWrapper from "./AxiosWrapper"
 
-export const fetchUserMenuTree = async () => {
+export const fetchUserInfo = async () => {
 
-    return apiRequestWrapper(() => httpWrapper.get('/api/profile/menu'))
+    return apiRequestWrapper(() => httpWrapper.get('/api/profile/user/info'))
 }

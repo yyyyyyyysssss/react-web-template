@@ -44,6 +44,45 @@ const AuthorityTree: React.FC<AuthorityTreeProps> = ({ value = [], onChange }) =
         fetchData()
     }, [])
 
+    const { parentMap, childrenMap } = useMemo(() => {
+        const parentMap = new Map<string, string>();
+        const childrenMap = new Map<string, string[]>();
+        const walk = (nodes: any[], parent?: string) => {
+            nodes.forEach((node) => {
+                if (parent) {
+                    parentMap.set(node.id, parent)
+                    const siblings = childrenMap.get(parent) || [];
+                    siblings.push(node.id)
+                    childrenMap.set(parent, siblings)
+                }
+                if (node.children?.length) walk(node.children, node.id)
+            })
+        }
+        walk(treeData)
+        return { parentMap, childrenMap }
+    }, [treeData])
+
+    const getAllParents = (id: string, parentMap: Map<string, string>) => {
+        const parents: string[] = []
+        let current = parentMap.get(id)
+        while (current) {
+            parents.push(current)
+            current = parentMap.get(current)
+        }
+        return parents
+    }
+
+    const handleChange = (checked: string[]) => {
+        const finalIds = new Set<string>(checked);
+
+        checked.forEach((id) => {
+            // 获取节点所有父节点id
+            const parentIds = getAllParents(id, parentMap)
+            parentIds.forEach(item => finalIds.add(item));
+        })
+        onChange?.(Array.from(finalIds))
+    }
+
     const availableKeys = useMemo(() => {
         const keys = new Set<string>()
         const walk = (nodes: any[]) => {
@@ -57,7 +96,8 @@ const AuthorityTree: React.FC<AuthorityTreeProps> = ({ value = [], onChange }) =
     }, [treeData])
 
     const safeValue = useMemo(() => {
-        return (value || []).filter((id) => availableKeys.has(id))
+        const parentIds = new Set(childrenMap.keys())
+        return (value || []).filter((id) => availableKeys.has(id) && !parentIds.has(id))
     }, [value, availableKeys])
 
     return (
@@ -68,7 +108,7 @@ const AuthorityTree: React.FC<AuthorityTreeProps> = ({ value = [], onChange }) =
                 expandedKeys={expandedKeys}
                 checkedKeys={safeValue}
                 treeData={treeData}
-                onCheck={(checkedKeys) => onChange?.(checkedKeys as string[])}
+                onCheck={(checkedKeys) => handleChange(checkedKeys as string[])}
                 fieldNames={{
                     key: 'id',
                     title: 'name',
