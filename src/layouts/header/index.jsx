@@ -5,7 +5,7 @@ import {
 } from '@ant-design/icons';
 import { Button, Dropdown, Flex, Form, Input, Modal, Typography } from 'antd';
 import { Lock, LogOut, UserPen } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { menuCollapsed } from '../../redux/slices/layoutSlice';
 import { useAuth } from '../../router/AuthProvider';
@@ -25,6 +25,8 @@ const Header = () => {
     const nickname = useSelector(state => state.auth.userInfo.nickname)
 
     const [form] = Form.useForm()
+
+    const [password, setPassword] = useState('')
 
     const [changePasswordOpen, setChangePasswordOpen] = useState(false)
 
@@ -51,12 +53,17 @@ const Header = () => {
                         .then(
                             () => {
                                 getMessageApi().success('修改成功')
-                                setChangePasswordOpen(false)
-                                form.resetFields()
+                                handleClose()
                             }
                         )
                 }
             )
+    }
+
+    const handleClose = () => {
+        setChangePasswordOpen(false)
+        form.resetFields()
+        setPassword('')
     }
 
     const getPasswordStrength = (password) => {
@@ -71,6 +78,8 @@ const Header = () => {
         if (score === 3 || score === 4) return 'medium'
         return 'strong'
     }
+
+    const strength = useMemo(() => getPasswordStrength(password), [password])
 
     const strengthColorMap = {
         weak: { color: 'red', label: '弱' },
@@ -176,20 +185,16 @@ const Header = () => {
                 width={400}
                 open={changePasswordOpen}
                 onOk={handleChangePassword}
-                onCancel={() => {
-                    setChangePasswordOpen(false)
-                    form.resetFields()
-                }}
-                onClose={() => setChangePasswordOpen(false)}
-                afterClose={() => form.resetFields()}
+                onCancel={handleClose}
+                onClose={handleClose}
                 okText="确认修改"
                 destroyOnClose
             >
                 <Form
                     style={{ marginTop: 20 }}
                     form={form}
-                    labelCol={{ span: 6 }}
-                    wrapperCol={{ span: 18 }}
+                    labelCol={{ span: 7 }}
+                    wrapperCol={{ span: 17 }}
                     layout="horizontal"
                 >
                     <Form.Item
@@ -207,24 +212,33 @@ const Header = () => {
                     <Form.Item
                         label="新密码"
                         name="newPassword"
+                        validateTrigger='onBlur'
                         rules={[
                             {
                                 required: true,
                                 message: `新密码不能为空`,
                             },
+                            {
+                                min: 6,
+                                message: '密码长度不能少于6位',
+                            }
                         ]}
                     >
                         <Input.Password
                             placeholder="请输入新密码"
-                            addonAfter={
-                                password ? (
-                                    <span style={{ color: strengthColorMap[strength].color, fontWeight: 500 }}>
-                                        {strengthColorMap[strength].label}
-                                    </span>
-                                ) : null
-                            }
+                            onChange={(e) => {
+                                const value = e.target.value
+                                setPassword(value)
+                            }}
                         />
                     </Form.Item>
+                    {password && (
+                        <div style={{ marginLeft: '30%', marginTop: -12, marginBottom: 12 }}>
+                            <span style={{ color: strengthColorMap[strength].color, fontWeight: 500 }}>
+                                密码强度：{strengthColorMap[strength].label}
+                            </span>
+                        </div>
+                    )}
                     <Form.Item
                         label="确认新密码"
                         name="confirmNewPassword"
