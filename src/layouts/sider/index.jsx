@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useMemo } from 'react';
 import './index.css'
-import { Menu } from 'antd';
+import { Menu, Typography } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setActiveKey, setOpenKeys } from '../../redux/slices/layoutSlice';
@@ -39,7 +39,7 @@ const Sider = () => {
 
     const handleOpenChange = useCallback((keys) => {
         dispatch(setOpenKeys({ keys: keys }))
-    },[])
+    }, [])
 
     const switchMenu = (e) => {
         const menuItem = flattenMenuItems.find(item => item.id === e.key)
@@ -81,9 +81,22 @@ const Sider = () => {
 
     return (
         <>
-            <div onClick={goHome} className="logo-vertical" />
+            <div
+                onClick={goHome}
+                className="logo-vertical flex items-center justify-center gap-2"
+                style={{
+                    background: themeContext === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.04)',
+                }}
+            >
+            </div>
             <Menu
                 key={collapsed ? 'collapsed' : 'expanded'}
+                style={{
+                    maxHeight: 'calc(100vh - 64px)',
+                    borderRight: 'none',
+                    overflowY: 'auto',
+                    scrollbarGutter: 'stable',
+                }}
                 theme={themeContext}
                 inlineCollapsed={collapsed}
                 selectedKeys={matchMenuKey}

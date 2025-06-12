@@ -249,7 +249,7 @@ const RoleManage = () => {
                     :
                     (
                         <HasPermission
-                            hasPermissions='system:user:write'
+                            hasPermissions='system:role:write'
                             fallback={
                                 <Switch
                                     disabled
@@ -370,7 +370,9 @@ const RoleManage = () => {
             </Flex>
             <Flex>
                 <Space>
-                    <Button type="primary" onClick={handleAddRole}>新增</Button>
+                    <HasPermission hasPermissions='system:role:write'>
+                        <Button type="primary" onClick={handleAddRole}>新增</Button>
+                    </HasPermission>
                 </Space>
             </Flex>
             <Table

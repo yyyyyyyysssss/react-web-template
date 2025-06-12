@@ -492,7 +492,9 @@ const UserManage = () => {
             </Flex>
             <Flex>
                 <Space>
-                    <Button type="primary" onClick={handleAddUser}>新增</Button>
+                    <HasPermission hasPermissions='system:user:write'>
+                        <Button type="primary" onClick={handleAddUser}>新增</Button>
+                    </HasPermission>
                 </Space>
             </Flex>
             <Table

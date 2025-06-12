@@ -10,3 +10,9 @@ export const fetchUserInfo = async () => {
 
     return apiRequestWrapper(() => httpWrapper.get('/api/profile/user/info'))
 }
+
+
+export const changePassword = async (req) => {
+
+    return apiRequestWrapper(() => httpWrapper.put('/api/profile/password',req))
+}

@@ -6,7 +6,7 @@ import { Provider } from 'react-redux';
 import store from './redux/store';
 import { ConfigProvider, Empty, message } from 'antd';
 import 'antd/dist/reset.css';
-
+import zhCN from 'antd/es/locale/zh_CN';
 import NProgress from 'nprogress';
 import { setMessageApi } from './utils/MessageUtil.jsx';
 import { ThemeContext } from './context/ThemeContext';
@@ -31,26 +31,9 @@ const App = () => {
 
   setMessageApi(api)
 
-  const zhCustomLocale = {
-    Pagination: {
-      items_per_page: '条每页', // 会显示为 “10 条每页”
-      jump_to: '跳至',
-      jump_to_confirm: '确认',
-      page: '页',
-      prev_page: '上一页',
-      next_page: '下一页',
-      prev_5: '向前 5 页',
-      next_5: '向后 5 页',
-      prev_3: '向前 3 页',
-      next_3: '向后 3 页',
-    },
-  };
-
   return (
     <ConfigProvider
-      locale={{
-        Pagination: zhCustomLocale.Pagination
-      }}
+      locale={zhCN}
       theme={{
         cssVar: true,
         token: {

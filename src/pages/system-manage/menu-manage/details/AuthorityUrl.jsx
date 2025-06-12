@@ -2,6 +2,7 @@ import { Flex, Form, Table, Tag, Popconfirm, Typography, Button, Input, Select }
 import { RequestMethod } from '../../../../enums'
 import { useEffect, useState } from 'react'
 import IdGen from '../../../../utils/IdGen'
+import HasPermission from '../../../../component/HasPermission'
 
 
 var __rest =
@@ -203,25 +204,29 @@ const AuthorityUrl = ({ authorityId, authorityUrls, onChange }) => {
                 return editable ?
                     (
                         <span>
-                            <Typography.Link onClick={() => save(record.id)} style={{ marginInlineEnd: 8 }}>
-                                保存
-                            </Typography.Link>
-                            <Typography.Link onClick={() => cancel(record)} style={{ marginInlineEnd: 8 }}>
-                                取消
-                            </Typography.Link>
+                            <HasPermission hasPermissions='system:menu:write'>
+                                <Typography.Link onClick={() => save(record.id)} style={{ marginInlineEnd: 8 }}>
+                                    保存
+                                </Typography.Link>
+                                <Typography.Link onClick={() => cancel(record)} style={{ marginInlineEnd: 8 }}>
+                                    取消
+                                </Typography.Link>
+                            </HasPermission>
                         </span>
                     )
                     :
                     (
                         <span>
-                            <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)} style={{ marginInlineEnd: 8 }}>
-                                编辑
-                            </Typography.Link>
-                            <Popconfirm disabled={editingKey !== ''} okText='确定' cancelText='取消' title="确定删除？" onConfirm={() => del(record)} style={{ marginInlineEnd: 8 }}>
-                                <Typography.Link disabled={editingKey !== ''}>
-                                    删除
+                            <HasPermission hasPermissions='system:menu:write'>
+                                <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)} style={{ marginInlineEnd: 8 }}>
+                                    编辑
                                 </Typography.Link>
-                            </Popconfirm>
+                                <Popconfirm disabled={editingKey !== ''} okText='确定' cancelText='取消' title="确定删除？" onConfirm={() => del(record)} style={{ marginInlineEnd: 8 }}>
+                                    <Typography.Link disabled={editingKey !== ''}>
+                                        删除
+                                    </Typography.Link>
+                                </Popconfirm>
+                            </HasPermission>
                         </span>
                     )
             }
@@ -246,7 +251,9 @@ const AuthorityUrl = ({ authorityId, authorityUrls, onChange }) => {
     return (
         <Form form={form} component={false}>
             <Flex gap={8} vertical>
-                <Button onClick={handleAdd} type="primary" className='w-15'>新增</Button>
+                <HasPermission hasPermissions='system:menu:write'>
+                    <Button onClick={handleAdd} type="primary" className='w-15'>新增</Button>
+                </HasPermission>
                 <Table
                     className='w-full'
                     components={{

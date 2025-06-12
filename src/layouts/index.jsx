@@ -31,11 +31,6 @@ const AppLayout = () => {
             <LayoutSider
                 width='240px'
                 theme={themeContext}
-                style={{
-                    overflow: 'auto',
-                    height: '100vh',
-                    scrollbarGutter: 'stable',
-                }}
                 collapsible
                 collapsed={collapsed}
                 trigger={null}

@@ -235,7 +235,9 @@ const MenuDetails = ({ menuId }) => {
                     <Input value={menuData.sort} />
                 </Form.Item>
             </Form>
-            <Button type="primary" onClick={() => handleMenuAuthority('新增权限', AuthorityType.BUTTON, 'ADD', null)} className='w-20'>新增权限</Button>
+            <HasPermission hasPermissions='system:menu:write'>
+                <Button type="primary" onClick={() => handleMenuAuthority('新增权限', AuthorityType.BUTTON, 'ADD', null)} className='w-20'>新增权限</Button>
+            </HasPermission>
             <Table
                 columns={columns}
                 dataSource={menuData.children}
