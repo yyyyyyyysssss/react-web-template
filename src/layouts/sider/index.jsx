@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import './index.css'
 import { Menu, Typography } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -34,7 +34,7 @@ const Sider = () => {
         if (location.pathname && location.pathname !== '/' && flattenMenuItems && flattenMenuItems.length > 0) {
             dispatch(setActiveKey({ path: location.pathname }))
         }
-        // eslint-disable-next-line
+        
     }, [flattenMenuItems, location.pathname])
 
     const handleOpenChange = useCallback((keys) => {
@@ -43,9 +43,11 @@ const Sider = () => {
 
     const switchMenu = (e) => {
         const menuItem = flattenMenuItems.find(item => item.id === e.key)
-        const key = menuItem.routePath
-        if (key !== activeKey) {
-            navigate(menuItem.routePath)
+        if (!menuItem) return
+
+        const targetPath  = menuItem.routePath
+        if (location.pathname !== targetPath) {
+            navigate(targetPath)
         }
     }
 
@@ -53,11 +55,6 @@ const Sider = () => {
         navigate('home')
         dispatch(setActiveKey({ path: '/home' }))
     }
-
-    const matchMenuKey = useMemo(() => {
-        const menuItem = flattenMenuItems.find(item => item.id === activeKey)
-        return menuItem?.id
-    }, [activeKey, flattenMenuItems])
 
     const formatMenuItems = (items) => {
 
@@ -99,7 +96,7 @@ const Sider = () => {
                 }}
                 theme={themeContext}
                 inlineCollapsed={collapsed}
-                selectedKeys={matchMenuKey}
+                selectedKeys={[activeKey]}
                 openKeys={openKeys}
                 onOpenChange={handleOpenChange}
                 onClick={switchMenu}

@@ -95,6 +95,7 @@ const UserManage = () => {
     }
 
     const handleAddUser = () => {
+        // navigate('/system/user/details?id=1')
         setUserOperation({
             open: true,
             title: '新增用户',
