@@ -149,6 +149,7 @@ const UserManage = () => {
                         updateUser(values)
                             .then(
                                 () => {
+                                    getMessageApi().success('修改成功')
                                     handleClose()
                                     handleRefresh()
                                 }
@@ -173,6 +174,11 @@ const UserManage = () => {
         updateUserEnabled(id, enabled)
             .then(
                 () => {
+                    if(enabled){
+                        getMessageApi().success('账号启用成功')
+                    }else {
+                        getMessageApi().success('账号停用成功')
+                    }
                     handleRefresh()
                 }
             )
@@ -211,6 +217,7 @@ const UserManage = () => {
         deleteUserById(id)
             .then(
                 () => {
+                    getMessageApi().success('删除成功')
                     handleRefresh()
                 }
             )
@@ -230,6 +237,7 @@ const UserManage = () => {
                 bindRoleByUserId(values.id, values.roleIds)
                     .then(
                         () => {
+                            getMessageApi().success('分配成功')
                             handleBindRoleClose()
                             handleRefresh()
                         }

@@ -6,6 +6,7 @@ import AuthorityTreeSelect from '../../../component/AuthorityTreeSelect'
 import AuthorityTree from '../../../component/AuthorityTree'
 import Highlight from '../../../component/Highlight'
 import HasPermission from '../../../component/HasPermission'
+import { getMessageApi } from '../../../utils/MessageUtil'
 
 const initQueryParam = {
     pageNum: 1,
@@ -124,15 +125,16 @@ const RoleManage = () => {
                         createRole(values)
                             .then(
                                 () => {
+                                    getMessageApi().success('角色新增成功')
                                     handleClose()
                                     handleRefresh()
                                 }
                             )
                     } else {
-                        console.log('values', values)
                         updateRole(values)
                             .then(
                                 () => {
+                                    getMessageApi().success('角色修改成功')
                                     handleClose()
                                     handleRefresh()
                                 }
@@ -147,6 +149,11 @@ const RoleManage = () => {
         updateRoleEnabled(id, enabled)
             .then(
                 () => {
+                    if(enabled){
+                        getMessageApi().success('角色启用成功')
+                    }else {
+                        getMessageApi().success('角色停用成功')
+                    }
                     handleRefresh()
                 }
             )
@@ -156,6 +163,7 @@ const RoleManage = () => {
         deleteRoleById(id)
             .then(
                 () => {
+                    getMessageApi().success('角色删除成功')
                     handleRefresh()
                 }
             )
@@ -175,6 +183,7 @@ const RoleManage = () => {
                 bindAuthorityByRoleId(values.id, values.authorityIds)
                     .then(
                         () => {
+                            getMessageApi().success('分配权限成功')
                             handleBindAuthorityClose()
                             handleRefresh()
                         }

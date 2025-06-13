@@ -9,6 +9,7 @@ import { AuthorityType } from '../../../enums';
 import IdGen from '../../../utils/IdGen';
 import Highlight from '../../../component/Highlight';
 import HasPermission from '../../../component/HasPermission';
+import { getMessageApi } from '../../../utils/MessageUtil';
 
 
 
@@ -198,6 +199,7 @@ const MenuManage = () => {
         menuDrag(dragKey, dropKey, position)
             .then(d => {
                 if (d === true) {
+                    getMessageApi().success('拖动成功')
                     setMenuData(data)
                 }
             })
@@ -259,6 +261,7 @@ const MenuManage = () => {
                 deleteMenu(menuItem.id)
                     .then(
                         () => {
+                            getMessageApi().success('删除成功')
                             const newMenuData = deleteTreeNode(menuData, menuItem.id)
                             setMenuData(newMenuData)
                             setSelectedKeys(null)

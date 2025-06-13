@@ -7,6 +7,7 @@ import IdGen from '../../../../utils/IdGen';
 import AuthorityUrl from './AuthorityUrl';
 import MenuAuthority from './menu-authority';
 import HasPermission from '../../../../component/HasPermission';
+import { getMessageApi } from '../../../../utils/MessageUtil';
 
 
 const MenuDetails = ({ menuId }) => {
@@ -56,6 +57,7 @@ const MenuDetails = ({ menuId }) => {
         return updateAuthorityUrlsById(authorityId, newAuthorityUrls)
             .then(
                 (data) => {
+                    getMessageApi().success('修改成功')
                     //更新当前权限urls
                     setAuthorityUrls(newAuthorityUrls)
                     //更新权限数据
@@ -103,6 +105,7 @@ const MenuDetails = ({ menuId }) => {
         deleteAuthorityById(authorityId)
             .then(
                 () => {
+                    getMessageApi().success('删除成功')
                     const newMenuData = {
                         ...menuData,
                         children: [...(menuData.children.filter(f => f.id !== authorityId))]

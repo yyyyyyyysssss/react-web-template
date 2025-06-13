@@ -5,6 +5,7 @@ import IdGen from '../../../../../utils/IdGen';
 import { AuthorityType, RequestMethod } from '../../../../../enums';
 import { UploadOutlined } from '@ant-design/icons';
 import { addAuthority, createMenu, updateAuthority, updateMenu } from '../../../../../services/SystemService';
+import { getMessageApi } from '../../../../../utils/MessageUtil';
 
 var __rest =
     (this && this.__rest) ||
@@ -97,11 +98,7 @@ const EditableCell = _a => {
 };
 
 const initDataSource = [
-    {
-        key: IdGen.nextId(),
-        method: '',
-        url: '',
-    }
+    
 ]
 
 const formMapRef = React.createRef()
@@ -233,6 +230,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
                     addAuthority(requestParam)
                         .then(
                             (data) => {
+                                getMessageApi().success('新增成功')
                                 const newData = { ...requestParam, id: data, type: AuthorityType.BUTTON }
                                 onSuccess(newData, operation)
                                 reset()
@@ -241,6 +239,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
                     createMenu(requestParam)
                         .then(
                             (data) => {
+                                getMessageApi().success('新增成功')
                                 const newData = { ...requestParam, id: data, type: AuthorityType.MENU }
                                 onSuccess(newData, operation)
                                 reset()
@@ -252,6 +251,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
                 if (type === AuthorityType.BUTTON) {
                     updateAuthority(requestParam)
                         .then(() => {
+                            getMessageApi().success('修改成功')
                             const newData = { ...requestParam }
                             onSuccess(newData, operation)
                             reset()
@@ -259,6 +259,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
                 } else {
                     updateMenu(requestParam)
                         .then(() => {
+                            getMessageApi().success('修改成功')
                             const newData = { ...requestParam }
                             onSuccess(newData, operation)
                             reset()
