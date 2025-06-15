@@ -30,6 +30,8 @@ const Sider = () => {
 
     const location = useLocation()
 
+    const [selectKey,setSelectKey] = useState(null)
+
     useEffect(() => {
         if (location.pathname && location.pathname !== '/' && flattenMenuItems && flattenMenuItems.length > 0) {
             dispatch(setActiveKey({ path: location.pathname }))
@@ -37,14 +39,22 @@ const Sider = () => {
         
     }, [flattenMenuItems, location.pathname])
 
+    useEffect(() => {
+        if(activeKey){
+            setSelectKey(activeKey)
+        }
+    },[activeKey])
+
     const handleOpenChange = useCallback((keys) => {
         dispatch(setOpenKeys({ keys: keys }))
     }, [])
 
     const switchMenu = (e) => {
+        setSelectKey(e.key)
         const menuItem = flattenMenuItems.find(item => item.id === e.key)
-        if (!menuItem) return
-
+        if (!menuItem){
+            return
+        }
         const targetPath  = menuItem.routePath
         if (location.pathname !== targetPath) {
             navigate(targetPath)
@@ -96,7 +106,7 @@ const Sider = () => {
                 }}
                 theme={themeContext}
                 inlineCollapsed={collapsed}
-                selectedKeys={[activeKey]}
+                selectedKeys={[selectKey]}
                 openKeys={openKeys}
                 onOpenChange={handleOpenChange}
                 onClick={switchMenu}
