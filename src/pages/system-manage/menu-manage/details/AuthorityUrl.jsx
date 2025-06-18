@@ -1,4 +1,4 @@
-import { Flex, Form, Table, Tag, Popconfirm, Typography, Button, Input, Select } from 'antd'
+import { Flex, Form, Table, Tag, Popconfirm, Typography, Button, Input, Select, Spin } from 'antd'
 import { RequestMethod } from '../../../../enums'
 import { useEffect, useState } from 'react'
 import IdGen from '../../../../utils/IdGen'
@@ -77,7 +77,7 @@ const AuthorityEditableCell = _a => {
     )
 }
 
-const AuthorityUrl = ({ authorityId, authorityUrls, onChange }) => {
+const AuthorityUrl = ({ authorityId, authorityUrls, onChange, loading }) => {
 
     const [form] = Form.useForm()
 
@@ -134,13 +134,11 @@ const AuthorityUrl = ({ authorityId, authorityUrls, onChange }) => {
 
     }
 
-    const del = (record) => {
+    const del = async (record) => {
         const newData = authorityData.filter(f => f.id !== record.id)
         //更新权限数据
-        onChange(newData)
-            .then(() => {
-                resetEdit()
-            })
+        await onChange(newData)
+        resetEdit()
     }
 
     const handleAdd = () => {
@@ -203,31 +201,31 @@ const AuthorityUrl = ({ authorityId, authorityUrls, onChange }) => {
                 const editable = isEditing(record)
                 return editable ?
                     (
-                        <span>
-                            <HasPermission hasPermissions='system:menu:write'>
-                                <Typography.Link onClick={() => save(record.id)} style={{ marginInlineEnd: 8 }}>
+                        <HasPermission hasPermissions='system:menu:write'>
+                            <Flex gap={8} justify='center' align='center'>
+                                <Typography.Link onClick={() => save(record.id)}>
                                     保存
                                 </Typography.Link>
-                                <Typography.Link onClick={() => cancel(record)} style={{ marginInlineEnd: 8 }}>
+                                <Typography.Link onClick={() => cancel(record)}>
                                     取消
                                 </Typography.Link>
-                            </HasPermission>
-                        </span>
+                            </Flex>
+                        </HasPermission>
                     )
                     :
                     (
-                        <span>
-                            <HasPermission hasPermissions='system:menu:write'>
-                                <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)} style={{ marginInlineEnd: 8 }}>
+                        <HasPermission hasPermissions='system:menu:write'>
+                            <Flex gap={8} justify='center' align='center'>
+                                <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
                                     编辑
                                 </Typography.Link>
-                                <Popconfirm disabled={editingKey !== ''} okText='确定' cancelText='取消' title="确定删除？" onConfirm={() => del(record)} style={{ marginInlineEnd: 8 }}>
+                                <Popconfirm disabled={editingKey !== ''} okText='确定' cancelText='取消' title="确定删除？" okButtonProps={{ loading: loading }} onConfirm={async () => await del(record)}>
                                     <Typography.Link disabled={editingKey !== ''}>
                                         删除
                                     </Typography.Link>
                                 </Popconfirm>
-                            </HasPermission>
-                        </span>
+                            </Flex>
+                        </HasPermission>
                     )
             }
         }
@@ -255,10 +253,12 @@ const AuthorityUrl = ({ authorityId, authorityUrls, onChange }) => {
                     <Button onClick={handleAdd} type="primary" className='w-15'>新增</Button>
                 </HasPermission>
                 <Table
+                    loading={loading}
                     className='w-full'
                     components={{
                         body: { cell: AuthorityEditableCell }
                     }}
+                    scroll={authorityData?.length > 10 ? { y: 'calc(100vh - 200px)', x: 'max-content' } : { x: 'max-content' }}
                     columns={mergedColumns}
                     dataSource={authorityData}
                     rowClassName="editable-row"

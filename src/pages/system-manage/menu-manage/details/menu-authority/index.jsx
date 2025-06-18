@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Flex, Form, Input, InputNumber, Modal, Radio, Select, Space, Table, Typography, Upload } from 'antd';
+import { Button, Flex, Form, Input, InputNumber, Modal, Select, Table, Typography, Upload } from 'antd';
 import './index.css'
 import IdGen from '../../../../../utils/IdGen';
 import { AuthorityType, RequestMethod } from '../../../../../enums';
 import { UploadOutlined } from '@ant-design/icons';
 import { addAuthority, createMenu, updateAuthority, updateMenu } from '../../../../../services/SystemService';
 import { getMessageApi } from '../../../../../utils/MessageUtil';
+import { useRequest } from 'ahooks';
 
 var __rest =
     (this && this.__rest) ||
@@ -98,7 +99,7 @@ const EditableCell = _a => {
 };
 
 const initDataSource = [
-    
+
 ]
 
 const formMapRef = React.createRef()
@@ -109,6 +110,22 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
     const [dataSource, setDataSource] = useState(initDataSource)
 
     const [form] = Form.useForm()
+
+    const { runAsync: createMenuAsync, loading: createMenuLoading } = useRequest(createMenu, {
+        manual: true
+    })
+
+    const { runAsync: updateMenuAsync, loading: updateMenuLoading } = useRequest(updateMenu, {
+        manual: true
+    })
+
+    const { runAsync: addAuthorityAsync, loading: addAuthorityLoading } = useRequest(addAuthority, {
+        manual: true
+    })
+
+    const { runAsync: updateAuthorityAsync, loading: updateAuthorityLoading } = useRequest(updateAuthority, {
+        manual: true
+    })
 
     useEffect(() => {
         if (data && data.urls && data.urls.length > 0) {
@@ -227,7 +244,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
             }
             if (operation === 'ADD') {
                 if (type === AuthorityType.BUTTON) {
-                    addAuthority(requestParam)
+                    addAuthorityAsync(requestParam)
                         .then(
                             (data) => {
                                 getMessageApi().success('新增成功')
@@ -236,7 +253,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
                                 reset()
                             })
                 } else if (type === AuthorityType.MENU) {
-                    createMenu(requestParam)
+                    createMenuAsync(requestParam)
                         .then(
                             (data) => {
                                 getMessageApi().success('新增成功')
@@ -249,7 +266,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
 
             } else {
                 if (type === AuthorityType.BUTTON) {
-                    updateAuthority(requestParam)
+                    updateAuthorityAsync(requestParam)
                         .then(() => {
                             getMessageApi().success('修改成功')
                             const newData = { ...requestParam }
@@ -257,7 +274,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
                             reset()
                         })
                 } else {
-                    updateMenu(requestParam)
+                    updateMenuAsync(requestParam)
                         .then(() => {
                             getMessageApi().success('修改成功')
                             const newData = { ...requestParam }
@@ -289,9 +306,12 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
             width={type === AuthorityType.MENU ? 400 : 450}
             centered
             open={open}
+            confirmLoading={createMenuLoading || updateMenuLoading || addAuthorityLoading || updateAuthorityLoading}
             onOk={handleSaveMenuAuthority}
             onCancel={handleClose}
             onClose={handleClose}
+            maskClosable={false}
+            keyboard={false}
             okText="保存"
             cancelText="取消"
             destroyOnClose

@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import './index.css'
 import { bindAuthorityByRoleId, createRole, deleteRoleById, fetchRoleList, updateRole, updateRoleEnabled } from '../../../services/SystemService'
-import { Button, Drawer, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Space, Switch, Table, Tag, Tree, Typography } from 'antd'
+import { Button, Drawer, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Space, Switch, Table, Typography } from 'antd'
 import AuthorityTreeSelect from '../../../component/AuthorityTreeSelect'
 import AuthorityTree from '../../../component/AuthorityTree'
 import Highlight from '../../../component/Highlight'
 import HasPermission from '../../../component/HasPermission'
 import { getMessageApi } from '../../../utils/MessageUtil'
+import { useRequest } from 'ahooks'
 
 const initQueryParam = {
     pageNum: 1,
@@ -29,7 +30,28 @@ const RoleManage = () => {
 
     const [roleData, setRoleData] = useState({})
 
-    const [loading, setLoading] = useState(false)
+    // 列表查询
+    const { runAsync: fetchRoleListAsync, loading: fetchRoleListLoading } = useRequest(fetchRoleList, {
+        manual: true
+    })
+
+    const { runAsync: createRoleAsync, loading: createRoleLoading } = useRequest(createRole, {
+        manual: true
+    })
+
+    const { runAsync: updateRoleAsync, loading: updateRoleLoading } = useRequest(updateRole, {
+        manual: true
+    })
+
+    const { runAsync: deleteRoleByIdAsync, loading: deleteRoleByIdLoading } = useRequest(deleteRoleById, {
+        manual: true
+    })
+
+    const { runAsync: bindAuthorityByRoleIdAsync, loading: bindAuthorityByRoleIdLoading } = useRequest(bindAuthorityByRoleId, {
+        manual: true
+    })
+
+    const [roleEnabledLoadingMap, setRoleEnabledLoadingMap] = useState({})
 
     const [roleOperation, setRoleOperation] = useState({
         open: false,
@@ -46,14 +68,8 @@ const RoleManage = () => {
 
     useEffect(() => {
         const getData = async () => {
-            try {
-                setLoading(true)
-                const roles = await fetchRoleList(queryParam)
-                setRoleData(roles)
-            } finally {
-                setLoading(false)
-            }
-
+            const roles = await fetchRoleListAsync(queryParam)
+            setRoleData(roles)
         }
         getData()
     }, [queryParam])
@@ -122,7 +138,7 @@ const RoleManage = () => {
             .then(
                 (values) => {
                     if (roleOperation.operationType === 'ADD') {
-                        createRole(values)
+                        createRoleAsync(values)
                             .then(
                                 () => {
                                     getMessageApi().success('角色新增成功')
@@ -131,7 +147,7 @@ const RoleManage = () => {
                                 }
                             )
                     } else {
-                        updateRole(values)
+                        updateRoleAsync(values)
                             .then(
                                 () => {
                                     getMessageApi().success('角色修改成功')
@@ -145,22 +161,23 @@ const RoleManage = () => {
             )
     }
 
-    const handleUpdateEnabled = (id, enabled) => {
-        updateRoleEnabled(id, enabled)
-            .then(
-                () => {
-                    if(enabled){
-                        getMessageApi().success('角色启用成功')
-                    }else {
-                        getMessageApi().success('角色停用成功')
-                    }
-                    handleRefresh()
-                }
-            )
+    const handleUpdateEnabled = async (id, enabled) => {
+        setRoleEnabledLoadingMap(prev => ({ ...prev, [id]: true }))
+        try {
+            await updateRoleEnabled(id, enabled)
+            if (enabled) {
+                getMessageApi().success('角色启用成功')
+            } else {
+                getMessageApi().success('角色停用成功')
+            }
+            handleRefresh()
+        } finally {
+            setRoleEnabledLoadingMap(prev => ({ ...prev, [id]: false }))
+        }
     }
 
-    const handleDelete = (id) => {
-        deleteRoleById(id)
+    const handleDelete = async (id) => {
+        deleteRoleByIdAsync(id)
             .then(
                 () => {
                     getMessageApi().success('角色删除成功')
@@ -180,7 +197,7 @@ const RoleManage = () => {
     const handleBindAuthoritySave = () => {
         bindAuthorityForm.validateFields()
             .then(values => {
-                bindAuthorityByRoleId(values.id, values.authorityIds)
+                bindAuthorityByRoleIdAsync(values.id, values.authorityIds)
                     .then(
                         () => {
                             getMessageApi().success('分配权限成功')
@@ -247,6 +264,7 @@ const RoleManage = () => {
                                 style={{ marginInlineEnd: 8 }}
                             >
                                 <Switch
+                                    loading={!!roleEnabledLoadingMap[id]}
                                     checkedChildren="启用"
                                     unCheckedChildren="停用"
                                     checked={enabled}
@@ -269,6 +287,7 @@ const RoleManage = () => {
                             }
                         >
                             <Switch
+                                loading={!!roleEnabledLoadingMap[id]}
                                 checkedChildren="启用"
                                 unCheckedChildren="停用"
                                 checked={enabled}
@@ -317,12 +336,16 @@ const RoleManage = () => {
                                         title: '确定删除？',
                                         okText: '确定',
                                         cancelText: '取消',
+                                        maskClosable: false,
+                                        confirmLoading: deleteRoleByIdLoading,
                                         content: (
                                             <>
                                                 是否删除 <Highlight>{record.name}</Highlight> 角色？删除后将无法恢复！
                                             </>
                                         ),
-                                        onOk: () => handleDelete(record.id),
+                                        onOk: async () => {
+                                            await handleDelete(record.id)
+                                        },
                                     })
                                 }}
                             >
@@ -388,9 +411,9 @@ const RoleManage = () => {
                 className='w-full'
                 columns={columns}
                 dataSource={roleData.list}
-                scroll={roleData?.list?.length > 10 ? { y: 1200, x: 'max-content' } : { x: 'max-content' }}
+                scroll={roleData?.list?.length > 10 ? { y: 600, x: 'max-content' } : { x: 'max-content' }}
                 rowKey={(record) => record.id}
-                loading={loading}
+                loading={fetchRoleListLoading}
                 pagination={{
                     current: roleData.pageNum,
                     pageSize: roleData.pageSize,
@@ -410,9 +433,12 @@ const RoleManage = () => {
                 width={400}
                 centered
                 open={roleOperation.open}
+                confirmLoading={createRoleLoading || updateRoleLoading}
                 onOk={handleSaveRole}
                 onCancel={handleClose}
                 onClose={handleClose}
+                maskClosable={false}
+                keyboard={false}
                 okText="保存"
                 cancelText="取消"
             >
@@ -486,7 +512,7 @@ const RoleManage = () => {
                 width={400}
                 footer={
                     <Space>
-                        <Button type="primary" onClick={handleBindAuthoritySave}>保存</Button>
+                        <Button loading={bindAuthorityByRoleIdLoading} type="primary" onClick={handleBindAuthoritySave}>保存</Button>
                         <Button onClick={handleBindAuthorityClose}>取消</Button>
                     </Space>
                 }

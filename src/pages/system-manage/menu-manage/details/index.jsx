@@ -1,4 +1,4 @@
-import { Space, Flex, Form, Input, Table, Tag, Drawer, Button, Modal, Popconfirm, Typography } from 'antd'
+import { Space, Flex, Form, Input, Table, Tag, Drawer, Button, Modal, Popconfirm, Typography, Spin } from 'antd'
 import { SettingOutlined } from '@ant-design/icons';
 import { AuthorityType } from '../../../../enums';
 import { useEffect, useState } from 'react';
@@ -8,6 +8,7 @@ import AuthorityUrl from './AuthorityUrl';
 import MenuAuthority from './menu-authority';
 import HasPermission from '../../../../component/HasPermission';
 import { getMessageApi } from '../../../../utils/MessageUtil';
+import { useRequest } from 'ahooks';
 
 
 const MenuDetails = ({ menuId }) => {
@@ -15,6 +16,19 @@ const MenuDetails = ({ menuId }) => {
     const [menuData, setMenuData] = useState({})
 
     const [authorityUrls, setAuthorityUrls] = useState({})
+
+    const { runAsync: fetchMenuDetailsAsync, loading: fetchMenuDetailsLoading } = useRequest(fetchMenuDetails, {
+        manual: true
+    })
+
+    const { runAsync: updateAuthorityUrlsByIdAsync, loading: updateAuthorityUrlsByIdLoading } = useRequest(updateAuthorityUrlsById, {
+        manual: true
+    })
+
+    const { runAsync: deleteAuthorityByIdAsync, loading: deleteAuthorityByIdLoading } = useRequest(deleteAuthorityById, {
+        manual: true
+    })
+
 
     const [openInfo, setOpenInfo] = useState({
         open: false,
@@ -31,7 +45,7 @@ const MenuDetails = ({ menuId }) => {
     })
 
     const fetchAndSetMenuData = async (id) => {
-        const data = await fetchMenuDetails(id)
+        const data = await fetchMenuDetailsAsync(id)
         if (data.children && data.children.length > 0) {
             data.children.forEach(child => {
                 if (child.urls && child.urls.length > 0) {
@@ -54,7 +68,7 @@ const MenuDetails = ({ menuId }) => {
 
     const handleAuthorityChange = async (newAuthorityUrls) => {
         const authorityId = openInfo.authorityId
-        return updateAuthorityUrlsById(authorityId, newAuthorityUrls)
+        return updateAuthorityUrlsByIdAsync(authorityId, newAuthorityUrls)
             .then(
                 (data) => {
                     getMessageApi().success('修改成功')
@@ -101,18 +115,14 @@ const MenuDetails = ({ menuId }) => {
         })
     }
 
-    const handleDeleteAuthority = (authorityId) => {
-        deleteAuthorityById(authorityId)
-            .then(
-                () => {
-                    getMessageApi().success('删除成功')
-                    const newMenuData = {
-                        ...menuData,
-                        children: [...(menuData.children.filter(f => f.id !== authorityId))]
-                    }
-                    setMenuData(newMenuData)
-                }
-            )
+    const handleDeleteAuthority = async (authorityId) => {
+        await deleteAuthorityByIdAsync(authorityId)
+        getMessageApi().success('删除成功')
+        const newMenuData = {
+            ...menuData,
+            children: [...(menuData.children.filter(f => f.id !== authorityId))]
+        }
+        setMenuData(newMenuData)
     }
 
     const handleSuccessMenuAuthority = (newData, operation) => {
@@ -196,7 +206,7 @@ const MenuDetails = ({ menuId }) => {
                             <Typography.Link onClick={() => handleMenuAuthority('编辑权限', AuthorityType.BUTTON, 'EDIT', record)}>编辑</Typography.Link>
                         </HasPermission>
                         <HasPermission hasPermissions='system:menu:delete'>
-                            <Popconfirm okText='确定' cancelText='取消' title="确定删除？" onConfirm={() => handleDeleteAuthority(record.id)} style={{ marginInlineEnd: 8 }}>
+                            <Popconfirm okText='确定' cancelText='取消' title="确定删除？" okButtonProps={{ loading: deleteAuthorityByIdLoading }} onConfirm={async () => await handleDeleteAuthority(record.id)} style={{ marginInlineEnd: 8 }}>
                                 <Typography.Link>
                                     删除
                                 </Typography.Link>
@@ -208,7 +218,16 @@ const MenuDetails = ({ menuId }) => {
         }
     ]
 
+    if (fetchMenuDetailsLoading) {
+        return (
+            <Flex flex={1} justify='center' align='center'>
+                <Spin />
+            </Flex>
+        )
+    }
+
     return (
+
         <Flex
             className='w-full'
             gap={8}
@@ -266,9 +285,11 @@ const MenuDetails = ({ menuId }) => {
                     authorityId={openInfo.authorityId}
                     authorityUrls={authorityUrls}
                     onChange={handleAuthorityChange}
+                    loading={updateAuthorityUrlsByIdLoading}
                 />
             </Drawer>
         </Flex>
+
     )
 }
 

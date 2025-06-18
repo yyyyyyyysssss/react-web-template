@@ -8,6 +8,7 @@ import Highlight from '../../../component/Highlight';
 import { getMessageApi } from '../../../utils/MessageUtil';
 import RoleSelect from '../../../component/RoleSelect';
 import HasPermission from '../../../component/HasPermission';
+import { useRequest } from 'ahooks';
 
 
 const initQueryParam = {
@@ -31,9 +32,35 @@ const UserManage = () => {
 
     const [userData, setUserData] = useState({})
 
-    const [loading, setLoading] = useState(false)
 
     const [queryParam, setQueryParam] = useState(initQueryParam)
+
+    // 列表查询
+    const { runAsync: fetchUserListAsync, loading: fetchUserLoading } = useRequest(fetchUserList, {
+        manual: true
+    })
+
+    const { runAsync: createUserAsync, loading: createUserLoading } = useRequest(createUser, {
+        manual: true
+    })
+
+    const { runAsync: updateUserAsync, loading: updateUserLoading } = useRequest(updateUser, {
+        manual: true
+    })
+
+    const { runAsync: resetPasswordAsync, loading: resetPasswordLoading } = useRequest(resetPassword, {
+        manual: true
+    })
+
+    const { runAsync: deleteUserByIdAsync, loading: deleteUserByIdLoading } = useRequest(deleteUserById, {
+        manual: true
+    })
+
+    const { runAsync: bindRoleByUserIdAsync, loading: bindRoleByUserIdLoading } = useRequest(bindRoleByUserId, {
+        manual: true
+    })
+
+    const [userEnabledLoadingMap, setUserEnabledLoadingMap] = useState({})
 
     const [userOperation, setUserOperation] = useState({
         open: false,
@@ -51,14 +78,8 @@ const UserManage = () => {
 
     useEffect(() => {
         const getData = async () => {
-            try {
-                setLoading(true)
-                const users = await fetchUserList(queryParam)
-                setUserData(users)
-            } finally {
-                setLoading(false)
-            }
-
+            const users = await fetchUserListAsync(queryParam)
+            setUserData(users)
         }
         getData()
     }, [queryParam])
@@ -118,7 +139,7 @@ const UserManage = () => {
             .then(
                 (values) => {
                     if (userOperation.operationType === 'ADD') {
-                        createUser(values)
+                        createUserAsync(values)
                             .then(
                                 (data) => {
                                     handleClose()
@@ -147,7 +168,7 @@ const UserManage = () => {
                                 }
                             )
                     } else {
-                        updateUser(values)
+                        updateUserAsync(values)
                             .then(
                                 () => {
                                     getMessageApi().success('修改成功')
@@ -171,57 +192,52 @@ const UserManage = () => {
         editForm.resetFields()
     }
 
-    const handleUpdateEnabled = (id, enabled) => {
-        updateUserEnabled(id, enabled)
-            .then(
-                () => {
-                    if(enabled){
-                        getMessageApi().success('账号启用成功')
-                    }else {
-                        getMessageApi().success('账号停用成功')
-                    }
-                    handleRefresh()
-                }
-            )
+    const handleUpdateEnabled = async (id, enabled) => {
+        setUserEnabledLoadingMap(prev => ({ ...prev, [id]: true }))
+        try {
+            await updateUserEnabled(id, enabled)
+            if (enabled) {
+                getMessageApi().success('账号启用成功')
+            } else {
+                getMessageApi().success('账号停用成功')
+            }
+            handleRefresh()
+        } finally {
+            setUserEnabledLoadingMap(prev => ({ ...prev, [id]: false }))
+        }
+        
     }
 
-    const handleResetPassword = (userItem) => {
-        resetPassword(userItem.id)
-            .then(
-                (newPassword) => {
-                    modal.success({
-                        title: '新密码已生成',
-                        okText: '知道了',
-                        content: (
-                            <div style={{ userSelect: 'text' }}>
-                                <p>
-                                    用户 <strong>{userItem.nickname}</strong> 的新密码为：
-                                </p>
-                                <div className='bg-gray-100 py-2 px-3 rounded-md flex justify-between items-center font-mono'>
-                                    <span>{newPassword}</span>
-                                    <CopyOutlined
-                                        className='cursor-pointer ml-2 p-1 rounded hover:bg-gray-200'
-                                        onClick={() => {
-                                            navigator.clipboard.writeText(newPassword)
-                                            getMessageApi().success('已复制到剪贴板')
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        ),
-                    })
-                }
-            )
+    const handleResetPassword = async (userItem) => {
+        const newPassword = await resetPasswordAsync(userItem.id)
+        modal.success({
+            title: '新密码已生成',
+            okText: '知道了',
+            content: (
+                <div style={{ userSelect: 'text' }}>
+                    <p>
+                        用户 <strong>{userItem.nickname}</strong> 的新密码为：
+                    </p>
+                    <div className='bg-gray-100 py-2 px-3 rounded-md flex justify-between items-center font-mono'>
+                        <span>{newPassword}</span>
+                        <CopyOutlined
+                            className='cursor-pointer ml-2 p-1 rounded hover:bg-gray-200'
+                            onClick={() => {
+                                navigator.clipboard.writeText(newPassword)
+                                getMessageApi().success('已复制到剪贴板')
+                            }}
+                        />
+                    </div>
+                </div>
+            ),
+        })
     }
 
-    const handleDelete = (id) => {
-        deleteUserById(id)
-            .then(
-                () => {
-                    getMessageApi().success('删除成功')
-                    handleRefresh()
-                }
-            )
+    const handleDelete = async (id) => {
+        await deleteUserByIdAsync(id)
+        getMessageApi().success('删除成功')
+        handleRefresh()
+
     }
 
     const handleBindRole = (userItem) => {
@@ -235,7 +251,7 @@ const UserManage = () => {
     const handleBindRoleSave = () => {
         bindRoleForm.validateFields()
             .then(values => {
-                bindRoleByUserId(values.id, values.roleIds)
+                bindRoleByUserIdAsync(values.id, values.roleIds)
                     .then(
                         () => {
                             getMessageApi().success('分配成功')
@@ -313,6 +329,7 @@ const UserManage = () => {
                                 style={{ marginInlineEnd: 8 }}
                             >
                                 <Switch
+                                    loading={!!userEnabledLoadingMap[id]}
                                     checkedChildren="启用"
                                     unCheckedChildren="停用"
                                     checked={enabled}
@@ -336,6 +353,7 @@ const UserManage = () => {
                             }
                         >
                             <Switch
+                                loading={!!userEnabledLoadingMap[id]}
                                 checkedChildren="启用"
                                 unCheckedChildren="停用"
                                 checked={enabled}
@@ -384,12 +402,16 @@ const UserManage = () => {
                                         title: '确定重置？',
                                         okText: '确定',
                                         cancelText: '取消',
+                                        maskClosable: false,
+                                        confirmLoading: resetPasswordLoading,
                                         content: (
                                             <>
                                                 是否重置 <Highlight>{record.nickname}</Highlight> 的密码？
                                             </>
                                         ),
-                                        onOk: () => handleResetPassword(record),
+                                        onOk: async () => {
+                                            await handleResetPassword(record)
+                                        },
                                     })
                                 }}
                             >
@@ -417,12 +439,16 @@ const UserManage = () => {
                                                             title: '确定删除？',
                                                             okText: '确定',
                                                             cancelText: '取消',
+                                                            maskClosable: false,
+                                                            confirmLoading: deleteUserByIdLoading,
                                                             content: (
                                                                 <>
                                                                     是否删除 <Highlight>{record.nickname}</Highlight> 的账号？删除后将无法恢复！
                                                                 </>
                                                             ),
-                                                            onOk: () => handleDelete(record.id),
+                                                            onOk: async () => {
+                                                                await handleDelete(record.id)
+                                                            },
                                                         })
                                                     }}
                                                 >
@@ -510,9 +536,9 @@ const UserManage = () => {
                 className='w-full'
                 columns={columns}
                 dataSource={userData.list}
-                scroll={userData?.list?.length > 10 ? { y: 1200, x: 'max-content' } : { x: 'max-content' }}
+                scroll={userData?.list?.length > 10 ? { y: 600, x: 'max-content' } : { x: 'max-content' }}
                 rowKey={(record) => record.id}
-                loading={loading}
+                loading={fetchUserLoading}
                 pagination={{
                     current: userData.pageNum,
                     pageSize: userData.pageSize,
@@ -531,10 +557,13 @@ const UserManage = () => {
                 title={userOperation.title}
                 width={400}
                 centered
+                confirmLoading={createUserLoading || updateUserLoading}
                 open={userOperation.open}
                 onOk={handleSaveUser}
                 onCancel={handleClose}
                 onClose={handleClose}
+                maskClosable={false}
+                keyboard={false}
                 okText="保存"
                 cancelText="取消"
             >
@@ -620,7 +649,7 @@ const UserManage = () => {
                 width={400}
                 footer={
                     <Space>
-                        <Button type="primary" onClick={handleBindRoleSave}>保存</Button>
+                        <Button loading={bindRoleByUserIdLoading} type="primary" onClick={handleBindRoleSave}>保存</Button>
                         <Button onClick={handleBindRoleClose}>取消</Button>
                     </Space>
                 }

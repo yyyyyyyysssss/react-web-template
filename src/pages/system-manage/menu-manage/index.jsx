@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './index.css'
-import { Divider, Dropdown, Flex, Popconfirm, Tree, Modal } from 'antd'
+import { Divider, Dropdown, Flex, Tree, Modal } from 'antd'
 import { deleteMenu, fetchMenuTree, menuDrag } from '../../../services/SystemService'
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import MenuDetails from './details';
@@ -10,6 +10,7 @@ import IdGen from '../../../utils/IdGen';
 import Highlight from '../../../component/Highlight';
 import HasPermission from '../../../component/HasPermission';
 import { getMessageApi } from '../../../utils/MessageUtil';
+import { useRequest } from 'ahooks';
 
 
 
@@ -32,7 +33,7 @@ const MenuItem = ({ item, onAddMenu, onEditMenu, onDeleteMenu }) => {
             <div>
                 {item.name}
             </div>
-            <HasPermission requireAll={true} hasPermissions={['system:menu:write','system:menu:delete']}>
+            <HasPermission requireAll={true} hasPermissions={['system:menu:write', 'system:menu:delete']}>
                 <div className={`flex items-center transition-opacity ${showOps ? 'opacity-100' : 'opacity-0'}`}>
                     <Dropdown
                         menu={{
@@ -99,6 +100,10 @@ const MenuManage = () => {
     const [selectedKeys, setSelectedKeys] = useState(null)
 
     const [menuDetailsKey, setMenuDetailsKey] = useState('0')
+
+    const { runAsync: deleteMenuAsync, loading: deleteMenuLoading } = useRequest(deleteMenu, {
+        manual: true
+    })
 
     const [menuAuthorityOpen, setMenuAuthorityOpen] = useState({
         open: false,
@@ -257,16 +262,14 @@ const MenuManage = () => {
             ),
             okText: '确认',
             cancelText: '取消',
-            onOk() {
-                deleteMenu(menuItem.id)
-                    .then(
-                        () => {
-                            getMessageApi().success('删除成功')
-                            const newMenuData = deleteTreeNode(menuData, menuItem.id)
-                            setMenuData(newMenuData)
-                            setSelectedKeys(null)
-                        }
-                    )
+            maskClosable: false,
+            confirmLoading: deleteMenuLoading,
+            onOk: async () => {
+                await deleteMenuAsync(menuItem.id)
+                getMessageApi().success('删除成功')
+                const newMenuData = deleteTreeNode(menuData, menuItem.id)
+                setMenuData(newMenuData)
+                setSelectedKeys(null)
             },
         })
     }
@@ -292,7 +295,7 @@ const MenuManage = () => {
 
     }
 
-    const handleSelectMenu = (menuId) => {
+    const handleSelectMenu = async (menuId) => {
         // 不取消选中
         setSelectedKeys([menuId])
         const menu = flattenTreeRef.current.find(f => f.id === menuId)
