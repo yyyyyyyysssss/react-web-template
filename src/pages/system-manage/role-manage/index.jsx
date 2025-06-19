@@ -396,7 +396,7 @@ const RoleManage = () => {
                     </Form.Item>
                 </Form>
                 <Space>
-                    <Button type="primary" onClick={handleSearch}>查询</Button>
+                    <Button loading={fetchRoleListLoading} type="primary" onClick={handleSearch}>查询</Button>
                     <Button onClick={handleReset}>重置</Button>
                 </Space>
             </Flex>
