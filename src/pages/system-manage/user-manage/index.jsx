@@ -1,7 +1,7 @@
-import { Button, Card, Checkbox, Drawer, Dropdown, Flex, Form, Input, List, Menu, message, Modal, Popconfirm, Radio, Select, Space, Switch, Table, Tag, Tooltip, Typography } from 'antd'
+import { Button, Drawer, Dropdown, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Space, Switch, Typography } from 'antd'
 import './index.css'
 import { useNavigate } from 'react-router-dom';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { bindRoleByUserId, createUser, deleteUserById, fetchUserList, resetPassword, updateUser, updateUserEnabled } from '../../../services/SystemService';
 import { CopyOutlined, DownOutlined } from '@ant-design/icons';
 import Highlight from '../../../component/Highlight';
@@ -9,7 +9,7 @@ import { getMessageApi } from '../../../utils/MessageUtil';
 import RoleSelect from '../../../component/RoleSelect';
 import HasPermission from '../../../component/HasPermission';
 import { useRequest } from 'ahooks';
-import { ArrowDownToLine, ArrowUpToLine, GripVertical, RotateCw, Settings } from 'lucide-react';
+import SmartTable from '../../../component/smart-table';
 
 
 const initQueryParam = {
@@ -278,7 +278,7 @@ const UserManage = () => {
             dataIndex: 'nickname',
             align: 'center',
             fixed: 'left',
-            // visible: true,
+            visible: true,
         },
         {
             key: 'username',
@@ -481,31 +481,6 @@ const UserManage = () => {
         }
     ]
 
-    const [tableColumns, setTableColumns] = useState(columns)
-
-    const total = tableColumns.length
-    const checkedCount = tableColumns.filter(col => col.visible != false).length
-
-    const checkAll = useMemo(() => checkedCount === total, [checkedCount, total])
-    const indeterminate = useMemo(() => checkedCount > 0 && checkedCount < total, [checkedCount, total])
-
-    const visibleColumns = useMemo(() => {
-        return tableColumns.filter(col => col.visible !== false)
-    }, [tableColumns])
-
-    const handleCheckAllChange = (e) => {
-        setTableColumns(prev =>
-            prev.map(col => ({ ...col, visible: e.target.checked })))
-    }
-
-    const handleToggleColumn = (e, key) => {
-        const checked = e.target.checked
-        setTableColumns(prev =>
-            prev.map(col =>
-                col.key === key ? { ...col, visible: checked } : col
-            ))
-    }
-
     const toUserDetails = () => {
         // navigate('/system/user/details',{
         //     state: {
@@ -560,106 +535,34 @@ const UserManage = () => {
                     <Button onClick={handleReset}>重置</Button>
                 </Space>
             </Flex>
-
-            <Flex
-                gap={10}
-                vertical
-            >
-                <Flex
-                    justify='space-between'
-                    align='center'
-                >
+            <SmartTable
+                className='w-full'
+                columns={columns}
+                headerExtra={(
                     <Space>
                         <HasPermission hasPermissions='system:user:write'>
                             <Button type="primary" onClick={handleAddUser}>新增</Button>
                         </HasPermission>
                     </Space>
-                    <Flex
-                        style={{ marginRight: 8 }}
-                        gap={10}
-                    >
-                        <Typography.Text className='typography-text-icon'>
-                            <RotateCw size={18} />
-                        </Typography.Text>
-                        <Dropdown
-                            trigger={['click']}
-                            dropdownRender={() => (
-                                <Flex gap={10} className="ant-dropdown-menu" style={{ width: '220px', padding: 10 }} vertical>
-                                    <Flex justify='space-between'>
-                                        <Checkbox indeterminate={indeterminate} onChange={handleCheckAllChange} checked={checkAll}>
-                                            列展示
-                                        </Checkbox>
-                                        <Typography.Link onClick={() => setTableColumns(columns)}>
-                                            重置
-                                        </Typography.Link>
-                                    </Flex>
-                                    <Flex vertical>
-                                        <List
-                                            split={false}
-                                            dataSource={tableColumns}
-                                            renderItem={item => (
-                                                <List.Item className="hoverable-list-item" style={{ padding: '4px 0' }}>
-                                                    <Flex
-                                                        flex={1}
-                                                        justify='space-between'
-                                                        align='center'
-                                                    >
-                                                        <Flex gap={25} justify='center' align='center'>
-                                                            <GripVertical style={{cursor: 'grab'}} color='var(--ant-color-text-disabled)' size={16} />
-                                                            <Flex flex={1}>
-                                                                <Checkbox style={{ width: '100%' }} onChange={(e) => handleToggleColumn(e, item.key)} checked={item.visible != false}>{item.title}</Checkbox>
-                                                            </Flex>
-                                                        </Flex>
-                                                        <Flex className='actions' gap={6}>
-                                                            <Tooltip title='固定在列首'>
-                                                                <Typography.Link>
-                                                                    <ArrowUpToLine size={16} />
-                                                                </Typography.Link>
-                                                            </Tooltip>
-                                                            <Tooltip title='固定在列尾'>
-                                                                <Typography.Link>
-                                                                    <ArrowDownToLine size={16} />
-                                                                </Typography.Link>
-                                                            </Tooltip>
-                                                        </Flex>
-                                                    </Flex>
-                                                </List.Item>
-                                            )}
-                                        />
-                                    </Flex>
-                                </Flex>
-                            )}
-                        >
-                            <Tooltip title='列设置'>
-                                <Typography.Text className='typography-text-icon'>
-                                    <Settings size={18} />
-                                </Typography.Text>
-                            </Tooltip>
-                        </Dropdown>
-                    </Flex>
-                </Flex>
-                <Table
-                    className='w-full'
-                    columns={visibleColumns}
-                    dataSource={userData.list}
-                    scroll={userData?.list?.length > 10 ? { y: 600, x: 'max-content' } : { x: 'max-content' }}
-                    rowKey={(record) => record.id}
-                    loading={fetchUserLoading}
-                    pagination={{
-                        current: userData.pageNum,
-                        pageSize: userData.pageSize,
-                        total: userData.total,
-                        showQuickJumper: true,
-                        showSizeChanger: true,
-                        pageSizeOptions: ['10', '20', '50', '100'],
-                        showTotal: total => `共 ${total} 条`,
-                        onChange: (pageNum, pageSize) => {
-                            const newQueryParam = { ...queryParam, pageNum: pageNum, pageSize: pageSize }
-                            setQueryParam(newQueryParam)
-                        }
-                    }}
-                />
-            </Flex>
+                )}
+                dataSource={userData.list}
+                scroll={userData?.list?.length > 10 ? { y: 600, x: 'max-content' } : { x: 'max-content' }}
+                rowKey={(record) => record.id}
+                loading={fetchUserLoading}
+                pagination={{
+                    current: userData.pageNum,
+                    pageSize: userData.pageSize,
+                    total: userData.total,
+                    showQuickJumper: true,
+                    showSizeChanger: true,
+                    pageSizeOptions: ['10', '20', '50', '100'],
+                    showTotal: total => `共 ${total} 条`,
+                    onChange: (pageNum, pageSize) => {
+                        const newQueryParam = { ...queryParam, pageNum: pageNum, pageSize: pageSize }
+                        setQueryParam(newQueryParam)
+                    }
+                }}
+            />
             <Modal
                 title={userOperation.title}
                 width={400}
