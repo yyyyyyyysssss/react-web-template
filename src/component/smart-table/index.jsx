@@ -2,7 +2,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import './index.css'
 import { Checkbox, Dropdown, Flex, List, Table, Tooltip, Typography } from 'antd'
 import { RotateCw, Settings, ArrowUpToLine, GripVertical, ArrowDownToLine, MoveVertical } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { CSS } from '@dnd-kit/utilities'
 import {
     DndContext,
@@ -62,7 +62,12 @@ const SortableItem = ({ item, index, tableColumns, unfixedColumns, onToggleColum
                                 onChange={(e) => onToggleColumn(e, item.key)}
                                 checked={item.visible !== false}
                             >
-                                {item.title}
+                                <Typography.Text
+                                    className='typography-text-checkbox-title'
+                                    ellipsis={{ tooltip: true }}
+                                >
+                                    {item.title}
+                                </Typography.Text>
                             </Checkbox>
                         </Flex>
                     </Flex>
@@ -84,9 +89,17 @@ const SortableItem = ({ item, index, tableColumns, unfixedColumns, onToggleColum
     )
 }
 
-const SmartTable = ({ columns, headerExtra, ...rest }) => {
+const SmartTable = ({ columns, headerExtra, onSearch, ...rest }) => {
 
-    const [tableColumns, setTableColumns] = useState([...columns])
+    const [tableColumns, setTableColumns] = useState([])
+
+    useEffect(() => {
+        const updatedColumns = columns.map((col) => ({
+            ...col,
+            key: col.key || col.dataIndex, // 如果没有 key，则使用 dataIndex 作为 key
+        }))
+        setTableColumns(updatedColumns)
+    }, [])
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -153,7 +166,14 @@ const SmartTable = ({ columns, headerExtra, ...rest }) => {
                                     align='center'
                                 >
                                     <Flex justify='center' align='center'>
-                                        <Checkbox style={{ width: '100%' }} onChange={(e) => handleToggleColumn(e, item.key)} checked={item.visible != false}>{item.title}</Checkbox>
+                                        <Checkbox style={{ width: '100%' }} onChange={(e) => handleToggleColumn(e, item.key)} checked={item.visible != false}>
+                                            <Typography.Text
+                                                className='typography-text-checkbox-title'
+                                                ellipsis={{ tooltip: true }}
+                                            >
+                                                {item.title}
+                                            </Typography.Text>
+                                        </Checkbox>
                                     </Flex>
                                     <Flex className='actions' gap={6}>
                                         <Tooltip title='不固定'>
@@ -197,7 +217,14 @@ const SmartTable = ({ columns, headerExtra, ...rest }) => {
                                     align='center'
                                 >
                                     <Flex justify='center' align='center'>
-                                        <Checkbox style={{ width: '100%' }} onChange={(e) => handleToggleColumn(e, item.key)} checked={item.visible != false}>{item.title}</Checkbox>
+                                        <Checkbox style={{ width: '100%' }} onChange={(e) => handleToggleColumn(e, item.key)} checked={item.visible != false}>
+                                            <Typography.Text
+                                                className='typography-text-checkbox-title'
+                                                ellipsis={{ tooltip: true }}
+                                            >
+                                                {item.title}
+                                            </Typography.Text>
+                                        </Checkbox>
                                     </Flex>
                                     <Flex className='actions' gap={6}>
                                         <Tooltip title='不固定'>
@@ -248,9 +275,13 @@ const SmartTable = ({ columns, headerExtra, ...rest }) => {
                     style={{ marginRight: 8 }}
                     gap={10}
                 >
-                    <Typography.Text className='typography-text-icon'>
-                        <RotateCw size={18} />
-                    </Typography.Text>
+                    {onSearch && (
+                        <Tooltip title='刷新'>
+                            <Typography.Text onClick={onSearch} className='typography-text-icon'>
+                                <RotateCw size={18} />
+                            </Typography.Text>
+                        </Tooltip>
+                    )}
                     <Dropdown
                         trigger={['click']}
                         dropdownRender={() => (
@@ -264,6 +295,7 @@ const SmartTable = ({ columns, headerExtra, ...rest }) => {
                                     </Typography.Link>
                                 </Flex>
                                 <Flex vertical>
+                                    {renderHeaderItem}
                                     <DndContext
                                         sensors={sensors}
                                         collisionDetection={closestCenter}
@@ -275,9 +307,12 @@ const SmartTable = ({ columns, headerExtra, ...rest }) => {
                                         >
                                             <List
                                                 split={false}
+                                                style={{
+                                                    maxHeight: '400px',
+                                                    overflowY: 'auto',
+                                                    overflowX: 'hidden'
+                                                }}
                                                 dataSource={unfixedColumns}
-                                                header={renderHeaderItem}
-                                                footer={renderFooterItem}
                                                 renderItem={(item, index) => (
                                                     <SortableItem
                                                         key={item.key}
@@ -293,6 +328,7 @@ const SmartTable = ({ columns, headerExtra, ...rest }) => {
                                             />
                                         </SortableContext>
                                     </DndContext>
+                                    {renderFooterItem}
                                 </Flex>
                             </Flex>
                         )}

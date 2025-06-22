@@ -278,7 +278,10 @@ const UserManage = () => {
             dataIndex: 'nickname',
             align: 'center',
             fixed: 'left',
+            width: '140px',
+            showSorterTooltip: { target: 'full-header' },
             visible: true,
+            sorter: (a, b) => a.nickname.localeCompare(b.nickname),
         },
         {
             key: 'username',
@@ -549,6 +552,7 @@ const UserManage = () => {
                 scroll={userData?.list?.length > 10 ? { y: 600, x: 'max-content' } : { x: 'max-content' }}
                 rowKey={(record) => record.id}
                 loading={fetchUserLoading}
+                onSearch={handleSearch}
                 pagination={{
                     current: userData.pageNum,
                     pageSize: userData.pageSize,

@@ -50,7 +50,11 @@ const App = () => {
           },
           Table: {
             headerBg: '#fafafa',
-            rowHoverBg: '#fafafa'
+            rowHoverBg: '#fafafa',
+            bodySortBg: '#fafafa',
+            headerSortActiveBg: '#fafafa',
+            headerSortHoverBg: '#fafafa',
+            fixedHeaderSortActiveBg: '#fafafa'
           },
           Layout: {
             //顶部背景色

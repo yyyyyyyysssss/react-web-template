@@ -8,6 +8,7 @@ import Highlight from '../../../component/Highlight'
 import HasPermission from '../../../component/HasPermission'
 import { getMessageApi } from '../../../utils/MessageUtil'
 import { useRequest } from 'ahooks'
+import SmartTable from '../../../component/smart-table'
 
 const initQueryParam = {
     pageNum: 1,
@@ -223,6 +224,9 @@ const RoleManage = () => {
             dataIndex: 'name',
             align: 'center',
             fixed: 'left',
+            width: '140px',
+            showSorterTooltip: { target: 'full-header' },
+            sorter: (a, b) => a.name.localeCompare(b.name),
         },
         {
             key: 'code',
@@ -310,6 +314,7 @@ const RoleManage = () => {
             align: 'center',
         },
         {
+            key: 'operation',
             title: '操作',
             dataIndex: 'operation',
             align: 'center',
@@ -400,16 +405,17 @@ const RoleManage = () => {
                     <Button onClick={handleReset}>重置</Button>
                 </Space>
             </Flex>
-            <Flex>
-                <Space>
-                    <HasPermission hasPermissions='system:role:write'>
-                        <Button type="primary" onClick={handleAddRole}>新增</Button>
-                    </HasPermission>
-                </Space>
-            </Flex>
-            <Table
+            <SmartTable
                 className='w-full'
                 columns={columns}
+                onSearch={handleRefresh}
+                headerExtra={
+                    <Space>
+                        <HasPermission hasPermissions='system:role:write'>
+                            <Button type="primary" onClick={handleAddRole}>新增</Button>
+                        </HasPermission>
+                    </Space>
+                }
                 dataSource={roleData.list}
                 scroll={roleData?.list?.length > 10 ? { y: 600, x: 'max-content' } : { x: 'max-content' }}
                 rowKey={(record) => record.id}

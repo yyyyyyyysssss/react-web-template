@@ -1,4 +1,4 @@
-import { Space, Flex, Form, Input, Table, Tag, Drawer, Button, Modal, Popconfirm, Typography, Spin } from 'antd'
+import { Space, Flex, Form, Input, Table, Tag, Drawer, Button, Modal, Popconfirm, Typography, Spin, Avatar, Image } from 'antd'
 import { SettingOutlined } from '@ant-design/icons';
 import { AuthorityType } from '../../../../enums';
 import { useEffect, useState } from 'react';
@@ -249,9 +249,9 @@ const MenuDetails = ({ menuId }) => {
                     <Input value={menuData.routePath} />
                 </Form.Item>
                 <Form.Item label="图标:">
-                    <div className='flex items-center'>
-                        <SettingOutlined size={18} color='gray' />
-                    </div>
+                    {menuData.icon && (
+                        <Image width={48} src={menuData.icon} />
+                    )}
                 </Form.Item>
                 <Form.Item label="排序:">
                     <Input value={menuData.sort} />
