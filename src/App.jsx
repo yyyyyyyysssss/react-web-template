@@ -9,7 +9,6 @@ import 'antd/dist/reset.css';
 import zhCN from 'antd/es/locale/zh_CN';
 import NProgress from 'nprogress';
 import { setMessageApi } from './utils/MessageUtil.jsx';
-import { ThemeContext } from './context/ThemeContext';
 import { AuthProvider } from './router/AuthProvider.jsx';
 
 NProgress.configure({
@@ -24,6 +23,7 @@ const App = () => {
   const [api, contextHolder] = message.useMessage()
 
   const [colorPrimary, setColorPrimary] = useState(defaultColorPrimary)
+
 
   useEffect(() => {
     document.documentElement.style.setProperty('--color-primary', defaultColorPrimary)
@@ -78,15 +78,13 @@ const App = () => {
       <Provider store={store}>
         <AuthProvider>
           {contextHolder}
-          <ThemeContext.Provider value='dark'>
-            <RouterProvider
-              future={{
-                v7_startTransition: true,
-                v7_relativeSplatPath: true
-              }}
-              router={router}
-            />
-          </ThemeContext.Provider>
+          <RouterProvider
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true
+            }}
+            router={router}
+          />
         </AuthProvider>
       </Provider>
     </ConfigProvider>

@@ -3,7 +3,7 @@ import './index.css'
 import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { bindRoleByUserId, createUser, deleteUserById, fetchUserList, resetPassword, updateUser, updateUserEnabled } from '../../../services/SystemService';
-import { CopyOutlined, DownOutlined } from '@ant-design/icons';
+import { CopyOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 import Highlight from '../../../component/Highlight';
 import { getMessageApi } from '../../../utils/MessageUtil';
 import RoleSelect from '../../../component/RoleSelect';

@@ -1,10 +1,9 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import './index.css'
-import { Menu, Typography } from 'antd';
+import { Flex, Menu } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setActiveKey, setOpenKeys } from '../../redux/slices/layoutSlice';
-import { ThemeContext } from '../../context/ThemeContext';
 import { findRouteByPath } from '../../router/router';
 import { Square } from 'lucide-react';
 
@@ -12,7 +11,7 @@ import { Square } from 'lucide-react';
 
 const Sider = () => {
 
-    const themeContext = useContext(ThemeContext)
+    const themeValue = useSelector(state => state.layout.theme)
 
     const menuItems = useSelector(state => state.layout.menuItems)
 
@@ -30,20 +29,20 @@ const Sider = () => {
 
     const location = useLocation()
 
-    const [selectKey,setSelectKey] = useState(null)
+    const [selectKey, setSelectKey] = useState(null)
 
     useEffect(() => {
         if (location.pathname && location.pathname !== '/' && flattenMenuItems && flattenMenuItems.length > 0) {
             dispatch(setActiveKey({ path: location.pathname }))
         }
-        
+
     }, [flattenMenuItems, location.pathname])
 
     useEffect(() => {
-        if(activeKey){
+        if (activeKey) {
             setSelectKey(activeKey)
         }
-    },[activeKey])
+    }, [activeKey])
 
     const handleOpenChange = useCallback((keys) => {
         dispatch(setOpenKeys({ keys: keys }))
@@ -52,10 +51,10 @@ const Sider = () => {
     const switchMenu = (e) => {
         setSelectKey(e.key)
         const menuItem = flattenMenuItems.find(item => item.id === e.key)
-        if (!menuItem){
+        if (!menuItem) {
             return
         }
-        const targetPath  = menuItem.routePath
+        const targetPath = menuItem.routePath
         if (location.pathname !== targetPath) {
             navigate(targetPath)
         }
@@ -88,14 +87,17 @@ const Sider = () => {
 
     return (
         <>
-            <div
+            <Flex
                 onClick={goHome}
-                className="logo-vertical flex items-center justify-center gap-2"
+                justify='center'
+                align='center'
                 style={{
-                    background: themeContext === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.04)',
+                    height: '64px',
+                    cursor: 'pointer',
                 }}
             >
-            </div>
+                <img style={{ height: '58px' }} src='/temp-logo.png' />
+            </Flex>
             <Menu
                 key={collapsed ? 'collapsed' : 'expanded'}
                 style={{
@@ -104,7 +106,7 @@ const Sider = () => {
                     overflowY: 'auto',
                     scrollbarGutter: 'stable',
                 }}
-                theme={themeContext}
+                theme={themeValue}
                 inlineCollapsed={collapsed}
                 selectedKeys={[selectKey]}
                 openKeys={openKeys}

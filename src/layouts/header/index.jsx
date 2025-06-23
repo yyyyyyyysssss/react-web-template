@@ -1,13 +1,14 @@
 import {
-    DownOutlined,
     MenuFoldOutlined,
     MenuUnfoldOutlined,
+    MoonOutlined,
+    SunOutlined,
 } from '@ant-design/icons';
-import { Button, Dropdown, Flex, Form, Input, Modal, Typography } from 'antd';
+import { Avatar, Button, Dropdown, Flex, Form, Input, Modal, Segmented, Typography } from 'antd';
 import { Lock, LogOut, UserPen } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { menuCollapsed } from '../../redux/slices/layoutSlice';
+import { menuCollapsed, switchTheme } from '../../redux/slices/layoutSlice';
 import { useAuth } from '../../router/AuthProvider';
 import { logout } from '../../services/LoginService';
 import { changePassword } from '../../services/UserProfileService';
@@ -20,9 +21,13 @@ const Header = () => {
 
     const { signout } = useAuth()
 
+    const themeValue = useSelector(state => state.layout.theme)
+
     const collapsed = useSelector(state => state.layout.menuCollapsed)
 
     const nickname = useSelector(state => state.auth.userInfo.nickname)
+
+    const avatar = useSelector(state => state.auth.userInfo.avatar)
 
     const [form] = Form.useForm()
 
@@ -87,6 +92,10 @@ const Header = () => {
         strong: { color: 'green', label: '强' },
     }
 
+    const handleSwitchTheme = (themeValue) => {
+        dispatch(switchTheme({theme: themeValue}))
+    }
+
     const handleLogout = () => {
         logout()
             .then(
@@ -117,7 +126,19 @@ const Header = () => {
             <Flex
                 style={{ paddingRight: 10 }}
                 align='center'
+                justify='center'
+                gap={5}
             >
+                <Segmented
+                    size='middle'
+                    shape="round"
+                    value={themeValue}
+                    onChange={handleSwitchTheme}
+                    options={[
+                        { value: 'light', icon: <SunOutlined /> },
+                        { value: 'dark', icon: <MoonOutlined /> },
+                    ]}
+                />
                 <Dropdown
                     menu={{
                         items: [
@@ -164,7 +185,7 @@ const Header = () => {
                                                 justify='space-between'
                                                 flex={1}
                                             >
-                                                <span>登</span>
+                                                <span>退</span>
                                                 <span>出</span>
                                             </Flex>
                                         </Flex>
@@ -175,9 +196,23 @@ const Header = () => {
                     }}
                     trigger={['click']}
                 >
-                    <Typography.Link>
-                        <span>{nickname}</span> <DownOutlined className='text-xs' />
-                    </Typography.Link>
+                    <Flex
+                        gap={5}
+                        justify='center'
+                        align='center'
+                        style={{
+                            cursor: 'pointer',
+                            padding: '8px',
+                            borderRadius: 'var(--ant-border-radius)',
+                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--ant-control-item-bg-hover)'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                        <Avatar src={avatar} />
+                        <Typography.Text type='secondary'>
+                            {nickname}
+                        </Typography.Text>
+                    </Flex>
                 </Dropdown>
             </Flex>
             <Modal

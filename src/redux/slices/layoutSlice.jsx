@@ -6,7 +6,8 @@ export const initialState = {
     openKeys: [],
     tabItems: [],
     menuItems: [],
-    flattenMenuItems: []
+    flattenMenuItems: [],
+    theme: 'dark'
 }
 
 const findMenuByKey = (targetKey, menus) => {
@@ -61,6 +62,11 @@ export const layoutSlice = createSlice({
             if (menuItem) {
                 state.openKeys = state.menuCollapsed ? [] : menuItem.parentPath
             }
+        },
+        switchTheme: (state, action) => {
+            const { payload } = action
+            const { theme } = payload
+            state.theme = theme
         },
         addTabIem: (state, action) => {
             const { payload } = action
@@ -158,6 +164,6 @@ export const layoutSlice = createSlice({
     }
 })
 
-export const { reset, setActiveKey, menuCollapsed, setOpenKeys, addTabIem, removeTabItem, removeAllTabItem, removeOtherTabItem, removeLeftTabItem, removeRightTabItem, loadMenuItems } = layoutSlice.actions
+export const { reset, setActiveKey, menuCollapsed, switchTheme, setOpenKeys, addTabIem, removeTabItem, removeAllTabItem, removeOtherTabItem, removeLeftTabItem, removeRightTabItem, loadMenuItems } = layoutSlice.actions
 
 export default layoutSlice.reducer
