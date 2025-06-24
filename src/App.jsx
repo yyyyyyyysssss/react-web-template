@@ -39,6 +39,7 @@ const App = () => {
         token: {
           colorText: 'rgba(0,0,0,0.88)',
           colorPrimary: colorPrimary,
+          colorLink: colorPrimary,
           borderRadius: 8,
           colorBgContainer: 'white',
           fontSize: 14,
