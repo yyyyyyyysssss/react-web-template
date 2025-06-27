@@ -4,36 +4,19 @@ import {
     MoonOutlined,
     SunOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, Dropdown, Flex, Form, Input, Modal, Segmented, Typography } from 'antd';
-import { Lock, LogOut, UserPen } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { Button, Flex, Segmented } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { menuCollapsed, switchTheme } from '../../redux/slices/layoutSlice';
-import { useAuth } from '../../router/AuthProvider';
-import { logout } from '../../services/LoginService';
-import { changePassword } from '../../services/UserProfileService';
-import { getMessageApi } from '../../utils/MessageUtil';
 import TopBreadcrumbTab from '../breadcrumb-tab';
 import './index.css';
+import UserProfile from './user-profile';
 
 
 const Header = () => {
 
-    const { signout } = useAuth()
-
     const themeValue = useSelector(state => state.layout.theme)
 
     const collapsed = useSelector(state => state.layout.menuCollapsed)
-
-    const nickname = useSelector(state => state.auth.userInfo.nickname)
-
-    const avatar = useSelector(state => state.auth.userInfo.avatar)
-
-    const [form] = Form.useForm()
-
-    const [password, setPassword] = useState('')
-
-    const [changePasswordOpen, setChangePasswordOpen] = useState(false)
 
     const dispatch = useDispatch()
 
@@ -41,68 +24,8 @@ const Header = () => {
         dispatch(menuCollapsed())
     }
 
-    const handleChangePassword = () => {
-        form.validateFields()
-            .then(
-                (values) => {
-                    const { originPassword, newPassword, confirmNewPassword } = values
-                    if (newPassword !== confirmNewPassword) {
-                        getMessageApi().warning('两次输入密码不一致')
-                        return
-                    }
-                    const req = {
-                        originPassword: originPassword,
-                        newPassword: newPassword
-                    }
-                    changePassword(req)
-                        .then(
-                            () => {
-                                getMessageApi().success('修改成功')
-                                handleClose()
-                            }
-                        )
-                }
-            )
-    }
-
-    const handleClose = () => {
-        setChangePasswordOpen(false)
-        form.resetFields()
-        setPassword('')
-    }
-
-    const getPasswordStrength = (password) => {
-        let score = 0
-        if (password.length >= 8) score++
-        if (/[a-z]/.test(password)) score++
-        if (/[A-Z]/.test(password)) score++
-        if (/\d/.test(password)) score++
-        if (/[\W_]/.test(password)) score++
-
-        if (score <= 2) return 'weak'
-        if (score === 3 || score === 4) return 'medium'
-        return 'strong'
-    }
-
-    const strength = useMemo(() => getPasswordStrength(password), [password])
-
-    const strengthColorMap = {
-        weak: { color: 'red', label: '弱' },
-        medium: { color: 'orange', label: '中' },
-        strong: { color: 'green', label: '强' },
-    }
-
     const handleSwitchTheme = (themeValue) => {
-        dispatch(switchTheme({theme: themeValue}))
-    }
-
-    const handleLogout = () => {
-        logout()
-            .then(
-                () => {
-                    signout()
-                }
-            )
+        dispatch(switchTheme({ theme: themeValue }))
     }
 
     return (
@@ -139,155 +62,8 @@ const Header = () => {
                         { value: 'dark', icon: <MoonOutlined /> },
                     ]}
                 />
-                <Dropdown
-                    menu={{
-                        items: [
-                            {
-                                key: 'profile',
-                                label: (
-                                    <Typography.Link>
-                                        <Flex
-                                            gap={8}
-                                            align='center'
-                                        >
-                                            <UserPen size={16} />
-                                            <span>个人信息</span>
-                                        </Flex>
-
-                                    </Typography.Link>
-                                )
-                            },
-                            {
-                                key: 'change_password',
-                                label: (
-                                    <Typography.Link onClick={() => setChangePasswordOpen(true)}>
-                                        <Flex
-                                            gap={8}
-                                            align='center'
-                                        >
-                                            <Lock size={16} />
-                                            <span>修改密码</span>
-                                        </Flex>
-
-                                    </Typography.Link>
-                                )
-                            },
-                            {
-                                key: 'logout',
-                                label: (
-                                    <Typography.Link onClick={handleLogout}>
-                                        <Flex
-                                            gap={8}
-                                            align='center'
-                                        >
-                                            <LogOut size={16} />
-                                            <Flex
-                                                justify='space-between'
-                                                flex={1}
-                                            >
-                                                <span>退</span>
-                                                <span>出</span>
-                                            </Flex>
-                                        </Flex>
-                                    </Typography.Link>
-                                )
-                            }
-                        ]
-                    }}
-                    trigger={['click']}
-                >
-                    <Flex
-                        gap={5}
-                        justify='center'
-                        align='center'
-                        style={{
-                            cursor: 'pointer',
-                            padding: '8px',
-                            borderRadius: 'var(--ant-border-radius)',
-                        }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--ant-control-item-bg-hover)'}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                    >
-                        <Avatar src={avatar} />
-                        <Typography.Text type='secondary'>
-                            {nickname}
-                        </Typography.Text>
-                    </Flex>
-                </Dropdown>
+                <UserProfile />
             </Flex>
-            <Modal
-                title='修改密码'
-                width={400}
-                open={changePasswordOpen}
-                onOk={handleChangePassword}
-                onCancel={handleClose}
-                onClose={handleClose}
-                okText="确认修改"
-                destroyOnClose
-            >
-                <Form
-                    style={{ marginTop: 20 }}
-                    form={form}
-                    labelCol={{ span: 7 }}
-                    wrapperCol={{ span: 17 }}
-                    layout="horizontal"
-                >
-                    <Form.Item
-                        label="原密码"
-                        name="originPassword"
-                        rules={[
-                            {
-                                required: true,
-                                message: `原密码不能为空`,
-                            },
-                        ]}
-                    >
-                        <Input.Password placeholder="请输入原密码" />
-                    </Form.Item>
-                    <Form.Item
-                        label="新密码"
-                        name="newPassword"
-                        validateTrigger='onBlur'
-                        rules={[
-                            {
-                                required: true,
-                                message: `新密码不能为空`,
-                            },
-                            {
-                                min: 6,
-                                message: '密码长度不能少于6位',
-                            }
-                        ]}
-                    >
-                        <Input.Password
-                            placeholder="请输入新密码"
-                            onChange={(e) => {
-                                const value = e.target.value
-                                setPassword(value)
-                            }}
-                        />
-                    </Form.Item>
-                    {password && (
-                        <div style={{ marginLeft: '30%', marginTop: -12, marginBottom: 12 }}>
-                            <span style={{ color: strengthColorMap[strength].color, fontWeight: 500 }}>
-                                密码强度：{strengthColorMap[strength].label}
-                            </span>
-                        </div>
-                    )}
-                    <Form.Item
-                        label="确认新密码"
-                        name="confirmNewPassword"
-                        rules={[
-                            {
-                                required: true,
-                                message: `确认新密码不能为空`,
-                            },
-                        ]}
-                    >
-                        <Input.Password placeholder="请输入确认新密码" />
-                    </Form.Item>
-                </Form>
-            </Modal>
         </Flex>
     )
 }

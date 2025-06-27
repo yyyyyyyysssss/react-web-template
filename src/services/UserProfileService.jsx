@@ -16,3 +16,12 @@ export const changePassword = async (req) => {
 
     return apiRequestWrapper(() => httpWrapper.put('/api/profile/password',req))
 }
+
+
+
+export const changeAvatar = async (newAvatarUrl) => {
+    const req = {
+        newAvatarUrl: newAvatarUrl
+    }
+    return apiRequestWrapper(() => httpWrapper.put('/api/profile/avatar',req))
+}

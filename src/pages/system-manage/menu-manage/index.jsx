@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './index.css'
-import { Divider, Dropdown, Flex, Tree, Modal } from 'antd'
+import { Divider, Dropdown, Flex, Tree, Modal, Tooltip } from 'antd'
 import { deleteMenu, fetchMenuTree, menuDrag } from '../../../services/SystemService'
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import MenuDetails from './details';
@@ -72,7 +72,9 @@ const MenuItem = ({ item, onAddMenu, onEditMenu, onDeleteMenu }) => {
                             onEditMenu(item)
                         }}
                     >
-                        <Pencil size={16} color='gray' />
+                        <Tooltip title='编辑菜单'>
+                            <Pencil size={16} color='gray' />
+                        </Tooltip>
                     </div>
                     <div
                         className='menu-ops-btn'
@@ -81,7 +83,9 @@ const MenuItem = ({ item, onAddMenu, onEditMenu, onDeleteMenu }) => {
                             onDeleteMenu(item)
                         }}
                     >
-                        <Trash2 size={16} color='gray' />
+                        <Tooltip title='删除菜单'>
+                            <Trash2 size={16} color='gray' />
+                        </Tooltip>
                     </div>
                 </div>
             </HasPermission>
