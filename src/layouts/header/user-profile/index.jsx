@@ -8,8 +8,10 @@ import { changeAvatar, changePassword } from '../../../services/UserProfileServi
 import { getMessageApi } from '../../../utils/MessageUtil';
 import ChunkedUpload from '../../../component/ChunkedUpload';
 import { updateUserAvatar } from '../../../redux/slices/authSlice';
-import ReactCrop from 'react-image-crop'
+import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
+import { simpleUploadFile } from '../../../services/FileService';
+import { useRequest } from 'ahooks';
 
 const initCrop = {
     unit: '%',
@@ -25,14 +27,25 @@ const UserProfile = () => {
 
     const { nickname, avatar } = useSelector(state => state.auth.userInfo)
 
+    const { runAsync: simpleUploadFileAsync, loading: simpleUploadFileLoading } = useRequest(simpleUploadFile, {
+        manual: true
+    })
+
+    const { runAsync: changeAvatarAsync, loading: changeAvatarLoading } = useRequest(changeAvatar, {
+        manual: true
+    })
+
     const [avatarPreviewVisible, setAvatarPreviewVisible] = useState(false)
 
-    const [crop, setCrop] = useState(initCrop)
+    const [crop, setCrop] = useState()
 
     const imgRef = useRef(null)
     const [completedCrop, setCompletedCrop] = useState()
 
-    const [avatarCropOpen, setAvatarCropOpen] = useState(false)
+    const [avatarCropOpen, setAvatarCropOpen] = useState({
+        open: false,
+        previewImage: null
+    })
 
     const dispatch = useDispatch()
 
@@ -97,30 +110,66 @@ const UserProfile = () => {
 
 
     const handleUploadAvatarSuccess = (accessUrl) => {
-        changeAvatar(accessUrl)
+        changeAvatarAsync(accessUrl)
             .then(() => {
                 dispatch(updateUserAvatar({ newAvatar: accessUrl }))
+                handleAvatarCropClose()
                 getMessageApi().success('修改成功')
             })
     }
 
-    const handleProgress = (totalSize, progress, progressPercentage) => {
-        console.log(`totalSize: ${totalSize} progress: {${progress}} progressPercentage: ${progressPercentage}`)
+    const handleBeforeUpload = (file) => {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+            handleAvatarCropOpen(reader.result)  // 设置文件预览
+        }
+        reader.readAsDataURL(file)
+        return false
     }
 
-    const handleAvatarCropOpen = () => {
-        setAvatarCropOpen(true)
+    const handleAvatarCropOpen = (previewImage) => {
+        setAvatarCropOpen({
+            open: true,
+            previewImage: previewImage
+        })
+    }
+
+    const centerAspectCrop = (mediaWidth, mediaHeight, aspect) => {
+        return centerCrop(
+            makeAspectCrop(
+                {
+                    unit: '%',
+                    width: 100
+                },
+                aspect,
+                mediaWidth,
+                mediaHeight,
+            ),
+            mediaWidth,
+            mediaHeight,
+        )
+    }
+
+    const handleImageLoad = (e) => {
+        const { width, height } = e.currentTarget;
+        setCrop(centerAspectCrop(width, height, 1));
     }
 
     const handleSetNewAvatar = async () => {
         const image = imgRef.current
-        image.crossOrigin = 'anonymous'
         if (!image || !completedCrop) {
             throw new Error('Crop canvas does not exist')
         }
+        // 确保图片已加载完成
+        if (!image.complete || image.naturalWidth === 0) {
+            // 如果图片未加载完成，添加加载完成的处理逻辑
+            await new Promise((resolve, reject) => {
+                image.onload = () => resolve();
+                image.onerror = (error) => reject(error);
+            });
+        }
         const scaleX = image.naturalWidth / image.width
         const scaleY = image.naturalHeight / image.height
-        console.log('completedCrop',image.naturalWidth)
         const offscreen = new OffscreenCanvas(
             completedCrop.width * scaleX,
             completedCrop.height * scaleY,
@@ -144,14 +193,25 @@ const UserProfile = () => {
             type: 'image/png',
         })
 
+        const file = new File([blob], 'newCropaAvatar.png', { type: 'image/png' })
+        const formData = new FormData()
+        formData.append('file', file)
+        simpleUploadFileAsync(formData)
+            .then(
+                (accessUrl) => {
+                    handleUploadAvatarSuccess(accessUrl)
+                }
+            )
 
-
-        handleAvatarCropClose()
     }
 
     const handleAvatarCropClose = () => {
-        setAvatarCropOpen(false)
-        setCrop(initCrop)
+        setAvatarCropOpen({
+            open: false,
+            previewImage: null
+        })
+        setCrop(null)
+        setCompletedCrop(null)
     }
 
     const handleLogout = () => {
@@ -334,8 +394,8 @@ const UserProfile = () => {
                                     cursor: 'pointer'
                                 }}
                                 onClick={() => {
-                                    // setAvatarPreviewVisible(true)
-                                    handleAvatarCropOpen()
+                                    setAvatarPreviewVisible(true)
+                                    // handleAvatarCropOpen()
                                 }}
                             />
                             <Image
@@ -359,8 +419,7 @@ const UserProfile = () => {
                                     showUploadList={false}
                                     maxCount={1}
                                     accept='image/*'
-                                    onSuccess={handleUploadAvatarSuccess}
-                                    onProgress={handleProgress}
+                                    beforeUpload={handleBeforeUpload}
                                 >
                                     <Button icon={<Pencil size={18} />} />
                                 </ChunkedUpload>
@@ -378,16 +437,19 @@ const UserProfile = () => {
                         <Divider style={{ width: '450px', marginBottom: '6px', marginTop: '8px' }} />
                     </Flex>
                 }
-                open={avatarCropOpen}
+                open={avatarCropOpen.open}
                 onCancel={handleAvatarCropClose}
                 onClose={handleAvatarCropClose}
                 width={450}
                 height={500}
+                maskClosable={false}
+                destroyOnClose={true}
                 footer={
                     <Flex justify='center' align='center' vertical>
                         <Divider style={{ width: '450px', marginBottom: '8px', marginTop: '8px' }} />
                         <Button
                             type="primary"
+                            loading={simpleUploadFileLoading || changeAvatarLoading}
                             onClick={handleSetNewAvatar}
                             style={{ width: '100%' }}
                         >
@@ -404,7 +466,7 @@ const UserProfile = () => {
                     onChange={c => setCrop(c)}
                     onComplete={(c) => setCompletedCrop(c)}
                 >
-                    <img ref={imgRef} src={avatar} />
+                    <img ref={imgRef} src={avatarCropOpen.previewImage} onLoad={handleImageLoad} />
                 </ReactCrop>
             </Modal>
         </>
