@@ -441,7 +441,6 @@ const UserProfile = () => {
                 onCancel={handleAvatarCropClose}
                 onClose={handleAvatarCropClose}
                 width={450}
-                height={500}
                 maskClosable={false}
                 destroyOnClose={true}
                 footer={
