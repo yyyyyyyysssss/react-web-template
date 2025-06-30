@@ -395,7 +395,6 @@ const UserProfile = () => {
                                 }}
                                 onClick={() => {
                                     setAvatarPreviewVisible(true)
-                                    // handleAvatarCropOpen()
                                 }}
                             />
                             <Image
