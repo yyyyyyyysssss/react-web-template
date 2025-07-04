@@ -13,19 +13,13 @@ import 'react-image-crop/dist/ReactCrop.css'
 import { simpleUploadFile } from '../../../services/FileService';
 import { useRequest } from 'ahooks';
 
-const initCrop = {
-    unit: '%',
-    width: 100, // 初始宽度设为50%，可以根据需求调整
-    height: 100, // 初始高度设为50%
-    x: 0, // 初始裁剪框X坐标
-    y: 0, // 初始裁剪框Y坐标
-}
-
 const UserProfile = () => {
 
     const { signout } = useAuth()
 
     const { nickname, avatar } = useSelector(state => state.auth.userInfo)
+
+    const [profileForm] = Form.useForm()
 
     const { runAsync: simpleUploadFileAsync, loading: simpleUploadFileLoading } = useRequest(simpleUploadFile, {
         manual: true
@@ -382,9 +376,13 @@ const UserProfile = () => {
             >
                 <Flex
                     vertical
+                    gap={50}
+                    style={{height: '100%'}}
                 >
                     <Flex
                         justify='center'
+                        align='center'
+                        gap={6}
                     >
                         <div style={{ position: 'relative' }}>
                             <Avatar
@@ -424,6 +422,25 @@ const UserProfile = () => {
                                 </ChunkedUpload>
                             </div>
                         </div>
+                    </Flex>
+                    <Flex
+                        justify='center'
+                    >
+                        {/* <Form
+                            layout='vertical'
+                            form={profileForm}
+                            initialValues={{
+                                nickname: nickname
+                            }}
+                            disabled
+                        >
+                            <Form.Item
+                                label="名称"
+                                name="nickname"
+                            >
+                                <Input/>
+                            </Form.Item>
+                        </Form> */}
                     </Flex>
                 </Flex>
             </Drawer>
