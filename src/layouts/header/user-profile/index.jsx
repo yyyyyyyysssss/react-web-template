@@ -12,12 +12,14 @@ import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 import { simpleUploadFile } from '../../../services/FileService';
 import { useRequest } from 'ahooks';
+import RemoteSearchSelect from '../../../component/RemoteSearchSelect';
+import { fetchSearchUser } from '../../../services/SystemService';
 
 const UserProfile = () => {
 
     const { signout } = useAuth()
 
-    const { nickname, avatar } = useSelector(state => state.auth.userInfo)
+    const { id, nickname, avatar } = useSelector(state => state.auth.userInfo)
 
     const [profileForm] = Form.useForm()
 
@@ -373,6 +375,7 @@ const UserProfile = () => {
                 onClose={() => setProfileOpen(false)}
                 open={profileOpen}
                 width={400}
+                destroyOnClose
             >
                 <Flex
                     vertical
@@ -430,15 +433,22 @@ const UserProfile = () => {
                             layout='vertical'
                             form={profileForm}
                             initialValues={{
-                                nickname: nickname
+                                userIds: ['1','2','3']
                             }}
-                            disabled
                         >
                             <Form.Item
-                                label="名称"
-                                name="nickname"
+                                label=""
+                                name="userIds"
                             >
-                                <Input/>
+                                <RemoteSearchSelect
+                                    mode='multiple'
+                                    fetchData={fetchSearchUser}
+                                    labelField='nickname'
+                                    valueField='id'
+                                    placeholder='请输入用户名称'
+                                    allowClear
+
+                                />
                             </Form.Item>
                         </Form> */}
                     </Flex>

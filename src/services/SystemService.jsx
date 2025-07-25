@@ -28,6 +28,20 @@ export const updateUser = async (userBody) => {
     return apiRequestWrapper(() => httpWrapper.put('/api/system/user', userBody))
 }
 
+// 用户列表
+export const fetchSearchUser = async (keyword, pageNum, pageSize) => {
+    const searchUserReq = {
+        pageNum: pageNum,
+        pageSize: pageSize
+    }
+    if(Array.isArray(keyword)){
+        searchUserReq.ids = keyword
+    }else {
+        searchUserReq.keyword = keyword
+    }
+    return apiRequestWrapper(() => httpWrapper.post('/api/system/user/search', searchUserReq))
+}
+
 // 用户分配角色
 export const bindRoleByUserId = async (userId, roleIds) => {
     const req = {
@@ -160,7 +174,7 @@ export const updateAuthorityUrlsById = async (id, authorityUrls) => {
         id: id,
         urls: authorityUrls,
     }
-    return apiRequestWrapper(() => httpWrapper.patch('/api/system/authority',req))
+    return apiRequestWrapper(() => httpWrapper.patch('/api/system/authority', req))
 }
 
 // 获取权限树
