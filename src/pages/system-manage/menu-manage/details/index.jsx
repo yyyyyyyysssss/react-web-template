@@ -279,7 +279,7 @@ const MenuDetails = ({ menuId }) => {
                 onClose={onClose}
                 open={openInfo.open}
                 width={700}
-                destroyOnClose
+                destroyOnHidden
             >
                 <AuthorityUrl
                     authorityId={openInfo.authorityId}

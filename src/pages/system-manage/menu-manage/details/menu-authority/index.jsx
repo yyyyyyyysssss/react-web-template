@@ -314,7 +314,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
             keyboard={false}
             okText="保存"
             cancelText="取消"
-            destroyOnClose
+            destroyOnHidden
         >
             <Flex
                 style={{ marginTop: '20px', height: type === AuthorityType.MENU ? 300 : 530 }}

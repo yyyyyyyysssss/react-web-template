@@ -284,7 +284,7 @@ const SmartTable = ({ columns, headerExtra, onSearch, ...rest }) => {
                     )}
                     <Dropdown
                         trigger={['click']}
-                        dropdownRender={() => (
+                        popupRender={() => (
                             <Flex gap={10} className="ant-dropdown-menu" style={{ width: '220px', padding: 10 }} vertical>
                                 <Flex justify='space-between'>
                                     <Checkbox indeterminate={indeterminate} onChange={handleCheckAllChange} checked={checkAll}>

@@ -304,7 +304,7 @@ const UserProfile = () => {
                 onCancel={handleClose}
                 onClose={handleClose}
                 okText="确认修改"
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form
                     style={{ marginTop: 20 }}
@@ -375,7 +375,7 @@ const UserProfile = () => {
                 onClose={() => setProfileOpen(false)}
                 open={profileOpen}
                 width={400}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Flex
                     vertical
@@ -429,7 +429,7 @@ const UserProfile = () => {
                     <Flex
                         justify='center'
                     >
-                        {/* <Form
+                        <Form
                             layout='vertical'
                             form={profileForm}
                             initialValues={{
@@ -450,7 +450,7 @@ const UserProfile = () => {
 
                                 />
                             </Form.Item>
-                        </Form> */}
+                        </Form>
                     </Flex>
                 </Flex>
             </Drawer>
@@ -468,7 +468,7 @@ const UserProfile = () => {
                 onClose={handleAvatarCropClose}
                 width={450}
                 maskClosable={false}
-                destroyOnClose={true}
+                destroyOnHidden={true}
                 footer={
                     <Flex justify='center' align='center' vertical>
                         <Divider style={{ width: '450px', marginBottom: '8px', marginTop: '8px' }} />
