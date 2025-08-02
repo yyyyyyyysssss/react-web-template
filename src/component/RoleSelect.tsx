@@ -99,7 +99,7 @@ const RoleSelect: React.FC<RoleSelectProps> = ({ value, onChange, type = 'select
                         allowClear
                         showSearch
                         optionFilterProp="name"
-                        onDropdownVisibleChange={handleDropdownVisibleChange}
+                        onOpenChange={handleDropdownVisibleChange}
                     />
                 )
                 :
