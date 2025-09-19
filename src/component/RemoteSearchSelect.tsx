@@ -18,7 +18,7 @@ interface RemoteSearchSelectProps<T> {
     // 每页大小
     pageSize?: number;
     mode: 'multiple' | 'tags' | undefined;
-    optionRender;
+    optionRender: any;
 
     [key: string]: any;
 }
@@ -131,7 +131,7 @@ const RemoteSearchSelect = <T,>({
             value={value}
             filterOption={false}
             options={selectOptions}
-            onOpenChange={handleOpenChange}
+            onDropdownVisibleChange={handleOpenChange}
             onPopupScroll={handlePopupScroll}
             onClear={() => {
                 setOptions([])

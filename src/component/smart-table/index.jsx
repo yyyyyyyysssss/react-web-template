@@ -3,7 +3,9 @@ import './index.css'
 import { Checkbox, Dropdown, Flex, List, Table, Tooltip, Typography } from 'antd'
 import { RotateCw, Settings, ArrowUpToLine, GripVertical, ArrowDownToLine, MoveVertical } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { CSS } from '@dnd-kit/utilities'
+import { useRequest } from 'ahooks'
 import {
     DndContext,
     closestCenter,
@@ -19,11 +21,18 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 
+
 const reorderColumnsForFixed = (columns) => {
-    const left = columns.filter(c => c.fixed === 'left')
-    const right = columns.filter(c => c.fixed === 'right')
-    const middle = columns
-        .filter(c => !c.fixed)
+    const left = []
+    const middle = []
+    const right = []
+
+    for (const col of columns) {
+        if (col.fixed === 'left') left.push(col)
+        else if (col.fixed === 'right') right.push(col)
+        else middle.push(col)
+    }
+
     return [...left, ...middle, ...right]
 }
 
@@ -89,17 +98,62 @@ const SortableItem = ({ item, index, tableColumns, unfixedColumns, onToggleColum
     )
 }
 
-const SmartTable = ({ columns, headerExtra, onSearch, ...rest }) => {
+const SmartTable = ({ columns, headerExtra, storageKey, fetchData, queryParam, setQueryParam, fieldNames, ...rest }) => {
+
+    const location = useLocation()
+
+    const STORAGE_KEY = storageKey || `smart_table_${location.pathname}`
 
     const [tableColumns, setTableColumns] = useState([])
 
+    const {
+        list: listField = 'list',
+        pageNum: pageNumField = 'pageNum',
+        pageSize: pageSizeField = 'pageSize',
+        total: totalField = 'total'
+    } = fieldNames || {}
+
+    const [data, setData] = useState({})
+
+    const { runAsync: fetchDataAsync, loading: fetchDataLoading } = useRequest(fetchData, {
+        manual: true
+    })
+
     useEffect(() => {
-        const updatedColumns = columns.map((col) => ({
-            ...col,
-            key: col.key || col.dataIndex, // 如果没有 key，则使用 dataIndex 作为 key
-        }))
-        setTableColumns(updatedColumns)
+        fetchDataAsync(queryParam).then(setData)
+    }, [queryParam])
+
+    const handleRefresh = () => {
+        fetchDataAsync(queryParam)
+    }
+
+    useEffect(() => {
+        const storageColums = localStorage.getItem(STORAGE_KEY)
+        if (storageColums) {
+            const parsedColums = JSON.parse(storageColums)
+            const merged = parsedColums.map((saved) => {
+                const col = columns.find((c) => c.key === (saved.key || saved.dataIndex))
+                return {
+                    ...col, // 最新配置
+                    ...saved, // 用户偏好
+                    key: col.key || col.dataIndex,
+                }
+            })
+            setTableColumns(merged)
+        } else {
+            const updatedColumns = columns.map((col) => ({
+                ...col,
+                key: col.key || col.dataIndex, // 如果没有 key，则使用 dataIndex 作为 key
+            }))
+            setTableColumns(updatedColumns)
+        }
     }, [])
+
+    useEffect(() => {
+        if (tableColumns.length > 0) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(tableColumns.map(({ key, visible, fixed }) => ({ key, visible, fixed }))))
+        }
+    }, [tableColumns, STORAGE_KEY])
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -136,7 +190,7 @@ const SmartTable = ({ columns, headerExtra, onSearch, ...rest }) => {
 
     const handleNotFixed = (key) => {
         setTableColumns(prev => {
-            const updated = prev.map(col => col.key === key ? { ...col, fixed: undefined } : col)
+            const updated = prev.map(col => col.key === key ? { ...col, fixed: 'undefined' } : col)
             return reorderColumnsForFixed(updated)
         })
     }
@@ -275,13 +329,11 @@ const SmartTable = ({ columns, headerExtra, onSearch, ...rest }) => {
                     style={{ marginRight: 8 }}
                     gap={10}
                 >
-                    {onSearch && (
-                        <Tooltip title='刷新'>
-                            <Typography.Text onClick={onSearch} className='typography-text-icon'>
-                                <RotateCw size={18} />
-                            </Typography.Text>
-                        </Tooltip>
-                    )}
+                    <Tooltip title='刷新'>
+                        <Typography.Text onClick={handleRefresh} className='typography-text-icon'>
+                            <RotateCw size={18} />
+                        </Typography.Text>
+                    </Tooltip>
                     <Dropdown
                         trigger={['click']}
                         popupRender={() => (
@@ -344,6 +396,23 @@ const SmartTable = ({ columns, headerExtra, onSearch, ...rest }) => {
             <Table
                 className='w-full'
                 columns={visibleColumns}
+                loading={fetchDataLoading}
+                scroll={data?.[listField]?.length > 10 ? { y: 600, x: 'max-content' } : { x: 'max-content' }}
+                dataSource={data?.[listField] || []}
+                rowKey={rest.rowKey || 'id'}
+                pagination={{
+                    current: data?.[pageNumField],
+                    pageSize: data?.[pageSizeField],
+                    total: data?.[totalField],
+                    showQuickJumper: true,
+                    showSizeChanger: true,
+                    pageSizeOptions: ['10', '20', '50', '100'],
+                    showTotal: total => `共 ${total} 条`,
+                    onChange: (pageNum, pageSize) => {
+                        const newQueryParam = { ...queryParam, [pageNumField]: pageNum, [pageSizeField]: pageSize }
+                        setQueryParam(newQueryParam)
+                    }
+                }}
                 {...rest}
             />
         </Flex>

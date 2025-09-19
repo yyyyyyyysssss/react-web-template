@@ -29,13 +29,6 @@ const RoleManage = () => {
 
     const [queryParam, setQueryParam] = useState(initQueryParam)
 
-    const [roleData, setRoleData] = useState({})
-
-    // 列表查询
-    const { runAsync: fetchRoleListAsync, loading: fetchRoleListLoading } = useRequest(fetchRoleList, {
-        manual: true
-    })
-
     const { runAsync: createRoleAsync, loading: createRoleLoading } = useRequest(createRole, {
         manual: true
     })
@@ -66,14 +59,6 @@ const RoleManage = () => {
         title: null,
         roleItem: null,
     })
-
-    useEffect(() => {
-        const getData = async () => {
-            const roles = await fetchRoleListAsync(queryParam)
-            setRoleData(roles)
-        }
-        getData()
-    }, [queryParam])
 
     useEffect(() => {
         if (roleOperation && roleOperation.open === true && roleOperation.operationType === 'EDIT') {
@@ -401,14 +386,13 @@ const RoleManage = () => {
                     </Form.Item>
                 </Form>
                 <Space>
-                    <Button loading={fetchRoleListLoading} type="primary" onClick={handleSearch}>查询</Button>
+                    <Button type="primary" onClick={handleSearch}>查询</Button>
                     <Button onClick={handleReset}>重置</Button>
                 </Space>
             </Flex>
             <SmartTable
                 className='w-full'
                 columns={columns}
-                onSearch={handleRefresh}
                 headerExtra={
                     <Space>
                         <HasPermission hasPermissions='system:role:write'>
@@ -416,23 +400,9 @@ const RoleManage = () => {
                         </HasPermission>
                     </Space>
                 }
-                dataSource={roleData.list}
-                scroll={roleData?.list?.length > 10 ? { y: 600, x: 'max-content' } : { x: 'max-content' }}
-                rowKey={(record) => record.id}
-                loading={fetchRoleListLoading}
-                pagination={{
-                    current: roleData.pageNum,
-                    pageSize: roleData.pageSize,
-                    total: roleData.total,
-                    showQuickJumper: true,
-                    showSizeChanger: true,
-                    pageSizeOptions: ['10', '20', '50', '100'],
-                    showTotal: total => `共 ${total} 条`,
-                    onChange: (pageNum, pageSize) => {
-                        const newQueryParam = { ...queryParam, pageNum: pageNum, pageSize: pageSize }
-                        setQueryParam(newQueryParam)
-                    }
-                }}
+                fetchData={fetchRoleList}
+                queryParam={queryParam}
+                setQueryParam={setQueryParam}
             />
             <Modal
                 title={roleOperation.title}

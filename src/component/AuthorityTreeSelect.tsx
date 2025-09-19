@@ -131,7 +131,7 @@ const AuthorityTreeSelect: React.FC<PermissionTreeSelectProps> = ({ value, onCha
         treeCheckStrictly={false}
         showCheckedStrategy={TreeSelect.SHOW_ALL}
         placeholder="请选择权限"
-        onOpenChange={handleDropdownVisibleChange}
+        onDropdownVisibleChange={handleDropdownVisibleChange}
         fieldNames={{
           label: 'name',
           value: 'id',

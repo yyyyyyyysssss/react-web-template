@@ -51,7 +51,7 @@ export const saveToken = (tokenInfo) => {
 export const clearToken = () => {
     Cookies.remove('accessToken')
     Cookies.remove('refreshToken')
-    localStorage.removeItem('rememberMeToken')
+    localStorage.clear()
 }
 
 export const checkTokenValid = async () => {

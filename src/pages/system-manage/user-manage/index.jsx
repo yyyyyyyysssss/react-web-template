@@ -3,7 +3,7 @@ import './index.css'
 import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { bindRoleByUserId, createUser, deleteUserById, fetchUserList, resetPassword, updateUser, updateUserEnabled } from '../../../services/SystemService';
-import { CopyOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
+import { CopyOutlined, DownOutlined } from '@ant-design/icons';
 import Highlight from '../../../component/Highlight';
 import { getMessageApi } from '../../../utils/MessageUtil';
 import RoleSelect from '../../../component/RoleSelect';
@@ -31,15 +31,7 @@ const UserManage = () => {
 
     const [searchForm] = Form.useForm()
 
-    const [userData, setUserData] = useState({})
-
-
     const [queryParam, setQueryParam] = useState(initQueryParam)
-
-    // 列表查询
-    const { runAsync: fetchUserListAsync, loading: fetchUserLoading } = useRequest(fetchUserList, {
-        manual: true
-    })
 
     const { runAsync: createUserAsync, loading: createUserLoading } = useRequest(createUser, {
         manual: true
@@ -75,15 +67,6 @@ const UserManage = () => {
         title: null,
         userItem: null,
     })
-
-
-    useEffect(() => {
-        const getData = async () => {
-            const users = await fetchUserListAsync(queryParam)
-            setUserData(users)
-        }
-        getData()
-    }, [queryParam])
 
     useEffect(() => {
         if (userOperation && userOperation.open === true && userOperation.operationType === 'EDIT') {
@@ -534,7 +517,7 @@ const UserManage = () => {
                     </Form.Item>
                 </Form>
                 <Space>
-                    <Button loading={fetchUserLoading} type="primary" onClick={handleSearch}>查询</Button>
+                    <Button type="primary" onClick={handleSearch}>查询</Button>
                     <Button onClick={handleReset}>重置</Button>
                 </Space>
             </Flex>
@@ -548,24 +531,9 @@ const UserManage = () => {
                         </HasPermission>
                     </Space>
                 )}
-                dataSource={userData.list}
-                scroll={userData?.list?.length > 10 ? { y: 600, x: 'max-content' } : { x: 'max-content' }}
-                rowKey={(record) => record.id}
-                loading={fetchUserLoading}
-                onSearch={handleSearch}
-                pagination={{
-                    current: userData.pageNum,
-                    pageSize: userData.pageSize,
-                    total: userData.total,
-                    showQuickJumper: true,
-                    showSizeChanger: true,
-                    pageSizeOptions: ['10', '20', '50', '100'],
-                    showTotal: total => `共 ${total} 条`,
-                    onChange: (pageNum, pageSize) => {
-                        const newQueryParam = { ...queryParam, pageNum: pageNum, pageSize: pageSize }
-                        setQueryParam(newQueryParam)
-                    }
-                }}
+                fetchData={fetchUserList}
+                queryParam={queryParam}
+                setQueryParam={setQueryParam}
             />
             <Modal
                 title={userOperation.title}
