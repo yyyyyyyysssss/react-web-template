@@ -131,7 +131,7 @@ const RemoteSearchSelect = <T,>({
             value={value}
             filterOption={false}
             options={selectOptions}
-            onDropdownVisibleChange={handleOpenChange}
+            onOpenChange={handleOpenChange}
             onPopupScroll={handlePopupScroll}
             onClear={() => {
                 setOptions([])

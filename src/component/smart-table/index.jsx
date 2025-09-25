@@ -2,7 +2,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import './index.css'
 import { Checkbox, Dropdown, Flex, List, Table, Tooltip, Typography } from 'antd'
 import { RotateCw, Settings, ArrowUpToLine, GripVertical, ArrowDownToLine, MoveVertical } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { CSS } from '@dnd-kit/utilities'
 import { useRequest } from 'ahooks'
@@ -98,7 +98,7 @@ const SortableItem = ({ item, index, tableColumns, unfixedColumns, onToggleColum
     )
 }
 
-const SmartTable = ({ columns, headerExtra, storageKey, fetchData, queryParam, setQueryParam, fieldNames, ...rest }) => {
+const SmartTable = ({ columns, headerExtra, storageKey, fetchData, queryParam, setQueryParam, fieldNames, autoFetch = true, ...rest }) => {
 
     const location = useLocation()
 
@@ -119,7 +119,13 @@ const SmartTable = ({ columns, headerExtra, storageKey, fetchData, queryParam, s
         manual: true
     })
 
+    const isFirstRender = useRef(true)
+
     useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false
+            if (!autoFetch) return // 首次渲染 + autoFetch=false → 跳过
+        }
         fetchDataAsync(queryParam).then(setData)
     }, [queryParam])
 
