@@ -1,11 +1,12 @@
 import { useSortable } from '@dnd-kit/sortable'
 import './index.css'
-import { Checkbox, Dropdown, Flex, List, Table, Tooltip, Typography } from 'antd'
+import { Checkbox, CheckboxChangeEvent, Dropdown, Flex, List, Table, Tooltip, Typography } from 'antd'
 import { RotateCw, Settings, ArrowUpToLine, GripVertical, ArrowDownToLine, MoveVertical } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { CSS } from '@dnd-kit/utilities'
 import { useRequest } from 'ahooks'
+import type { TableProps, ColumnsType } from 'antd/es/table'
 import {
     DndContext,
     closestCenter,
@@ -13,6 +14,7 @@ import {
     PointerSensor,
     useSensor,
     useSensors,
+    DragEndEvent,
 } from '@dnd-kit/core'
 import {
     arrayMove,
@@ -22,7 +24,38 @@ import {
 } from '@dnd-kit/sortable'
 
 
-const reorderColumnsForFixed = (columns) => {
+interface FieldNames {
+  list?: string
+  pageNum?: string
+  pageSize?: string
+  total?: string
+}
+
+interface SmartTableProps<T = any> extends TableProps<T>{
+    columns: ColumnsType<T>
+    headerExtra?: React.ReactNode
+    storageKey?: string
+    fetchData: (queryParam: any) => Promise<any>
+    queryParam: any
+    setQueryParam: (param: any) => void
+    fieldNames?: FieldNames
+    autoFetch?: boolean
+    rowKey: string
+    transformData?: (data: T[]) => T[]
+    onDataChange?: (data: T[]) => T[]
+}
+
+interface SortableItemProps {
+    item: any
+    index: number
+    tableColumns: any[]
+    unfixedColumns: any[]
+    onToggleColumn: (e: CheckboxChangeEvent, key: string) => void
+    onFixedHeader: (key: string) => void
+    onFixedFooter: (key: string) => void
+}
+
+const reorderColumnsForFixed = (columns: any[]) => {
     const left = []
     const middle = []
     const right = []
@@ -36,7 +69,15 @@ const reorderColumnsForFixed = (columns) => {
     return [...left, ...middle, ...right]
 }
 
-const SortableItem = ({ item, index, tableColumns, unfixedColumns, onToggleColumn, onFixedHeader, onFixedFooter }) => {
+const SortableItem: React.FC<SortableItemProps> = ({ 
+    item, 
+    index, 
+    tableColumns, 
+    unfixedColumns, 
+    onToggleColumn, 
+    onFixedHeader, 
+    onFixedFooter 
+}) => {
     const {
         attributes,
         listeners,
@@ -98,13 +139,26 @@ const SortableItem = ({ item, index, tableColumns, unfixedColumns, onToggleColum
     )
 }
 
-const SmartTable = ({ columns, headerExtra, storageKey, fetchData, queryParam, setQueryParam, fieldNames, autoFetch = true, ...rest }) => {
+const SmartTable = <T extends any> ({ 
+    columns, 
+    headerExtra, 
+    storageKey, 
+    fetchData, 
+    queryParam, 
+    setQueryParam, 
+    fieldNames, 
+    autoFetch = true,
+    rowKey,
+    transformData,
+    onDataChange,
+    ...rest
+} : SmartTableProps<T>) => {
 
     const location = useLocation()
 
     const STORAGE_KEY = storageKey || `smart_table_${location.pathname}`
 
-    const [tableColumns, setTableColumns] = useState([])
+    const [tableColumns, setTableColumns] = useState<any[]>([])
 
     const {
         list: listField = 'list',
@@ -113,7 +167,7 @@ const SmartTable = ({ columns, headerExtra, storageKey, fetchData, queryParam, s
         total: totalField = 'total'
     } = fieldNames || {}
 
-    const [data, setData] = useState({})
+    const [data, setData] = useState<any>({})
 
     const { runAsync: fetchDataAsync, loading: fetchDataLoading } = useRequest(fetchData, {
         manual: true
@@ -126,7 +180,11 @@ const SmartTable = ({ columns, headerExtra, storageKey, fetchData, queryParam, s
             isFirstRender.current = false
             if (!autoFetch) return // 首次渲染 + autoFetch=false → 跳过
         }
-        fetchDataAsync(queryParam).then(setData)
+        fetchDataAsync(queryParam).then(rawData => {
+            const processed = transformData ? transformData(rawData) : rawData;
+            setData(processed)
+            onDataChange?.(processed)
+        })
     }, [queryParam])
 
     const handleRefresh = () => {
@@ -137,17 +195,17 @@ const SmartTable = ({ columns, headerExtra, storageKey, fetchData, queryParam, s
         const storageColums = localStorage.getItem(STORAGE_KEY)
         if (storageColums) {
             const parsedColums = JSON.parse(storageColums)
-            const merged = parsedColums.map((saved) => {
-                const col = columns.find((c) => c.key === (saved.key || saved.dataIndex))
+            const merged = parsedColums.map((saved: any) => {
+                const col : any = columns.find((c) => c.key === (saved.key || saved.dataIndex))
                 return {
                     ...col, // 最新配置
                     ...saved, // 用户偏好
-                    key: col.key || col.dataIndex,
+                    key: col?.key || col?.dataIndex,
                 }
             })
             setTableColumns(merged)
         } else {
-            const updatedColumns = columns.map((col) => ({
+            const updatedColumns = columns.map((col: any) => ({
                 ...col,
                 key: col.key || col.dataIndex, // 如果没有 key，则使用 dataIndex 作为 key
             }))
@@ -178,30 +236,30 @@ const SmartTable = ({ columns, headerExtra, storageKey, fetchData, queryParam, s
         return tableColumns.filter(col => col.visible !== false)
     }, [tableColumns])
 
-    const handleCheckAllChange = (e) => {
+    const handleCheckAllChange = (e: CheckboxChangeEvent) => {
         setTableColumns(prev => prev.map(col => ({ ...col, visible: e.target.checked })))
     }
 
-    const handleToggleColumn = (e, key) => {
+    const handleToggleColumn = (e: CheckboxChangeEvent, key: string) => {
         const checked = e.target.checked
         setTableColumns(prev => prev.map(col => col.key === key ? { ...col, visible: checked } : col))
     }
 
-    const handleFixedHeader = (key) => {
+    const handleFixedHeader = (key: string) => {
         setTableColumns(prev => {
             const updated = prev.map(col => col.key === key ? { ...col, fixed: 'left' } : col)
             return reorderColumnsForFixed(updated)
         })
     }
 
-    const handleNotFixed = (key) => {
+    const handleNotFixed = (key: string) => {
         setTableColumns(prev => {
             const updated = prev.map(col => col.key === key ? { ...col, fixed: 'undefined' } : col)
             return reorderColumnsForFixed(updated)
         })
     }
 
-    const handleFixedFooter = (key) => {
+    const handleFixedFooter = (key: string) => {
         setTableColumns(prev => {
             const updated = prev.map(col => col.key === key ? { ...col, fixed: 'right' } : col)
             return reorderColumnsForFixed(updated)
@@ -253,7 +311,7 @@ const SmartTable = ({ columns, headerExtra, storageKey, fetchData, queryParam, s
                 }
             </Flex>
         )
-    }, [tableColumns])
+    }, [tableColumns,handleNotFixed,handleFixedFooter])
 
     const unfixedColumns = useMemo(() => {
         return tableColumns.filter(item => item.fixed !== 'left' && item.fixed !== 'right')
@@ -307,7 +365,7 @@ const SmartTable = ({ columns, headerExtra, storageKey, fetchData, queryParam, s
     }, [tableColumns])
 
 
-    const handleDragEnd = (event) => {
+    const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event
         if (!over || active.id === over.id) return
 
@@ -405,7 +463,7 @@ const SmartTable = ({ columns, headerExtra, storageKey, fetchData, queryParam, s
                 loading={fetchDataLoading}
                 scroll={data?.[listField]?.length > 10 ? { y: 600, x: 'max-content' } : { x: 'max-content' }}
                 dataSource={data?.[listField] || []}
-                rowKey={rest.rowKey || 'id'}
+                rowKey={rowKey || 'id'}
                 pagination={{
                     current: data?.[pageNumField],
                     pageSize: data?.[pageSizeField],
