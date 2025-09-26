@@ -19,3 +19,35 @@ body {
 :where(.css-dev-only-do-not-override-2gwokh).ant-card .ant-card-body{
     padding: 24px 24px 10px 24px;
 }
+
+.ranking-list .ant-list-header {
+  border-block-end: none !important;
+}
+
+.rank-circle {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  line-height: 22px;
+  text-align: center;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  color: #000;
+  font-size: 12px;
+  font-weight: bold;
+  margin-right: 16px;
+}
+
+.rank-circle-top {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  line-height: 22px;
+  text-align: center;
+  border-radius: 50%;
+  background-color: #000;
+  color: #f0f0f0;
+  font-size: 12px;
+  font-weight: bold;
+  margin-right: 16px;
+}
