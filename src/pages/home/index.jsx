@@ -74,61 +74,66 @@ const Home = () => {
   const saleVisitcontentList = {
     sale:
       <Flex justify='space-between'>
-        <Flex flex={7}>
-          <Column
-            data={{
-              type: 'fetch',
-              value: 'https://render.alipay.com/p/yuyan/180020010001215413/antd-charts/column-column.json',
-            }}
-            height={300}
-            xField='letter'
-            yField='frequency'
-            label={{
-              text: (d) => `${(d.frequency * 100).toFixed(1)}%`,
-              textBaseline: 'bottom',
-            }}
-            axis={{
-              y: {
-                labelFormatter: '.0%',
-              },
-            }}
-            style={{
+        <Flex style={{ minWidth: '0px' }} flex={7}>
+          <div style={{ width: '100%' }}>
+            <Column
+              data={{
+                type: 'fetch',
+                value: 'https://render.alipay.com/p/yuyan/180020010001215413/antd-charts/column-column.json',
+              }}
+              height={300}
+              xField='letter'
+              yField='frequency'
+              label={{
+                text: (d) => `${(d.frequency * 100).toFixed(1)}%`,
+                textBaseline: 'bottom',
+              }}
+              axis={{
+                y: {
+                  labelFormatter: '.0%',
+                },
+              }}
+              style={{
 
-            }}
-          />
+              }}
+            />
+          </div>
         </Flex>
         <Flex justify='center' flex={3} vertical>
           <RankingList title='门店销售排名' data={rankingData} />
         </Flex>
       </Flex>,
-    visit: <Flex justify='space-between'>
-      <Flex flex={7}>
-        <Column
-          data={{
-            type: 'fetch',
-            value: 'https://render.alipay.com/p/yuyan/180020010001215413/antd-charts/column-column.json',
-          }}
-          height={300}
-          xField='letter'
-          yField='frequency'
-          label={{
-            text: (d) => `${(d.frequency * 100).toFixed(1)}%`,
-            textBaseline: 'bottom',
-          }}
-          axis={{
-            y: {
-              labelFormatter: '.0%',
-            },
-          }}
-          style={{
+    visit:
+      <Flex justify='space-between'>
+        <Flex style={{ minWidth: '0px' }} flex={7}>
+          <div style={{ width: '100%' }}>
+            <Column
+              data={{
+                type: 'fetch',
+                value: 'https://render.alipay.com/p/yuyan/180020010001215413/antd-charts/column-column.json',
+              }}
+              height={300}
+              xField='letter'
+              yField='frequency'
+              label={{
+                text: (d) => `${(d.frequency * 100).toFixed(1)}%`,
+                textBaseline: 'bottom',
+              }}
+              axis={{
+                y: {
+                  labelFormatter: '.0%',
+                },
+              }}
+              style={{
 
-          }}
-        />
+              }}
+            />
+          </div>
+        </Flex>
+        <Flex justify='center' flex={3} vertical>
+          <RankingList title='门店访问排名' data={rankingData} />
+        </Flex>
       </Flex>
-      <Flex justify='center' flex={3} vertical>
-        <RankingList title='门店访问排名' data={rankingData} />
-      </Flex>
-    </Flex>
   }
 
   const handleSaleVisitActiveTabChange = (key) => {
@@ -426,9 +431,9 @@ const Home = () => {
 
           </Flex>
         </Card>
-
       </Flex>
 
+      {/* 销售额访问量柱状图以及门店销售排名 */}
       <Flex>
         <Card
           style={{ width: '100%', boxShadow: 'var(--ant-box-shadow-tertiary)' }}
@@ -441,18 +446,19 @@ const Home = () => {
         >
           {saleVisitcontentList[saleVisitActiveTabKey]}
         </Card>
-
       </Flex>
 
+      {/* 热门搜索以及销售类比饼图 */}
       <Flex gap={25}>
-        <Flex flex={1}>
+        {/* 热门搜索 */}
+        <Flex style={{ minWidth: '0px' }} flex={1}>
           <Card
             title="线上热门搜索"
             style={{ width: '100%', boxShadow: 'var(--ant-box-shadow-tertiary)' }}
           >
             <Flex flex={1} gap={20} vertical>
               <Flex gap={50} justify='space-between'>
-                <Flex flex={1} style={{ height: '100px'}} vertical>
+                <Flex flex={1} style={{ height: '100px', minWidth: '0px' }} vertical>
                   <Statistic
                     title={
                       <Flex gap={5}>
@@ -487,7 +493,7 @@ const Home = () => {
                     }
                   />
                 </Flex>
-                <Flex flex={1} style={{ height: '100px' }} vertical>
+                <Flex flex={1} style={{ height: '100px', minWidth: '0px' }} vertical>
                   <Statistic
                     title={
                       <Flex gap={5}>
@@ -539,7 +545,8 @@ const Home = () => {
             </Flex>
           </Card>
         </Flex>
-        <Flex flex={1}>
+        {/* 销售类比 */}
+        <Flex style={{ minWidth: '0px' }} flex={1}>
           <Card
             style={{ width: '100%', boxShadow: 'var(--ant-box-shadow-tertiary)' }}
             title={
@@ -574,6 +581,7 @@ const Home = () => {
         </Flex>
       </Flex>
 
+      {/* 支付笔数折线图 */}
       <Flex flex={1}>
         <Card
           title='支付笔数'
