@@ -3,6 +3,7 @@ import { RequestMethod } from '../../../../enums'
 import { useEffect, useState } from 'react'
 import IdGen from '../../../../utils/IdGen'
 import HasPermission from '../../../../component/HasPermission'
+import EditableCell from '../../../../component/smart-table/EditableCell'
 
 
 var __rest =
@@ -167,6 +168,12 @@ const AuthorityUrl = ({ authorityId, authorityUrls, onChange, loading }) => {
             dataIndex: 'method',
             align: 'center',
             editable: true,
+            inputType: 'select',
+            options: Object.entries(RequestMethod).map(([key, value]) => ({
+                label: key,
+                value: value,
+            })),
+            required: true,
             render: (_, { method }) => {
                 switch (method.toUpperCase()) {
                     case RequestMethod.GET:
@@ -192,6 +199,7 @@ const AuthorityUrl = ({ authorityId, authorityUrls, onChange, loading }) => {
             dataIndex: 'url',
             align: 'center',
             editable: true,
+            required: true,
         },
         {
             title: '操作',
@@ -241,6 +249,10 @@ const AuthorityUrl = ({ authorityId, authorityUrls, onChange, loading }) => {
                 dataIndex: col.dataIndex,
                 title: col.title,
                 editing: isEditing(record),
+                inputType: col.inputType,
+                options: col.options,
+                required: col.required,
+                rules: col.col
             }),
         })
     })
@@ -256,7 +268,7 @@ const AuthorityUrl = ({ authorityId, authorityUrls, onChange, loading }) => {
                     loading={loading}
                     className='w-full'
                     components={{
-                        body: { cell: AuthorityEditableCell }
+                        body: { cell: EditableCell }
                     }}
                     scroll={authorityData?.length > 10 ? { y: 'calc(100vh - 200px)', x: 'max-content' } : { x: 'max-content' }}
                     columns={mergedColumns}
