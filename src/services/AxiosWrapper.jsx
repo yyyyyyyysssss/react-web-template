@@ -6,7 +6,7 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { getMessageApi } from "../utils/MessageUtil.jsx";
 import { useGlobalSignout } from "../router/auth.js";
-
+import router from "../router/router.jsx";
 
 const httpWrapper = axios.create({
     baseURL: env.apiUrl,
@@ -64,27 +64,48 @@ httpWrapper.interceptors.response.use(
     (error) => {
         stopProgress()
         if (!error.response) {
-            getMessageApi().error(error.message || '网络错误');
+            getMessageApi().error(error.message || '网络错误，请检查您的网络');
             return Promise.reject(error);
         }
         const { status, message: errorMessage } = error.response;
         switch (status) {
+            case 400:
+                getMessageApi().error("请求参数有误，请检查输入")
+                break
             case 401:
                 if (error.config.url !== '/login') {
                     const signout = useGlobalSignout()
                     signout()
-                    return;
                 }
                 break
             case 403:
-                getMessageApi().error("未经授权的访问");
-                break;
+                getMessageApi().error("您没有权限执行此操作")
+                break
+            case 404:
+                getMessageApi().error("您访问的内容不存在或已被删除")
+                break
+            case 429:
+                getMessageApi().error("请求过于频繁，请稍后再试")
+                break
             case 500:
-                getMessageApi().error('服务器内部错误')
-                break;
+            case 502:
+            case 503:
+            case 504:
+                const isCritical = error.config?.meta?.critical
+                if (isCritical) {
+                    router.navigate('/500', { state: { title: status, subTitle: '抱歉，服务器发生错误，请稍后再试。' } })
+                } else {
+                    getMessageApi().error('服务器开小差了，请稍后再试')
+                }
+
+                break
             default:
-                getMessageApi().error(errorMessage || '未知错误');
-                break;
+                if (isCritical) {
+                    router.navigate('/500', { state: { title: status, subTitle: errorMessage || '抱歉，发生未知错误，请稍后重试。' } })
+                } else {
+                    message.error(errorMessage || '发生未知错误，请稍后重试')
+                }
+                break
         }
         return Promise.reject(error);
     }

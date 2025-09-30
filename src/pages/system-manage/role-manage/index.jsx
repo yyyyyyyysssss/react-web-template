@@ -305,9 +305,6 @@ const RoleManage = () => {
             align: 'center',
             fixed: 'right',
             render: (_, record) => {
-                if (record.type === 'SUPER_ADMIN') {
-                    return <></>
-                }
                 return (
                     <span>
                         <HasPermission hasPermissions='system:role:write'>

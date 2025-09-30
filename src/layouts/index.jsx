@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { Layout, theme } from 'antd';
 import './index.css';
 import { Outlet } from 'react-router-dom';
@@ -7,6 +7,9 @@ import { useSelector } from 'react-redux';
 import Sider from './sider';
 import Loading from '../component/loading';
 import Header from './header';
+import { ErrorBoundary } from 'react-error-boundary';
+import { useLocation, useNavigate } from 'react-router-dom';
+import ServerError from '../pages/ServerError';
 
 
 const { Header: LayoutHeader, Content: LayoutContent, Sider: LayoutSider } = Layout;
@@ -17,6 +20,17 @@ const AppLayout = () => {
     const collapsed = useSelector(state => state.layout.menuCollapsed)
 
     const themeValue = useSelector(state => state.layout.theme)
+
+    const redirectTo = useSelector(state => state.layout.redirectTo)
+
+    const location = useLocation()
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        if (redirectTo) {
+            navigate(redirectTo)
+        }
+    }, [redirectTo])
 
     const {
         token: {
@@ -55,9 +69,14 @@ const AppLayout = () => {
                             background: colorBgContainer
                         }}
                     >
-                        <Suspense fallback={<Loading />}>
-                            <Outlet />
-                        </Suspense>
+                        <ErrorBoundary
+                            fallback={<ServerError />}
+                            resetKeys={[location.pathname]}
+                        >
+                            <Suspense fallback={<Loading />}>
+                                <Outlet />
+                            </Suspense>
+                        </ErrorBoundary>
                     </div>
                 </LayoutContent>
             </Layout>

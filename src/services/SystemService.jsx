@@ -4,7 +4,7 @@ import httpWrapper from "./AxiosWrapper"
 // 用户列表
 export const fetchUserList = async (queryParam) => {
 
-    return apiRequestWrapper(() => httpWrapper.post('/api/system/user/query', queryParam))
+    return apiRequestWrapper(() => httpWrapper.post('/api/system/user/query', queryParam, { meta: { critical: true } }))
 }
 
 // 用户停启用
@@ -34,9 +34,9 @@ export const fetchSearchUser = async (keyword, pageNum, pageSize) => {
         pageNum: pageNum,
         pageSize: pageSize
     }
-    if(Array.isArray(keyword)){
+    if (Array.isArray(keyword)) {
         searchUserReq.ids = keyword
-    }else {
+    } else {
         searchUserReq.keyword = keyword
     }
     return apiRequestWrapper(() => httpWrapper.post('/api/system/user/search', searchUserReq))

@@ -71,6 +71,10 @@ export const layoutSlice = createSlice({
         addTabIem: (state, action) => {
             const { payload } = action
             const { tabItem } = payload
+            if (!tabItem.label) {
+                state.activeKey = null
+                return
+            }
             const path = tabItem.path
             const menuItem = findBestMatchMenu(path, state.flattenMenuItems)
             if (!menuItem) {

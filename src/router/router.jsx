@@ -4,6 +4,9 @@ import { matchPath } from "react-router"
 import { House, Settings, UserCog, Menu, ShieldUser } from "lucide-react";
 import { LoginRoute } from "./LoginRoute";
 import { ProtectedRoute } from "./ProtectedRoute";
+import NotFound from "../pages/NotFound";
+import Forbidden from "../pages/Forbidden";
+import ServerError from "../pages/ServerError";
 
 const AppLayout = lazy(() => import('../layouts'))
 const Home = lazy(() => import('../pages/home'))
@@ -46,6 +49,8 @@ export const routes = [
                         element: <UserManage />,
                         breadcrumbName: '用户管理',
                         defaultIcon: <UserCog size={18} />,
+                        protected: true,
+                        requiredPermissions: ['system:user']
                     },
                     {
                         path: 'user/details/:id?',
@@ -57,16 +62,35 @@ export const routes = [
                         element: <RoleManage />,
                         breadcrumbName: '角色管理',
                         defaultIcon: <ShieldUser size={18} />,
+                        protected: true,
+                        requiredPermissions: ['system:role']
                     },
                     {
                         path: 'menu',
                         element: <MenuManage />,
                         breadcrumbName: '菜单管理',
-                        defaultIcon: <Menu size={18} />
+                        defaultIcon: <Menu size={18} />,
+                        protected: true,
+                        requiredPermissions: ['system:menu']
                     }
                 ]
             },
-
+            {
+                path: '*',
+                element: <NotFound />
+            },
+            {
+                path: '/404',
+                element: <NotFound />
+            },
+            {
+                path: '/403',
+                element: <Forbidden />
+            },
+            {
+                path: '/500',
+                element: <ServerError />
+            },
         ]
     }
 ]
@@ -90,16 +114,21 @@ const findRoute = (route, fullPath, targetPath) => {
             }
         }
     }
+    return null
 }
 
+const routeCache = new Map()
+
 export const findRouteByPath = (targetPath) => {
-    for (const route of routes) {
-        const result = findRoute(route, '', targetPath)
-        if (result) {
-            return result
-        }
+    if (routeCache.has(targetPath)) {
+        return routeCache.get(targetPath)
     }
-    return null
+    let result = null
+    for (const route of routes) {
+        result = findRoute(route, '', targetPath)
+    }
+    routeCache.set(targetPath, result)
+    return result
 }
 
 const findRouteHierarchy = (paths, routes) => {
@@ -124,13 +153,34 @@ export const findRouteByHierarchy = (paths) => {
     return findRouteHierarchy(paths, routes)
 }
 
-
-const finalRoutes = routes.map((route) => {
-    return {
+const wrapProtectedRoute = (route) => {
+    const wrappedRoute = {
         ...route,
-        element: route.protected ? (<ProtectedRoute>{route.element}</ProtectedRoute>) : route.element
+        element: route.protected ? (
+            <ProtectedRoute requiredPermissions={route.requiredPermissions}>
+                {route.element}
+            </ProtectedRoute>
+        ) : route.element,
     }
-})
+    if (route.children && route.children.length > 0) {
+        wrappedRoute.children = route.children.map(wrapProtectedRoute)
+    }
+
+    return wrappedRoute
+}
+
+const finalRoutes = routes.map(wrapProtectedRoute)
+
+// const finalRoutes = routes.map((route) => {
+//     return {
+//         ...route,
+//         element: route.protected
+//             ?
+//             (<ProtectedRoute requiredPermissions={route.requiredPermissions} fallback={<Forbidden />}>{route.element}</ProtectedRoute>)
+//             :
+//             route.element
+//     }
+// })
 
 const router = createBrowserRouter(finalRoutes)
 

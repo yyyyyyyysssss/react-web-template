@@ -39,9 +39,7 @@ const Sider = () => {
     }, [flattenMenuItems, location.pathname])
 
     useEffect(() => {
-        if (activeKey) {
-            setSelectKey(activeKey)
-        }
+        setSelectKey(activeKey)
     }, [activeKey])
 
     const handleOpenChange = useCallback((keys) => {

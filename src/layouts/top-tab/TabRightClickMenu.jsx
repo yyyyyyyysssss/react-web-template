@@ -1,4 +1,4 @@
-import { Flex } from "antd"
+import { Flex, theme } from "antd"
 import { useCallback, useEffect, useMemo, useRef } from "react"
 import './index.css'
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,6 +8,9 @@ import { removeAllTabItem, removeLeftTabItem, removeOtherTabItem, removeRightTab
 const TabRightClickMenu = ({ tabKey, index, x, y, close }) => {
 
     const dispatch = useDispatch()
+
+    const { token } = theme.useToken()
+    const { borderRadius } = token
 
     const tabItems = useSelector(state => state.layout.tabItems)
 
@@ -49,7 +52,7 @@ const TabRightClickMenu = ({ tabKey, index, x, y, close }) => {
             return tabItems[0].key
         }
         return null
-    }, [tabItems,tabSize])
+    }, [tabItems, tabSize])
 
     const closeRight = () => {
         dispatch(removeRightTabItem({ key: tabKey, index: index }))
@@ -70,10 +73,11 @@ const TabRightClickMenu = ({ tabKey, index, x, y, close }) => {
                 top: y,
                 left: x,
                 zIndex: 1000,
-                borderRadius: 6,
-                backgroundColor: 'white',
-                border: '1px solid #ccc',
-                boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                borderRadius: borderRadius,
+                backgroundColor: '#fff',
+                border: '1px solid rgba(0, 0, 0, 0.15)',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                padding: '8px 0',
             }}
             vertical
         >

@@ -377,9 +377,6 @@ const UserManage = () => {
             fixed: 'right',
             visible: true,
             render: (_, record) => {
-                if (record.code === 'super_admin') {
-                    return <></>
-                }
                 return (
                     <span>
                         <HasPermission
