@@ -9,11 +9,13 @@ interface EditableCellProps {
     record: any
     index: number
     children: React.ReactNode
-    inputType?: 'input' | 'number' | 'select' | 'date' | 'datetime'
+    inputType?: 'input' | 'number' | 'select' | 'date' | 'datetime' | 'custom'
     options?: Array<{ label: string; value: any }>
     required?: boolean
     rules?: Rule[]
     onChange?: (value: any) => void
+    rowOnChange?: (value: any, record: any, dataIndex: string) => void
+    customRender?: React.ReactNode | ((record: any) => React.ReactNode)
 }
 
 const EditableCell: React.FC<EditableCellProps> = ({
@@ -28,6 +30,8 @@ const EditableCell: React.FC<EditableCellProps> = ({
     required = false,
     rules,
     onChange,
+    rowOnChange,
+    customRender,
     ...restProps
 }) => {
 
@@ -36,21 +40,28 @@ const EditableCell: React.FC<EditableCellProps> = ({
         ...(rules || []),
     ]
 
+    const handleChange = (val: any) => {
+        onChange?.(val)
+        rowOnChange?.(val, record, dataIndex)
+    }
+
     const inputNode = useMemo(() => {
         switch (inputType) {
+            case 'custom':
+                return typeof customRender === 'function' ? customRender(record) : customRender
             case 'number':
-                return <InputNumber style={{ width: '100%' }} onChange={onChange} />
+                return <InputNumber style={{ width: '100%' }} onChange={handleChange} />
             case 'date':
-                return <DatePicker style={{ width: '100%' }} onChange={onChange} />
+                return <DatePicker style={{ width: '100%' }} onChange={handleChange} />
             case 'datetime':
-                return <DatePicker showTime style={{ width: '100%' }} onChange={onChange} />
+                return <DatePicker showTime style={{ width: '100%' }} onChange={handleChange} />
             case 'select':
-                return <Select style={{ width: '100%' }} options={options} onChange={onChange} />
+                return <Select style={{ width: '100%' }} options={options} onChange={handleChange} />
             case 'input':
             default:
-                return <Input style={{ width: '100%' }} onChange={(e) => onChange?.(e.target.value)} />
+                return <Input style={{ width: '100%' }} onChange={(e) => handleChange(e.target.value)} />
         }
-    }, [inputType, options, onChange])
+    }, [inputType, options, customRender])
 
     return (
         <td {...restProps}>
