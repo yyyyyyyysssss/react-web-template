@@ -25,9 +25,9 @@ const EditableTable : React.FC<EditableTableProps> = ({
     ...props
 }) => {
 
-    const handleRowChange = (val: any, record: any, dataIndex: string) => {
+    const handleRowChange = (rowData: any) => {
         const newData = value.map((item) =>
-            item[rowKey] === record[rowKey] ? { ...item, [dataIndex]: val } : item
+            item[rowKey] === rowData[rowKey] ? { ...item, ...rowData } : item
         )
         onChange?.(newData)
     }
@@ -86,6 +86,7 @@ const EditableTable : React.FC<EditableTableProps> = ({
                             const record = value?.find((item) => item[rowKey] === key)
                             return <EditableRow
                                 {...props}
+                                key={record?.[rowKey]}
                                 record={record}
                                 rowOnChange={handleRowChange}
                             />

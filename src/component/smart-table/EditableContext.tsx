@@ -1,4 +1,9 @@
 import React from 'react'
 import type { FormInstance } from 'antd'
 
-export const EditableContext = React.createContext<FormInstance | null>(null)
+interface EditableContextProps {
+  form: FormInstance
+  rowOnChange?: (rowData: any) => void
+}
+
+export const EditableContext = React.createContext<EditableContextProps | null>(null)

@@ -4,12 +4,12 @@ import { EditableContext } from './EditableContext'
 
 interface EditableRowProps {
     record: any
-    rowOnChange?: (value: any, record: any, dataIndex: string) => void
+    rowOnChange?: (rowData: any) => void
     children: React.ReactNode
 }
 
 const EditableRow: React.FC<EditableRowProps> = ({
-    record,
+    record = {},
     rowOnChange,
     children,
     ...props
@@ -18,21 +18,13 @@ const EditableRow: React.FC<EditableRowProps> = ({
     const [form] = Form.useForm()
 
     useEffect(() => {
-        if (record) {
-            form.setFieldsValue({ ...record })
-        }
-    }, [record])
+        form.setFieldsValue(record)
+    }, [record,form])
 
     return (
         <Form form={form} component={false}>
-            <EditableContext.Provider value={form}>
-                <tr {...props}>
-                    {React.Children.map(children, (child) =>
-                        React.isValidElement(child)
-                            ? React.cloneElement(child, { rowOnChange, record })
-                            : child
-                    )}
-                </tr>
+            <EditableContext.Provider value={{ form, rowOnChange }}>
+                <tr {...props}>{children}</tr>
             </EditableContext.Provider>
         </Form>
     )
