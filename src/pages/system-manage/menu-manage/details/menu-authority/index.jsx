@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Flex, Form, Input, InputNumber, Modal, Select, Table, Typography, Upload } from 'antd';
+import { Button, Flex, Form, Input, InputNumber, Modal, Select, Table, Tag, Typography, Upload } from 'antd';
 import './index.css'
 import IdGen from '../../../../../utils/IdGen';
 import { AuthorityType, RequestMethod } from '../../../../../enums';
@@ -7,6 +7,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import { addAuthority, createMenu, updateAuthority, updateMenu } from '../../../../../services/SystemService';
 import { getMessageApi } from '../../../../../utils/MessageUtil';
 import { useRequest } from 'ahooks';
+import EditableCell from '../../../../../component/smart-table/EditableCell';
 
 var __rest =
     (this && this.__rest) ||
@@ -55,48 +56,6 @@ const EditableRow = ({ index, record, ...props }) => {
         </Form>
     )
 }
-
-const EditableCell = _a => {
-    var { title, editable, children, dataIndex, record, handleSave } = _a,
-        restProps = __rest(_a, ['title', 'editable', 'children', 'dataIndex', 'record', 'handleSave'])
-
-    let childNode = children;
-
-    const methodOptions = Object.entries(RequestMethod).map(([key, value]) => ({
-        label: key,
-        value: value,
-    }))
-
-    if (editable) {
-        childNode = (
-            <Form.Item
-                name={dataIndex}
-                style={{ margin: 0 }}
-                rules={[
-                    {
-                        required: true,
-                        message: `${title} 不能为空`,
-                    },
-                ]}
-            >
-                {
-                    dataIndex === 'method' ?
-                        (
-                            <Select
-                                options={methodOptions}
-                            />
-                        )
-                        :
-                        (
-                            <Input />
-                        )
-                }
-
-            </Form.Item>
-        )
-    }
-    return <td {...restProps}>{childNode}</td>;
-};
 
 const initDataSource = [
 
@@ -153,6 +112,30 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
             align: 'center',
             width: '32%',
             editable: true,
+            inputType: 'select',
+            options: Object.entries(RequestMethod).map(([key, value]) => ({
+                label: key,
+                value: value,
+            })),
+            required: true,
+            render: (_, { method }) => {
+                switch (method.toUpperCase()) {
+                    case RequestMethod.GET:
+                        return <Tag color="green">GET</Tag>
+                    case RequestMethod.POST:
+                        return <Tag color="blue">POST</Tag>
+                    case RequestMethod.PUT:
+                        return <Tag color="orange">PUT</Tag>
+                    case RequestMethod.PATCH:
+                        return <Tag color="yellow">PATCH</Tag>
+                    case RequestMethod.DELETE:
+                        return <Tag color="red">DELETE</Tag>
+                    case RequestMethod.ALL:
+                        return <Tag color="purple">ALL</Tag>
+                    default:
+                        return <Tag color="gray">未知</Tag>
+                }
+            }
         },
         {
             key: 'url',
@@ -161,6 +144,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
             align: 'center',
             width: '45%',
             editable: true,
+            required: true,
         },
         {
             title: '操作',
@@ -220,10 +204,13 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
         return Object.assign(Object.assign({}, col), {
             onCell: record => ({
                 record,
-                editable: col.editable,
                 dataIndex: col.dataIndex,
+                editing: col.editable,
+                inputType: col.inputType,
+                options: col.options,
+                required: col.required,
                 title: col.title,
-                handleSave,
+                customRender: col.customRender,
             }),
         });
     });
