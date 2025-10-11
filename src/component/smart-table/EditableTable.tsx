@@ -25,13 +25,6 @@ const EditableTable : React.FC<EditableTableProps> = ({
     ...props
 }) => {
 
-    const handleRowChange = (rowData: any) => {
-        const newData = value.map((item) =>
-            item[rowKey] === rowData[rowKey] ? { ...item, ...rowData } : item
-        )
-        onChange?.(newData)
-    }
-
     const handleAdd = () => {
         const newRow = { [rowKey]: IdGen.nextId() } // 简单生成唯一 key
         onChange?.([...value, newRow])
@@ -56,7 +49,6 @@ const EditableTable : React.FC<EditableTableProps> = ({
                     rules: col.rules,
                     customRender: col.customRender,
                     editing: col.editable,
-                    rowOnChange: handleRowChange,
                 }),
             })),
             {
@@ -88,7 +80,6 @@ const EditableTable : React.FC<EditableTableProps> = ({
                                 {...props}
                                 key={record?.[rowKey]}
                                 record={record}
-                                rowOnChange={handleRowChange}
                             />
                         },
                         cell: EditableCell,

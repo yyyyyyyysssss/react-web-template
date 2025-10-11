@@ -204,7 +204,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
         try {
 
             const formValues = await form.validateFields()
-            console.log('formValues',formValues)
+            console.log('formValues', formValues)
 
             // const formValues = await form.validateFields()
             // const valuesList = []
@@ -369,11 +369,20 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
                     {type && type === AuthorityType.BUTTON && (
                         <Form.Item
                             name="urls"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: `urls不能为空`,
+                                },
+                            ]}
                             noStyle
                         >
                             <EditableTable
                                 className='menu-authority'
                                 columns={columns}
+                                scroll={{
+                                    y: 200
+                                }}
                             />
                         </Form.Item>
                     )}
