@@ -25,40 +25,6 @@ var __rest =
         return t;
     };
 
-
-// const EditableContext = React.createContext(null);
-// const EditableRow = ({ index, record, ...props }) => {
-
-//     const [form] = Form.useForm()
-
-//     useEffect(() => {
-//         const key = props['data-row-key']
-//         if (key) {
-//             formMapRef.current.set(key, form)
-//         }
-//         return () => {
-//             if (key) formMapRef.current.delete(key)
-//         }
-//     }, [])
-
-//     useEffect(() => {
-//         if (record) {
-//             form.setFieldsValue({
-//                 method: record.method?.toUpperCase() || '',
-//                 url: record.url || '',
-//             })
-//         }
-//     }, [record])
-
-//     return (
-//         <Form form={form} component={false}>
-//             <EditableContext.Provider value={form}>
-//                 <tr {...props} />
-//             </EditableContext.Provider>
-//         </Form>
-//     )
-// }
-
 const initDataSource = [
 
 ]
@@ -279,7 +245,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
     return (
         <Modal
             title={title}
-            width={type === AuthorityType.MENU ? 400 : 450}
+            width={type === AuthorityType.MENU ? 400 : 500}
             centered
             open={open}
             confirmLoading={createMenuLoading || updateMenuLoading || addAuthorityLoading || updateAuthorityLoading}
@@ -367,24 +333,25 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
                         <InputNumber style={{ width: '100%' }} />
                     </Form.Item>
                     {type && type === AuthorityType.BUTTON && (
-                        <Form.Item
+                        <Form.List
                             name="urls"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: `urls不能为空`,
-                                },
-                            ]}
                             noStyle
                         >
-                            <EditableTable
-                                className='menu-authority'
-                                columns={columns}
-                                scroll={{
-                                    y: 200
-                                }}
-                            />
-                        </Form.Item>
+                            {(fields, { add, remove }) => (
+                                <EditableTable
+                                    className='menu-authority'
+                                    columns={columns}
+                                    name='urls'
+                                    mode='single-edit'
+                                    fields={fields} 
+                                    add={add} 
+                                    remove={remove}
+                                    scroll={{
+                                        y: 200
+                                    }}
+                                />
+                            )}
+                        </Form.List>
                     )}
                 </Form>
 

@@ -9,7 +9,7 @@ interface EditableCellProps {
     editing: boolean
     dataIndex: string
     title: string
-    record: any
+    rowData: any
     index: number
     children: React.ReactNode
     inputType?: 'input' | 'number' | 'select' | 'date' | 'datetime' | 'custom'
@@ -19,13 +19,14 @@ interface EditableCellProps {
     onChange?: (value: any) => void
     customRender?: React.ReactNode | ((record: any) => React.ReactNode)
     rowKeyValue?: string | number
+    rowIndex: number
 }
 
 const EditableCell: React.FC<EditableCellProps> = ({
     editing,
     dataIndex,
     title,
-    record,
+    rowData,
     index,
     children,
     inputType = 'input',
@@ -35,10 +36,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
     onChange,
     customRender,
     rowKeyValue,
+    rowIndex,
     ...restProps
 }) => {
 
-    const { rowIndex, rowOnChange } = useContext(EditableContext) || {}
+    const { rowOnChange } = useContext(EditableContext) || {}
 
     const mergedRules = [
         ...(required ? [{ required: true, message: `${title}不能为空` }] : []),
@@ -47,14 +49,14 @@ const EditableCell: React.FC<EditableCellProps> = ({
 
     const handleChange = (val: any) => {
         onChange?.(val)
-        record[dataIndex] = val
-        rowOnChange?.(record)
+        rowData[dataIndex] = val
+        rowOnChange?.(rowData)
     }
 
     const inputNode = useMemo(() => {
         switch (inputType) {
             case 'custom':
-                return typeof customRender === 'function' ? customRender(record) : customRender
+                return typeof customRender === 'function' ? customRender(rowData) : customRender
             case 'number':
                 return <InputNumber style={{ width: '100%' }} onChange={handleChange} />
             case 'date':
@@ -76,7 +78,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
                 (
                     <Form.Item
                         className="editable-cell-form-item"
-                        name={['urls', rowIndex, dataIndex] as NamePath}
+                        name={[rowIndex, dataIndex] as NamePath}
                         style={{ margin: 0 }}
                         rules={mergedRules}
                         labelCol={{ span: 0 }}
@@ -86,7 +88,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
                     </Form.Item>
                 )
                 :
-                (children)
+                (rowData?.[dataIndex] !== undefined ? rowData[dataIndex].toString() : children)
             }
         </td>
     )
