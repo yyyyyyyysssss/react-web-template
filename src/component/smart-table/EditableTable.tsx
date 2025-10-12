@@ -4,6 +4,7 @@ import EditableRow from "./EditableRow"
 import EditableCell from "./EditableCell"
 import IdGen from "../../utils/IdGen"
 import React from "react"
+import './editable.css'
 
 
 interface EditableTableProps {
@@ -17,7 +18,7 @@ export interface EditableTableRef {
     validateAllRows: () => Promise<any>
 }
 
-const EditableTable : React.FC<EditableTableProps> = ({
+const EditableTable: React.FC<EditableTableProps> = ({
     columns,
     value = [],
     onChange,
@@ -27,11 +28,14 @@ const EditableTable : React.FC<EditableTableProps> = ({
 
     const handleAdd = () => {
         const newRow = { [rowKey]: IdGen.nextId() } // 简单生成唯一 key
-        onChange?.([...value, newRow])
+        const newData = [...value, newRow]
+        console.log('handleAdd',newData)
+        onChange?.(newData)
     }
 
     const handleDelete = (key: any) => {
         const newData = value.filter((item) => item[rowKey] !== key)
+        console.log('handleDelete',newData)
         onChange?.(newData)
     }
 
@@ -49,6 +53,7 @@ const EditableTable : React.FC<EditableTableProps> = ({
                     rules: col.rules,
                     customRender: col.customRender,
                     editing: col.editable,
+                    rowKeyValue: record[rowKey]
                 }),
             })),
             {
@@ -73,15 +78,7 @@ const EditableTable : React.FC<EditableTableProps> = ({
             <Table
                 components={{
                     body: {
-                        row: (props: any) => {
-                            const key = props['data-row-key']
-                            const record = value?.find((item) => item[rowKey] === key)
-                            return <EditableRow
-                                {...props}
-                                key={record?.[rowKey]}
-                                record={record}
-                            />
-                        },
+                        row: EditableRow,
                         cell: EditableCell,
                     },
                 }}
@@ -89,6 +86,11 @@ const EditableTable : React.FC<EditableTableProps> = ({
                 columns={mergedColumns}
                 rowKey={rowKey}
                 pagination={false}
+                onRow={(_, index) => {
+                    return {
+                        'data-row-index': index ?? -1,
+                    } as  React.HTMLAttributes<HTMLTableRowElement>
+                }}
                 {...props}
             />
         </Flex>

@@ -1,6 +1,7 @@
 import { Form, FormInstance } from 'antd'
 import React, { forwardRef, useEffect, useImperativeHandle } from 'react'
 import { EditableContext } from './EditableContext'
+import './editable.css'
 
 interface EditableRowProps {
     record: any
@@ -14,19 +15,13 @@ const EditableRow: React.FC<EditableRowProps> = ({
     children,
     ...props
 }) => {
-
-    const [form] = Form.useForm()
-
-    useEffect(() => {
-        form.setFieldsValue(record)
-    }, [record,form])
+    const raw = (props as any)['data-row-index']
+    const rowIndex = Number(raw)
 
     return (
-        <Form form={form} component={false}>
-            <EditableContext.Provider value={{ form, rowOnChange }}>
-                <tr {...props}>{children}</tr>
-            </EditableContext.Provider>
-        </Form>
+        <EditableContext.Provider value={{ rowIndex: rowIndex, rowOnChange }}>
+            <tr {...props}>{children}</tr>
+        </EditableContext.Provider>
     )
 }
 

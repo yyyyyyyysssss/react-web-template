@@ -2,6 +2,8 @@ import type { Rule } from 'antd/es/form';
 import { DatePicker, Form, Input, InputNumber, Select } from 'antd'
 import React, { useContext, useMemo } from 'react';
 import { EditableContext } from './EditableContext';
+import { NamePath } from 'antd/es/form/interface';
+import './editable.css'
 
 interface EditableCellProps {
     editing: boolean
@@ -16,6 +18,7 @@ interface EditableCellProps {
     rules?: Rule[]
     onChange?: (value: any) => void
     customRender?: React.ReactNode | ((record: any) => React.ReactNode)
+    rowKeyValue?: string | number
 }
 
 const EditableCell: React.FC<EditableCellProps> = ({
@@ -31,10 +34,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
     rules,
     onChange,
     customRender,
+    rowKeyValue,
     ...restProps
 }) => {
 
-    const { rowOnChange } = useContext(EditableContext) || {}
+    const { rowIndex, rowOnChange } = useContext(EditableContext) || {}
 
     const mergedRules = [
         ...(required ? [{ required: true, message: `${title}不能为空` }] : []),
@@ -71,9 +75,12 @@ const EditableCell: React.FC<EditableCellProps> = ({
                 ?
                 (
                     <Form.Item
-                        name={dataIndex}
+                        className="editable-cell-form-item"
+                        name={['urls', rowIndex, dataIndex] as NamePath}
                         style={{ margin: 0 }}
                         rules={mergedRules}
+                        labelCol={{ span: 0 }}
+                        wrapperCol={{ span: 24 }}
                     >
                         {inputNode}
                     </Form.Item>
