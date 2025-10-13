@@ -1,40 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Flex, Form, Input, InputNumber, Modal, Select, Table, Tag, Typography, Upload } from 'antd';
+import React, { useEffect } from 'react';
+import { Button, Flex, Form, Input, InputNumber, Modal, Upload } from 'antd';
 import './index.css'
-import IdGen from '../../../../../utils/IdGen';
 import { AuthorityType, RequestMethod } from '../../../../../enums';
 import { UploadOutlined } from '@ant-design/icons';
 import { addAuthority, createMenu, updateAuthority, updateMenu } from '../../../../../services/SystemService';
-import { getMessageApi } from '../../../../../utils/MessageUtil';
 import { useRequest } from 'ahooks';
-import EditableCell from '../../../../../component/smart-table/EditableCell';
-import EditableRow from '../../../../../component/smart-table/EditableRow';
 import EditableTable from '../../../../../component/smart-table/EditableTable';
+import { getMessageApi } from '../../../../../utils/MessageUtil';
 
-var __rest =
-    (this && this.__rest) ||
-    function (s, e) {
-        var t = {};
-        for (var p in s)
-            if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
-        if (s != null && typeof Object.getOwnPropertySymbols === 'function')
-            for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-                if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                    t[p[i]] = s[p[i]];
-            }
-        return t;
-    };
-
-const initDataSource = [
-
-]
-
-const formMapRef = React.createRef()
-formMapRef.current = new Map()
 
 const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCode, onClose, onSuccess, }) => {
 
-    const [dataSource, setDataSource] = useState(initDataSource)
 
     const [form] = Form.useForm()
 
@@ -55,24 +31,12 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
     })
 
     useEffect(() => {
-        if (data && data.urls && data.urls.length > 0) {
-            const processed = data.urls.map((item) => ({
-                ...item,
-                key: item.id || IdGen.nextId(),
-            }));
-            setDataSource(processed)
-        }
         if (data) {
             form.setFieldsValue(data)
         }
     }, [data])
 
-    const handleDelete = key => {
-        const newData = dataSource.filter(item => item.key !== key)
-        setDataSource(newData)
-        formMapRef.current.delete(key)
-    };
-    const defaultColumns = [
+    const columns = [
         {
             key: 'method',
             title: '请求方法',
@@ -95,136 +59,60 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
             width: '45%',
             editable: true,
             required: true,
-        },
-        // {
-        //     title: '操作',
-        //     dataIndex: 'operation',
-        //     align: 'center',
-        //     render: (_, record) =>
-        //         dataSource.length >= 1 ? (
-        //             <Typography.Link onClick={() => handleDelete(record.key)}>
-        //                 删除
-        //             </Typography.Link>
-        //         ) : null,
-        // },
-    ];
-    const handleAdd = () => {
-        const updatedDataSource = [...dataSource]
-        for (const [key, form] of formMapRef.current.entries()) {
-            const index = dataSource.findIndex(item => item.key === key)
-            if (index !== -1) {
-                const values = form.getFieldsValue()
-                updatedDataSource[index] = {
-                    ...updatedDataSource[index],
-                    ...values,
-                }
-            } else {
-                updatedDataSource.push(values)
-            }
         }
-        const newData = {
-            key: IdGen.nextId(),
-            method: '',
-            url: '',
-        };
-        setDataSource([...updatedDataSource, newData]);
-    };
-
-    const handleSave = row => {
-        console.log('row', row)
-        const newData = [...dataSource];
-        const index = newData.findIndex(item => row.key === item.key);
-        const item = newData[index];
-        newData.splice(index, 1, Object.assign(Object.assign({}, item), row));
-        // setDataSource(newData);
-    }
-    const components = {
-        body: {
-            row: (props) => {
-                const { 'data-row-key': key } = props
-                const record = dataSource.find(item => item.key === key)
-                return <EditableRow {...props} key={record?.key} record={record} rowOnChange={handleSave} />
-            },
-            cell: EditableCell,
-        },
-    };
-    const columns = defaultColumns.map(col => {
-        if (!col.editable) {
-            return col;
-        }
-        return Object.assign(Object.assign({}, col), {
-            onCell: record => ({
-                record,
-                dataIndex: col.dataIndex,
-                editing: col.editable,
-                inputType: col.inputType,
-                options: col.options,
-                required: col.required,
-                title: col.title,
-                customRender: col.customRender,
-            }),
-        });
-    });
+    ]
 
     const handleSaveMenuAuthority = async () => {
         try {
 
             const formValues = await form.validateFields()
-            console.log('formValues', formValues)
 
-            // const formValues = await form.validateFields()
-            // const valuesList = []
-            // for (const [key, form] of formMapRef.current.entries()) {
-            //     const values = await form.validateFields()
-            //     valuesList.push({ ...values, id: key })
-            // }
-            // const requestParam = {
-            //     ...formValues,
-            //     code: operation === 'ADD' ? `${parentCode}:${formValues.code}` : formValues.code,
-            //     parentId: parentId,
-            //     urls: valuesList
-            // }
-            // if (operation === 'ADD') {
-            //     if (type === AuthorityType.BUTTON) {
-            //         addAuthorityAsync(requestParam)
-            //             .then(
-            //                 (data) => {
-            //                     getMessageApi().success('新增成功')
-            //                     const newData = { ...requestParam, id: data, type: AuthorityType.BUTTON }
-            //                     onSuccess(newData, operation)
-            //                     reset()
-            //                 })
-            //     } else if (type === AuthorityType.MENU) {
-            //         createMenuAsync(requestParam)
-            //             .then(
-            //                 (data) => {
-            //                     getMessageApi().success('新增成功')
-            //                     const newData = { ...requestParam, id: data, type: AuthorityType.MENU }
-            //                     onSuccess(newData, operation)
-            //                     reset()
-            //                 }
-            //             )
-            //     }
+            const requestParam = {
+                ...formValues,
+                code: operation === 'ADD' ? `${parentCode}:${formValues.code}` : formValues.code,
+                parentId: parentId
+            }
+            if (operation === 'ADD') {
+                if (type === AuthorityType.BUTTON) {
+                    addAuthorityAsync(requestParam)
+                        .then(
+                            (data) => {
+                                getMessageApi().success('新增成功')
+                                const newData = { ...requestParam, id: data, type: AuthorityType.BUTTON }
+                                onSuccess(newData, operation)
+                                reset()
+                            })
+                } else if (type === AuthorityType.MENU) {
+                    createMenuAsync(requestParam)
+                        .then(
+                            (data) => {
+                                getMessageApi().success('新增成功')
+                                const newData = { ...requestParam, id: data, type: AuthorityType.MENU }
+                                onSuccess(newData, operation)
+                                reset()
+                            }
+                        )
+                }
 
-            // } else {
-            //     if (type === AuthorityType.BUTTON) {
-            //         updateAuthorityAsync(requestParam)
-            //             .then(() => {
-            //                 getMessageApi().success('修改成功')
-            //                 const newData = { ...requestParam }
-            //                 onSuccess(newData, operation)
-            //                 reset()
-            //             })
-            //     } else {
-            //         updateMenuAsync(requestParam)
-            //             .then(() => {
-            //                 getMessageApi().success('修改成功')
-            //                 const newData = { ...requestParam }
-            //                 onSuccess(newData, operation)
-            //                 reset()
-            //             })
-            //     }
-            // }
+            } else {
+                if (type === AuthorityType.BUTTON) {
+                    updateAuthorityAsync(requestParam)
+                        .then(() => {
+                            getMessageApi().success('修改成功')
+                            const newData = { ...requestParam }
+                            onSuccess(newData, operation)
+                            reset()
+                        })
+                } else {
+                    updateMenuAsync(requestParam)
+                        .then(() => {
+                            getMessageApi().success('修改成功')
+                            const newData = { ...requestParam }
+                            onSuccess(newData, operation)
+                            reset()
+                        })
+                }
+            }
 
         } catch (err) {
             console.warn(`行 ${key} 校验失败`, err)
@@ -239,7 +127,6 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
 
     const reset = () => {
         form.resetFields()
-        setDataSource(initDataSource)
     }
 
     return (
@@ -342,9 +229,9 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
                                     className='menu-authority'
                                     columns={columns}
                                     name='urls'
-                                    mode='single-edit'
-                                    fields={fields} 
-                                    add={add} 
+                                    mode='multi-add'
+                                    fields={fields}
+                                    add={add}
                                     remove={remove}
                                     scroll={{
                                         y: 200
@@ -354,27 +241,6 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
                         </Form.List>
                     )}
                 </Form>
-
-                {/* {type && type === AuthorityType.BUTTON && (
-                    <>
-                        <Button className='w-20' onClick={handleAdd} type="primary">
-                            新增一行
-                        </Button>
-                        <Table
-                            className='menu-authority'
-                            components={components}
-                            rowClassName={() => 'editable-row'}
-                            bordered
-                            scroll={{
-                                y: 200
-                            }}
-                            rowKey="key"
-                            dataSource={dataSource}
-                            columns={columns}
-                            pagination={false}
-                        />
-                    </>
-                )} */}
             </Flex>
         </Modal>
     );

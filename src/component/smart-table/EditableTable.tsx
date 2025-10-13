@@ -1,5 +1,5 @@
 import { Button, Flex, Form, Popconfirm, Table, Typography } from "antd"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import EditableRow from "./EditableRow"
 import EditableCell from "./EditableCell"
 import React from "react"
@@ -16,6 +16,8 @@ interface EditableTableProps {
     mode: 'single-edit' | 'multi-add'
     add: (defaultValue?: any, insertIndex?: number) => void
     remove: (index: number) => void
+    onSave?: (rowData: any, rowIndex: number) => Promise<any>
+    onDelete?: (rowData: any, rowIndex: number) => Promise<any>
 }
 
 const EditableTable: React.FC<EditableTableProps> = ({
@@ -26,6 +28,8 @@ const EditableTable: React.FC<EditableTableProps> = ({
     mode = 'multi-add',
     add,
     remove,
+    onSave,
+    onDelete,
     ...props
 }) => {
 
@@ -36,6 +40,8 @@ const EditableTable: React.FC<EditableTableProps> = ({
         key: null,
         flag: false
     })
+
+    const editRowDataRef = useRef<any>(null)
 
     const tableData = useMemo(() => {
         const listValues = form.getFieldValue(name) || []
@@ -50,10 +56,15 @@ const EditableTable: React.FC<EditableTableProps> = ({
         })
     }, [fields, form, name, rowKey])
 
-    const isEditing = (rowData: any) => {
+    const isEditing = useCallback((rowData: any) => {
 
         return mode === 'multi-add' ? true : rowData[rowKey] === editingKey
-    }
+    }, [mode, rowKey, editingKey])
+
+    const addRow = useCallback((rowData: any) => {
+        const newRowData = { ...rowData, type: 'add' }
+        add(newRowData)
+    }, [add])
 
     useEffect(() => {
         if (pendingAdd.flag && editingKey && pendingAdd.key) {
@@ -64,9 +75,9 @@ const EditableTable: React.FC<EditableTableProps> = ({
                 flag: false
             })
         }
-    }, [editingKey, pendingAdd, add])
+    }, [editingKey, pendingAdd, addRow])
 
-    const handleAddd = async () => {
+    const handleAdd = useCallback(async () => {
         const newKey = IdGen.nextId()
         if (mode === 'single-edit') {
             if (editingKey !== null) {
@@ -82,49 +93,62 @@ const EditableTable: React.FC<EditableTableProps> = ({
             const newRowData = { [rowKey]: newKey }
             addRow(newRowData)
         }
-    }
+    }, [mode, editingKey, addRow, rowKey])
 
-    const addRow = (rowData: any) => {
-        const newRowData = { ...rowData, type: 'add' }
-        add(newRowData)
-    }
 
-    const handleSave = (rowData: any, rowIndex: number) => {
-        rowValidate(rowIndex)
-            .then(() => {
-                setEditingKey(null)
-            })
-    }
+    const handleSave = useCallback(async (rowData: any, rowIndex: number) => {
+        try {
+            await rowValidate(rowIndex)
+            await onSave?.(rowData, rowIndex)
+            setEditingKey(null)
+            editRowDataRef.current = null
+        } catch (err) {
+            console.error(err)
+        }
+    }, [onSave])
 
-    const handleCancle = (rowData: any, rowIndex: number) => {
-        setEditingKey(null)
-        form.setFieldsValue({
-            [name]: form.getFieldValue(name).map((row: any, index: number) =>
-                index === rowIndex ? { ...row, ...rowData } : row
-            ),
-        })
-    }
-
-    const handleEdit = (rowData: any, rowIndex: number) => {
+    const handleEdit = useCallback((rowData: any, rowIndex: number) => {
+        editRowDataRef.current = rowData
         setEditingKey(rowData[rowKey])
         form.setFieldsValue({
             [name]: form.getFieldValue(name).map((row: any, index: number) =>
-                index === rowIndex ? { ...row, ...rowData } : row
+                index === rowIndex ? { ...row, ...rowData, type: 'edit' } : row
             ),
         })
-    }
+    }, [form, name, rowKey])
 
-    const handledelete = (rowData: any, rowIndex: number) => {
-        remove(rowIndex)
+    const handleCancel = useCallback((rowData: any, rowIndex: number) => {
         setEditingKey(null)
-    }
+        if (rowData.type && rowData.type === 'add') {
+            remove(rowIndex)
+        } else {
+            const oldRowData = editRowDataRef.current || {}
+            form.setFieldsValue({
+                [name]: form.getFieldValue(name).map((row: any, index: number) =>
+                    index === rowIndex ? { ...row, ...oldRowData } : row
+                ),
+            })
+        }
+        editRowDataRef.current = null
+    }, [form, name, rowKey, remove])
 
-    const rowValidate = (rowIndex: number) => {
+
+    const handleDelete = useCallback(async (rowData: any, rowIndex: number) => {
+        try {
+            await onDelete?.(rowData, rowIndex)
+            remove(rowIndex)
+            setEditingKey(null)
+        } catch (err) {
+            console.error(err)
+        }
+    }, [onDelete, remove])
+
+    const rowValidate = useCallback((rowIndex: number) => {
         const fields = columns
             .filter(col => col.dataIndex)
             .map(col => [name, rowIndex, col.dataIndex])
         return form.validateFields(fields);
-    }
+    }, [columns, form, name])
 
     const mergedColumns = useMemo(() => {
 
@@ -142,7 +166,7 @@ const EditableTable: React.FC<EditableTableProps> = ({
                         required: col.required,
                         rules: col.rules,
                         customRender: col.customRender,
-                        editing: isEditing(rowData) && col.editable !== false,
+                        editing: isEditing(rowData) && col.editable && col.editable !== false,
                         rowKeyValue: record[rowKey],
                         rowIndex
                     }
@@ -166,7 +190,7 @@ const EditableTable: React.FC<EditableTableProps> = ({
                                 >
                                     复制
                                 </Typography.Link>
-                                <Popconfirm title="确定删除?" onConfirm={() => handledelete(rowData, rowIndex)}>
+                                <Popconfirm title="确定删除?" onConfirm={() => handleDelete(rowData, rowIndex)}>
                                     <Typography.Link>删除</Typography.Link>
                                 </Popconfirm>
                             </Flex>
@@ -179,24 +203,9 @@ const EditableTable: React.FC<EditableTableProps> = ({
                                     <Typography.Link onClick={() => handleSave(rowData, rowIndex)}>
                                         保存
                                     </Typography.Link>
-                                    {
-                                        rowData.type && rowData.type === 'add'
-                                            ?
-                                            (
-                                                <Popconfirm okText='确定' cancelText='取消' title="确定删除？" onConfirm={() => handledelete(rowData, rowIndex)}>
-                                                    <Typography.Link>
-                                                        删除
-                                                    </Typography.Link>
-                                                </Popconfirm>
-                                            )
-                                            :
-                                            (
-                                                <Typography.Link onClick={() => handleCancle(rowData, rowIndex)}>
-                                                    取消
-                                                </Typography.Link>
-                                            )
-                                    }
-
+                                    <Typography.Link onClick={() => handleCancel(rowData, rowIndex)}>
+                                        取消
+                                    </Typography.Link>
                                 </Flex >
                             )
                             :
@@ -205,7 +214,7 @@ const EditableTable: React.FC<EditableTableProps> = ({
                                     <Typography.Link disabled={editingKey !== null} onClick={() => handleEdit(rowData, rowIndex)}>
                                         编辑
                                     </Typography.Link>
-                                    <Popconfirm disabled={editingKey !== null} okText='确定' cancelText='取消' title="确定删除？" onConfirm={() => handledelete(rowData, rowIndex)}>
+                                    <Popconfirm disabled={editingKey !== null} okText='确定' cancelText='取消' title="确定删除？" onConfirm={() => handleDelete(rowData, rowIndex)}>
                                         <Typography.Link disabled={editingKey !== null}>
                                             删除
                                         </Typography.Link>
@@ -217,11 +226,11 @@ const EditableTable: React.FC<EditableTableProps> = ({
                 },
             },
         ]
-    }, [columns, form, name, add, remove, rowKey, editingKey])
+    }, [columns, form, name, add, remove, handleDelete, handleSave, handleEdit, handleCancel, rowKey, editingKey])
 
     return (
         <Flex gap={8} vertical>
-            <Button onClick={handleAddd} type="primary" className='w-20'>新增一行</Button>
+            <Button onClick={handleAdd} type="primary" className='w-20'>新增一行</Button>
             <Table
                 components={{
                     body: {
