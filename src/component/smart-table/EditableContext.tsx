@@ -1,7 +1,7 @@
 import React from 'react'
 
 interface EditableContextProps {
-  rowOnChange?: (rowData: any) => void
+  rowOnChange?: (rowData: any, rowIndex: number) => void
   rowIndex?: number
 }
 

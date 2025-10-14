@@ -8,5 +8,5 @@ export const LoginRoute = ({ children }) => {
 
   if (isLoginIn === null) return <Spin fullscreen />
 
-  return isLoginIn ? <Navigate to="/" replace /> : children
+  return isLoginIn ? <Navigate to="/home" replace /> : children
 }

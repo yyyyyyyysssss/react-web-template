@@ -1,9 +1,10 @@
 import type { Rule } from 'antd/es/form';
-import { DatePicker, Form, Input, InputNumber, Select } from 'antd'
+import { DatePicker, Form, Input, InputNumber, Select, SelectProps } from 'antd'
 import React, { useContext, useMemo } from 'react';
 import { EditableContext } from './EditableContext';
 import { NamePath } from 'antd/es/form/interface';
 import './editable.css'
+import dayjs from 'dayjs';
 
 interface EditableCellProps {
     editing: boolean
@@ -16,11 +17,42 @@ interface EditableCellProps {
     options?: Array<{ label: string; value: any }>
     required?: boolean
     rules?: Rule[]
-    onChange?: (value: any) => void
-    customRender?: React.ReactNode | ((record: any) => React.ReactNode)
-    rowKeyValue?: string | number
+    onChange?: (value: any, rowIndex: number) => void
+    editRender?: React.ReactNode | ((record: any) => React.ReactNode)
     rowIndex: number
 }
+
+interface EditableInputNodeProps {
+    inputType?: 'input' | 'number' | 'select' | 'date' | 'datetime' | 'custom'
+    options?: SelectProps['options']
+    value?: any
+    onChange: (value: any) => void
+    editRender?: ((props: { value: any; onChange: (val: any) => void }) => React.ReactNode) | React.ReactNode
+}
+
+const EditableInputNode: React.FC<EditableInputNodeProps> = React.memo(({
+    inputType,
+    options,
+    value,
+    onChange,
+    editRender
+}) => {
+    switch (inputType) {
+        case 'custom':
+            return typeof editRender === 'function' ? editRender({ value, onChange }) : editRender
+        case 'number':
+            return <InputNumber style={{ width: '100%' }} value={value} onChange={onChange} />
+        case 'date':
+            return <DatePicker style={{ width: '100%' }} value={value ? dayjs(value) : null}  onChange={(_, str) => onChange(str)} />
+        case 'datetime':
+            return <DatePicker showTime style={{ width: '100%' }} value={value ? dayjs(value) : null} onChange={(_, str) => onChange(str)} />
+        case 'select':
+            return <Select style={{ width: '100%' }} options={options} value={value} onChange={onChange} />
+        case 'input':
+        default:
+            return <Input style={{ width: '100%' }} value={value} onChange={(e) => onChange(e.target.value)} />
+    }
+})
 
 const EditableCell: React.FC<EditableCellProps> = ({
     editing,
@@ -34,8 +66,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
     required = false,
     rules,
     onChange,
-    customRender,
-    rowKeyValue,
+    editRender,
     rowIndex,
     ...restProps
 }) => {
@@ -48,28 +79,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
     ]
 
     const handleChange = (val: any) => {
-        onChange?.(val)
-        rowData[dataIndex] = val
-        rowOnChange?.(rowData)
+        const newRowData = { ...rowData, [dataIndex]: val }
+        onChange?.(val, rowIndex)
+        rowOnChange?.(newRowData, rowIndex)
     }
-
-    const inputNode = useMemo(() => {
-        switch (inputType) {
-            case 'custom':
-                return typeof customRender === 'function' ? customRender(rowData) : customRender
-            case 'number':
-                return <InputNumber style={{ width: '100%' }} onChange={handleChange} />
-            case 'date':
-                return <DatePicker style={{ width: '100%' }} onChange={handleChange} />
-            case 'datetime':
-                return <DatePicker showTime style={{ width: '100%' }} onChange={handleChange} />
-            case 'select':
-                return <Select style={{ width: '100%' }} options={options} onChange={handleChange} />
-            case 'input':
-            default:
-                return <Input style={{ width: '100%' }} onChange={(e) => handleChange(e.target.value)} />
-        }
-    }, [inputType, options, customRender])
 
     return (
         <td {...restProps}>
@@ -84,7 +97,13 @@ const EditableCell: React.FC<EditableCellProps> = ({
                         labelCol={{ span: 0 }}
                         wrapperCol={{ span: 24 }}
                     >
-                        {inputNode}
+                        <EditableInputNode
+                            inputType={inputType}
+                            options={options}
+                            value={rowData[dataIndex]}
+                            onChange={handleChange}
+                            editRender={editRender}
+                        />
                     </Form.Item>
                 )
                 :

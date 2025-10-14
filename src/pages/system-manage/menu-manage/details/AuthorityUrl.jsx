@@ -1,8 +1,12 @@
-import { Flex, Form, Tag } from 'antd'
+import { Flex, Form, Select, Tag } from 'antd'
 import { RequestMethod } from '../../../../enums'
 import { useEffect } from 'react'
 import EditableTable from '../../../../component/smart-table/EditableTable'
 
+const requestMethodOptions = Object.entries(RequestMethod).map(([key, value]) => ({
+    label: key,
+    value: value,
+}))
 
 const AuthorityUrl = ({ authorityId, authorityUrls, onChange, loading }) => {
 
@@ -18,25 +22,17 @@ const AuthorityUrl = ({ authorityId, authorityUrls, onChange, loading }) => {
 
 
     const handleSave = async (_, rowIndex) => {
-        try {
-            const formValues = await form.validateFields()
-            const { urls } = formValues
-            await onChange(urls)
-        } catch (err) {
-            console.error(err)
-        }
+        const formValues = await form.validateFields()
+        const { urls } = formValues
+        await onChange(urls)
 
     }
 
     const handleDelete = async (_, rowIndex) => {
-        try {
-            const formValues = await form.validateFields()
-            const urls = formValues.urls
-            urls.splice(rowIndex, 1)
-            await onChange(urls)
-        } catch (err) {
-            console.error(err)
-        }
+        const formValues = await form.validateFields()
+        const urls = [...formValues.urls]
+        urls.splice(rowIndex, 1)
+        await onChange(urls)
 
     }
 
@@ -47,12 +43,14 @@ const AuthorityUrl = ({ authorityId, authorityUrls, onChange, loading }) => {
             dataIndex: 'method',
             align: 'center',
             editable: true,
-            inputType: 'select',
-            options: Object.entries(RequestMethod).map(([key, value]) => ({
-                label: key,
-                value: value,
-            })),
+            inputType: 'custom',
             required: true,
+            onChange: (val, rowIndex) => {
+
+            },
+            editRender: ({ value, onChange }) => {
+                return <Select style={{ width: '100%' }} options={requestMethodOptions} value={value} onChange={onChange} />
+            },
             render: (_, { method }) => {
                 switch (method?.toUpperCase()) {
                     case RequestMethod.GET:
@@ -80,42 +78,6 @@ const AuthorityUrl = ({ authorityId, authorityUrls, onChange, loading }) => {
             editable: true,
             required: true,
         },
-        // {
-        //     title: '操作',
-        //     dataIndex: 'operation',
-        //     align: 'center',
-        //     render: (_, record) => {
-        //         const editable = isEditing(record)
-        //         return editable ?
-        //             (
-        //                 <HasPermission hasPermissions='system:menu:write'>
-        //                     <Flex gap={8} justify='center' align='center'>
-        //                         <Typography.Link onClick={() => save(record.id)}>
-        //                             保存
-        //                         </Typography.Link>
-        //                         <Typography.Link onClick={() => cancel(record)}>
-        //                             取消
-        //                         </Typography.Link>
-        //                     </Flex>
-        //                 </HasPermission>
-        //             )
-        //             :
-        //             (
-        //                 <HasPermission hasPermissions='system:menu:write'>
-        //                     <Flex gap={8} justify='center' align='center'>
-        //                         <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
-        //                             编辑
-        //                         </Typography.Link>
-        //                         <Popconfirm disabled={editingKey !== ''} okText='确定' cancelText='取消' title="确定删除？" okButtonProps={{ loading: loading }} onConfirm={async () => await del(record)}>
-        //                             <Typography.Link disabled={editingKey !== ''}>
-        //                                 删除
-        //                             </Typography.Link>
-        //                         </Popconfirm>
-        //                     </Flex>
-        //                 </HasPermission>
-        //             )
-        //     }
-        // }
     ]
 
 
@@ -133,6 +95,8 @@ const AuthorityUrl = ({ authorityId, authorityUrls, onChange, loading }) => {
                             name='urls'
                             mode='single-edit'
                             fields={fields}
+                            editPermission={'system:menu:write'}
+                            deletePermission={'system:menu:delete'}
                             add={add}
                             remove={remove}
                             onSave={handleSave}

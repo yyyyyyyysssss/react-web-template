@@ -13,6 +13,10 @@ import { useRequest } from 'ahooks';
 
 const MenuDetails = ({ menuId }) => {
 
+    if(!menuId){
+        return <></>
+    }
+
     const [menuData, setMenuData] = useState({})
 
     const [authorityUrls, setAuthorityUrls] = useState({})
@@ -68,23 +72,19 @@ const MenuDetails = ({ menuId }) => {
 
     const handleAuthorityChange = async (newAuthorityUrls) => {
         const authorityId = openInfo.authorityId
-        return updateAuthorityUrlsByIdAsync(authorityId, newAuthorityUrls)
-            .then(
-                (data) => {
-                    getMessageApi().success('修改成功')
-                    //更新当前权限urls
-                    setAuthorityUrls(newAuthorityUrls)
-                    //更新权限数据
-                    setMenuData(prev => ({
-                        ...prev,
-                        children: prev.children.map(child =>
-                            child.id === authorityId
-                                ? { ...child, urls: newAuthorityUrls }
-                                : child
-                        )
-                    }))
-                }
+        await updateAuthorityUrlsByIdAsync(authorityId, newAuthorityUrls)
+        getMessageApi().success('修改成功')
+        //更新当前权限urls
+        setAuthorityUrls(newAuthorityUrls)
+        //更新权限数据
+        setMenuData(prev => ({
+            ...prev,
+            children: prev.children.map(child =>
+                child.id === authorityId
+                    ? { ...child, urls: newAuthorityUrls }
+                    : child
             )
+        }))
     }
 
 

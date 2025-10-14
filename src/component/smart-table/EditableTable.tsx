@@ -6,6 +6,7 @@ import React from "react"
 import './editable.css'
 import IdGen from "../../utils/IdGen"
 import { getMessageApi } from "../../utils/MessageUtil"
+import HasPermission from '../../component/HasPermission';
 
 
 interface EditableTableProps {
@@ -14,6 +15,8 @@ interface EditableTableProps {
     rowKey?: string
     fields: any[]
     mode: 'single-edit' | 'multi-add'
+    editPermission?: string | string[]
+    deletePermission?: string | string[]
     add: (defaultValue?: any, insertIndex?: number) => void
     remove: (index: number) => void
     onSave?: (rowData: any, rowIndex: number) => Promise<any>
@@ -26,6 +29,8 @@ const EditableTable: React.FC<EditableTableProps> = ({
     rowKey = 'id',
     fields,
     mode = 'multi-add',
+    editPermission,
+    deletePermission,
     add,
     remove,
     onSave,
@@ -97,14 +102,10 @@ const EditableTable: React.FC<EditableTableProps> = ({
 
 
     const handleSave = useCallback(async (rowData: any, rowIndex: number) => {
-        try {
-            await rowValidate(rowIndex)
-            await onSave?.(rowData, rowIndex)
-            setEditingKey(null)
-            editRowDataRef.current = null
-        } catch (err) {
-            console.error(err)
-        }
+        await rowValidate(rowIndex)
+        await onSave?.(rowData, rowIndex)
+        setEditingKey(null)
+        editRowDataRef.current = null
     }, [onSave])
 
     const handleEdit = useCallback((rowData: any, rowIndex: number) => {
@@ -134,13 +135,9 @@ const EditableTable: React.FC<EditableTableProps> = ({
 
 
     const handleDelete = useCallback(async (rowData: any, rowIndex: number) => {
-        try {
-            await onDelete?.(rowData, rowIndex)
-            remove(rowIndex)
-            setEditingKey(null)
-        } catch (err) {
-            console.error(err)
-        }
+        await onDelete?.(rowData, rowIndex)
+        remove(rowIndex)
+        setEditingKey(null)
     }, [onDelete, remove])
 
     const rowValidate = useCallback((rowIndex: number) => {
@@ -165,9 +162,9 @@ const EditableTable: React.FC<EditableTableProps> = ({
                         options: col.options,
                         required: col.required,
                         rules: col.rules,
-                        customRender: col.customRender,
+                        editRender: col.editRender,
                         editing: isEditing(rowData) && col.editable && col.editable !== false,
-                        rowKeyValue: record[rowKey],
+                        onChange: col.onChange,
                         rowIndex
                     }
                 },
@@ -200,25 +197,31 @@ const EditableTable: React.FC<EditableTableProps> = ({
                         return editable ?
                             (
                                 <Flex gap={8} justify='center' align='center'>
-                                    <Typography.Link onClick={() => handleSave(rowData, rowIndex)}>
-                                        保存
-                                    </Typography.Link>
-                                    <Typography.Link onClick={() => handleCancel(rowData, rowIndex)}>
-                                        取消
-                                    </Typography.Link>
+                                    <HasPermission hasPermissions={editPermission}>
+                                        <Typography.Link onClick={() => handleSave(rowData, rowIndex)}>
+                                            保存
+                                        </Typography.Link>
+                                        <Typography.Link onClick={() => handleCancel(rowData, rowIndex)}>
+                                            取消
+                                        </Typography.Link>
+                                    </HasPermission>
                                 </Flex >
                             )
                             :
                             (
                                 <Flex gap={8} justify='center' align='center'>
-                                    <Typography.Link disabled={editingKey !== null} onClick={() => handleEdit(rowData, rowIndex)}>
-                                        编辑
-                                    </Typography.Link>
-                                    <Popconfirm disabled={editingKey !== null} okText='确定' cancelText='取消' title="确定删除？" onConfirm={() => handleDelete(rowData, rowIndex)}>
-                                        <Typography.Link disabled={editingKey !== null}>
-                                            删除
+                                    <HasPermission hasPermissions={editPermission}>
+                                        <Typography.Link disabled={editingKey !== null} onClick={() => handleEdit(rowData, rowIndex)}>
+                                            编辑
                                         </Typography.Link>
-                                    </Popconfirm>
+                                    </HasPermission>
+                                    <HasPermission hasPermissions={deletePermission}>
+                                        <Popconfirm disabled={editingKey !== null} okText='确定' cancelText='取消' title="确定删除？" onConfirm={() => handleDelete(rowData, rowIndex)}>
+                                            <Typography.Link disabled={editingKey !== null}>
+                                                删除
+                                            </Typography.Link>
+                                        </Popconfirm>
+                                    </HasPermission>
                                 </Flex>
                             )
                     }
@@ -230,7 +233,9 @@ const EditableTable: React.FC<EditableTableProps> = ({
 
     return (
         <Flex gap={8} vertical>
-            <Button onClick={handleAdd} type="primary" className='w-20'>新增一行</Button>
+            <HasPermission hasPermissions={editPermission}>
+                <Button onClick={handleAdd} type="primary" className='w-20'>新增一行</Button>
+            </HasPermission>
             <Table
                 components={{
                     body: {
