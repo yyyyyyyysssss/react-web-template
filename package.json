@@ -14,6 +14,7 @@
     "ahooks": "^3.8.5",
     "antd": "5.27.4",
     "axios": "^1.8.4",
+    "classnames": "^2.5.1",
     "dayjs": "^1.11.18",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
@@ -29,8 +30,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "vite",
-    "build": "vite build",
+    "dev": "vite --mode dev",
+    "stg": "vite --mode stg",
+    "build": "vite build --mode prod",
     "preview": "vite preview"
   },
   "eslintConfig": {

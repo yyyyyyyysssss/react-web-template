@@ -1,7 +1,7 @@
 import React, { lazy } from "react";
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { matchPath } from "react-router"
-import { House, Settings, UserCog, Menu, ShieldUser } from "lucide-react";
+import { House, Settings, UserCog, Menu, ShieldUser, Building } from "lucide-react";
 import { LoginRoute } from "./LoginRoute";
 import { ProtectedRoute } from "./ProtectedRoute";
 import NotFound from "../pages/NotFound";
@@ -15,6 +15,7 @@ const UserManage = lazy(() => import('../pages/system-manage/user-manage'))
 const UserDetails = lazy(() => import('../pages/system-manage/user-manage/details'))
 const RoleManage = lazy(() => import('../pages/system-manage/role-manage'))
 const MenuManage = lazy(() => import('../pages/system-manage/menu-manage'))
+const TenantManage = lazy(() => import('../pages/system-manage/tenant-manage'))
 
 
 export const routes = [
@@ -72,6 +73,14 @@ export const routes = [
                         defaultIcon: <Menu size={18} />,
                         protected: true,
                         requiredPermissions: ['system:menu']
+                    },
+                    {
+                        path: 'tenant',
+                        element: <TenantManage />,
+                        breadcrumbName: '租户管理',
+                        defaultIcon: <Building size={18} />,
+                        protected: true,
+                        requiredPermissions: ['system:tenant']
                     }
                 ]
             },

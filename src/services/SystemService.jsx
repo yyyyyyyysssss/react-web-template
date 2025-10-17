@@ -182,3 +182,11 @@ export const fetchAuthorityTree = async () => {
 
     return apiRequestWrapper(() => httpWrapper.get('/api/authenticated/authority/options'))
 }
+
+
+
+// 租户列表
+export const fetchTenantList = async (queryParam) => {
+
+    return apiRequestWrapper(() => httpWrapper.post('/api/system/tenant/query', queryParam, { meta: { critical: true } }))
+}

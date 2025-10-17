@@ -25,13 +25,13 @@ import {
 
 
 interface FieldNames {
-  list?: string
-  pageNum?: string
-  pageSize?: string
-  total?: string
+    list?: string
+    pageNum?: string
+    pageSize?: string
+    total?: string
 }
 
-interface SmartTableProps<T = any> extends TableProps<T>{
+interface SmartTableProps<T = any> extends TableProps<T> {
     columns: ColumnsType<T>
     headerExtra?: React.ReactNode
     storageKey?: string
@@ -69,14 +69,14 @@ const reorderColumnsForFixed = (columns: any[]) => {
     return [...left, ...middle, ...right]
 }
 
-const SortableItem: React.FC<SortableItemProps> = ({ 
-    item, 
-    index, 
-    tableColumns, 
-    unfixedColumns, 
-    onToggleColumn, 
-    onFixedHeader, 
-    onFixedFooter 
+const SortableItem: React.FC<SortableItemProps> = ({
+    item,
+    index,
+    tableColumns,
+    unfixedColumns,
+    onToggleColumn,
+    onFixedHeader,
+    onFixedFooter
 }) => {
     const {
         attributes,
@@ -139,22 +139,24 @@ const SortableItem: React.FC<SortableItemProps> = ({
     )
 }
 
-const SmartTable = <T extends any> ({ 
-    columns, 
-    headerExtra, 
-    storageKey, 
-    fetchData, 
-    queryParam, 
-    setQueryParam, 
-    fieldNames, 
+const SmartTable = <T extends any>({
+    columns,
+    headerExtra,
+    storageKey,
+    fetchData,
+    queryParam,
+    setQueryParam,
+    fieldNames,
     autoFetch = true,
     rowKey,
     transformData,
     onDataChange,
     ...rest
-} : SmartTableProps<T>) => {
+}: SmartTableProps<T>) => {
 
     const location = useLocation()
+
+    const isDev = import.meta.env.MODE === 'dev'
 
     const STORAGE_KEY = storageKey || `smart_table_${location.pathname}`
 
@@ -193,10 +195,10 @@ const SmartTable = <T extends any> ({
 
     useEffect(() => {
         const storageColums = localStorage.getItem(STORAGE_KEY)
-        if (storageColums) {
+        if (storageColums && !isDev) {
             const parsedColums = JSON.parse(storageColums)
             const merged = parsedColums.map((saved: any) => {
-                const col : any = columns.find((c) => c.key === (saved.key || saved.dataIndex))
+                const col: any = columns.find((c) => c.key === (saved.key || saved.dataIndex))
                 return {
                     ...col, // 最新配置
                     ...saved, // 用户偏好
@@ -214,7 +216,7 @@ const SmartTable = <T extends any> ({
     }, [])
 
     useEffect(() => {
-        if (tableColumns.length > 0) {
+        if (!isDev && tableColumns.length > 0) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(tableColumns.map(({ key, visible, fixed }) => ({ key, visible, fixed }))))
         }
     }, [tableColumns, STORAGE_KEY])
@@ -311,7 +313,7 @@ const SmartTable = <T extends any> ({
                 }
             </Flex>
         )
-    }, [tableColumns,handleNotFixed,handleFixedFooter])
+    }, [tableColumns, handleNotFixed, handleFixedFooter])
 
     const unfixedColumns = useMemo(() => {
         return tableColumns.filter(item => item.fixed !== 'left' && item.fixed !== 'right')

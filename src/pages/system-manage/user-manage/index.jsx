@@ -1,15 +1,16 @@
-import { Button, Drawer, Dropdown, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Space, Switch, Typography } from 'antd'
+import { Button, Drawer, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Space, Switch, Typography } from 'antd'
 import './index.css'
 import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { bindRoleByUserId, createUser, deleteUserById, fetchUserList, resetPassword, updateUser, updateUserEnabled } from '../../../services/SystemService';
-import { CopyOutlined, DownOutlined } from '@ant-design/icons';
+import { CopyOutlined } from '@ant-design/icons';
 import Highlight from '../../../component/Highlight';
 import { getMessageApi } from '../../../utils/MessageUtil';
 import RoleSelect from '../../../component/RoleSelect';
 import HasPermission from '../../../component/HasPermission';
 import { useRequest } from 'ahooks';
 import SmartTable from '../../../component/smart-table';
+import ActionDropdown from '../../../component/ActionDropdown';
 
 
 const initQueryParam = {
@@ -414,49 +415,27 @@ const UserManage = () => {
                         <HasPermission
                             hasPermissions='system:user:delete'
                         >
-                            <Dropdown
-                                menu={{
-                                    items: [
-                                        {
-                                            key: 'delete',
-                                            label: (
-                                                <Typography.Link
-                                                    style={{
-                                                        marginInlineEnd: 8,
-                                                        display: 'flex',
-                                                        justifyContent: 'center',
-                                                        width: '100%',
-                                                    }}
-                                                    onClick={() => {
-                                                        modal.confirm({
-                                                            title: '确定删除？',
-                                                            okText: '确定',
-                                                            cancelText: '取消',
-                                                            maskClosable: false,
-                                                            confirmLoading: deleteUserByIdLoading,
-                                                            content: (
-                                                                <>
-                                                                    是否删除 <Highlight>{record.nickname}</Highlight> 的账号？删除后将无法恢复！
-                                                                </>
-                                                            ),
-                                                            onOk: async () => {
-                                                                await handleDelete(record.id)
-                                                            },
-                                                        })
-                                                    }}
-                                                >
-                                                    删除
-                                                </Typography.Link>
-                                            )
+                            <ActionDropdown
+                                items={[
+                                    {
+                                        key: 'delete',
+                                        label: '删除',
+                                        danger: true,
+                                        confirm: {
+                                            title: '确定删除？',
+                                            content: (
+                                                <>
+                                                     是否删除 <Highlight>{record.nickname}</Highlight> 的账号？删除后将无法恢复！
+                                                </>
+                                            ),
+                                            onOk: async () => {
+                                                await handleDelete(record.id)
+                                            },
+                                            confirmLoading: deleteUserByIdLoading,
                                         }
-                                    ]
-                                }}
-                                trigger={['click']}
-                            >
-                                <Typography.Link>
-                                    更多 <DownOutlined />
-                                </Typography.Link>
-                            </Dropdown>
+                                    }
+                                ]}
+                            />
                         </HasPermission>
                     </span>
                 )

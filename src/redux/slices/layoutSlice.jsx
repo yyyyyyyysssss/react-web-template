@@ -68,6 +68,11 @@ export const layoutSlice = createSlice({
             const { theme } = payload
             state.theme = theme
         },
+        setTabIem: (state, action) => {
+            const { payload } = action
+            const { tabItem } = payload
+            state.tabItems = tabItem
+        },
         addTabIem: (state, action) => {
             const { payload } = action
             const { tabItem } = payload
@@ -168,6 +173,6 @@ export const layoutSlice = createSlice({
     }
 })
 
-export const { reset, setActiveKey, menuCollapsed, switchTheme, setOpenKeys, addTabIem, removeTabItem, removeAllTabItem, removeOtherTabItem, removeLeftTabItem, removeRightTabItem, loadMenuItems } = layoutSlice.actions
+export const { reset, setActiveKey, menuCollapsed, switchTheme, setOpenKeys, setTabIem, addTabIem, removeTabItem, removeAllTabItem, removeOtherTabItem, removeLeftTabItem, removeRightTabItem, loadMenuItems } = layoutSlice.actions
 
 export default layoutSlice.reducer

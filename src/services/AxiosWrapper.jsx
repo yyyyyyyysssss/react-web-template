@@ -1,15 +1,16 @@
 import axios from "axios";
 import Cookies from 'js-cookie'
 import { jwtDecode } from 'jwt-decode'
-import env from "../env";
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { getMessageApi } from "../utils/MessageUtil.jsx";
 import { useGlobalSignout } from "../router/auth.js";
 import router from "../router/router.jsx";
 
+const baseURL = import.meta.env.VITE_API_BASE_URL
+
 const httpWrapper = axios.create({
-    baseURL: env.apiUrl,
+    baseURL: baseURL,
     timeout: 60000
 })
 
