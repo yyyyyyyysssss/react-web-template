@@ -2,11 +2,12 @@ import React, { useState } from 'react'
 import './index.css'
 import { Button, Flex, Form, Input, Popconfirm, Select, Space, Tag, Typography } from 'antd'
 import SmartTable from '../../../component/smart-table'
-import { fetchTenantList } from '../../../services/SystemService'
+import { deleteTenantById, fetchTenantList, updateTenantStatus } from '../../../services/SystemService'
 import HasPermission from '../../../component/HasPermission'
 import { useRequest } from 'ahooks'
 import Highlight from '../../../component/Highlight'
 import ActionDropdown from '../../../component/ActionDropdown'
+import { getMessageApi } from '../../../utils/MessageUtil'
 
 const initQueryParam = {
   pageNum: 1,
@@ -49,12 +50,20 @@ const TenantManage = () => {
 
   }
 
-  const handleStatus = (tenantData, status) => {
-
+  const handleUpdateStatus = async (tenantId, status) => {
+    const data = await updateTenantStatus(tenantId, status)
+    if (data === true) {
+      getMessageApi().success('操作成功')
+      handleReset()
+    }
   }
 
-  const handleDelete = async (tenantData) => {
-
+  const handleDelete = async (tenantId) => {
+    const data = await deleteTenantById(tenantId)
+    if (data === true) {
+      getMessageApi().success('删除成功')
+      handleReset()
+    }
   }
 
   const columns = [
@@ -164,11 +173,11 @@ const TenantManage = () => {
               </Typography.Link>
               {
                 record.status === 'DISABLED' || record.status === 'PENDING' ? (
-                  <Typography.Link onClick={() => handleStatus(record, 'ACTIVE')} style={{ marginInlineEnd: 8 }}>
+                  <Typography.Link onClick={() => handleUpdateStatus(record.id, 'ACTIVE')} style={{ marginInlineEnd: 8 }}>
                     启用
                   </Typography.Link>
                 ) : record.status === 'ACTIVE' ? (
-                  <Popconfirm title="确定停用?" onConfirm={() => handleStatus(record, 'DISABLED')}>
+                  <Popconfirm title="确定停用?" onConfirm={() => handleUpdateStatus(record.id, 'DISABLED')}>
                     <Typography.Link style={{ marginInlineEnd: 8 }}>
                       停用
                     </Typography.Link>
@@ -193,8 +202,8 @@ const TenantManage = () => {
                           是否删除 <Highlight>{record.tenantName}</Highlight> 租户？删除后将无法恢复！
                         </>
                       ),
-                      onOk: async () => {
-                        await handleDelete(record)
+                      onOk: () => {
+                        handleDelete(record.id)
                       },
                       confirmLoading: deleteTenantLoading,
                     }

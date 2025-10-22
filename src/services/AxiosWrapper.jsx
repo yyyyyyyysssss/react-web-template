@@ -1,11 +1,11 @@
 import axios from "axios";
 import Cookies from 'js-cookie'
-import { jwtDecode } from 'jwt-decode'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { getMessageApi } from "../utils/MessageUtil.jsx";
 import { useGlobalSignout } from "../router/auth.js";
 import router from "../router/router.jsx";
+import reduxStore from "../redux/store.js";
 
 const baseURL = import.meta.env.VITE_API_BASE_URL
 
@@ -35,13 +35,12 @@ httpWrapper.interceptors.request.use(
         startProgress()
         const token = Cookies.get("accessToken");
         if (token) {
-            const path = req.url;
-            //用户id路径参数解析
-            if (path.includes("{userId}")) {
-                const tokenInfo = jwtDecode(token);
-                req.url = path.replaceAll("{userId}", tokenInfo.subject);
-            }
             req.headers['Authorization'] = `Bearer ${token}`
+        }
+        // 租户
+        const tenant = reduxStore.getState().auth.tenant
+        if (tenant) {
+            req.headers['x-tenant-id'] = tenant.id
         }
         return req;
     },

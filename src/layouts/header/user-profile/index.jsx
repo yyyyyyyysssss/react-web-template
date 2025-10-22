@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { useAuth } from '../../../router/AuthProvider';
 import { Avatar, Button, Divider, Drawer, Dropdown, Flex, Form, Image, Input, Modal, Tooltip, Typography, Upload } from 'antd';
-import { Lock, LogOut, Pencil, UserPen } from 'lucide-react';
+import { Lock, LogOut, Pencil, UserPen, Building } from 'lucide-react';
 import { logout } from '../../../services/LoginService';
 import { useDispatch, useSelector } from 'react-redux';
 import { changeAvatar, changePassword } from '../../../services/UserProfileService';
@@ -52,6 +52,8 @@ const UserProfile = () => {
     const [changePasswordOpen, setChangePasswordOpen] = useState(false)
 
     const [profileOpen, setProfileOpen] = useState(false)
+
+    const [tenantSwitchOpen, setTenantSwitchOpen] = useState(false)
 
     const handleChangePassword = () => {
         form.validateFields()
@@ -225,6 +227,20 @@ const UserProfile = () => {
                 menu={{
                     items: [
                         {
+                            key: 'switch_tenant',
+                            label: (
+                                <Typography.Link onClick={() => setTenantSwitchOpen(true)}>
+                                    <Flex
+                                        gap={8}
+                                        align='center'
+                                    >
+                                        <Building size={16} />
+                                        <span>切换租户</span>
+                                    </Flex>
+                                </Typography.Link>
+                            )
+                        },
+                        {
                             key: 'profile',
                             label: (
                                 <Typography.Link onClick={() => setProfileOpen(true)}>
@@ -380,7 +396,7 @@ const UserProfile = () => {
                 <Flex
                     vertical
                     gap={50}
-                    style={{height: '100%'}}
+                    style={{ height: '100%' }}
                 >
                     <Flex
                         justify='center'
@@ -433,7 +449,7 @@ const UserProfile = () => {
                             layout='vertical'
                             form={profileForm}
                             initialValues={{
-                                userIds: ['1','2','3']
+                                userIds: ['1', '2', '3']
                             }}
                         >
                             <Form.Item

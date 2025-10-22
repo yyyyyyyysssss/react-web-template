@@ -126,7 +126,12 @@ const Login = () => {
                 },
                 (error) => {
                     if (error.response && error.response.status === 401) {
-                        getMessageApi().error('用户名或密码错误');
+                        if (error.response.data && error.response.data.code === 4012) {
+                            getMessageApi().error('账号已锁定，请联系系统管理员')
+                        } else {
+                            getMessageApi().error('用户名或密码错误')
+                        }
+
                     }
                 }
             )
