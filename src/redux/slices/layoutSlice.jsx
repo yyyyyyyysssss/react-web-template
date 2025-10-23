@@ -7,7 +7,8 @@ export const initialState = {
     tabItems: [],
     menuItems: [],
     flattenMenuItems: [],
-    theme: 'dark'
+    theme: 'dark',
+    tenant: null
 }
 
 const findMenuByKey = (targetKey, menus) => {
@@ -169,10 +170,21 @@ export const layoutSlice = createSlice({
             //对树形结构进行扁平化
             recurse(menuItems)
             state.flattenMenuItems = flattenMenuItems
+        },
+        switchTenant: (state, action) => {
+            const { payload } = action
+            const { tenant } = payload
+            state.tenant = tenant
+            // 重置状态
+            state.activeKey = ''
+            state.openKeys = []
+            state.tabItems = []
+            state.menuItems = []
+            state.flattenMenuItems = []
         }
     }
 })
 
-export const { reset, setActiveKey, menuCollapsed, switchTheme, setOpenKeys, setTabIem, addTabIem, removeTabItem, removeAllTabItem, removeOtherTabItem, removeLeftTabItem, removeRightTabItem, loadMenuItems } = layoutSlice.actions
+export const { reset, setActiveKey, menuCollapsed, switchTheme, setOpenKeys, setTabIem, addTabIem, removeTabItem, removeAllTabItem, removeOtherTabItem, removeLeftTabItem, removeRightTabItem, loadMenuItems, switchTenant } = layoutSlice.actions
 
 export default layoutSlice.reducer

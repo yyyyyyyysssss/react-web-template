@@ -14,12 +14,15 @@ import { simpleUploadFile } from '../../../services/FileService';
 import { useRequest } from 'ahooks';
 import RemoteSearchSelect from '../../../component/RemoteSearchSelect';
 import { fetchSearchUser } from '../../../services/SystemService';
+import './index.css'
+import TenantSwitch from '../../../component/tenant-switch';
 
 const UserProfile = () => {
 
     const { signout } = useAuth()
 
-    const { id, nickname, avatar } = useSelector(state => state.auth.userInfo)
+    const { nickname, avatar } = useSelector(state => state.auth.userInfo)
+
 
     const [profileForm] = Form.useForm()
 
@@ -509,6 +512,23 @@ const UserProfile = () => {
                 >
                     <img ref={imgRef} src={avatarCropOpen.previewImage} onLoad={handleImageLoad} />
                 </ReactCrop>
+            </Modal>
+            <Modal
+                title='切换租户'
+                width={600}
+                open={tenantSwitchOpen}
+                onCancel={() => setTenantSwitchOpen(false)}
+                onClose={() => setTenantSwitchOpen(false)}
+                footer={null}
+                style={{ textAlign: 'center' }}
+                maskClosable={false}
+                keyboard={false}
+            >
+                <Flex className='w-full h-[200px]'>
+                    <TenantSwitch
+                        onTenantChange={() => setTenantSwitchOpen(false)}
+                    />
+                </Flex>
             </Modal>
         </>
     )

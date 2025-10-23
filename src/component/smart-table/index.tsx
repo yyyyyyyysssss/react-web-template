@@ -7,6 +7,7 @@ import { useLocation } from 'react-router-dom'
 import { CSS } from '@dnd-kit/utilities'
 import { useRequest } from 'ahooks'
 import type { TableProps, ColumnsType } from 'antd/es/table'
+import { useSelector } from 'react-redux';
 import {
     DndContext,
     closestCenter,
@@ -158,7 +159,11 @@ const SmartTable = <T extends any>({
 
     const isDev = import.meta.env.MODE === 'dev'
 
-    const STORAGE_KEY = storageKey || `smart_table_${location.pathname}`
+    const tenant = useSelector((state: any) => state.layout.tenant)
+
+    const tenantId = tenant?.id || 'default_tenant';
+
+    const STORAGE_KEY = storageKey || `smart_table_${tenantId}_${location.pathname}`
 
     const [tableColumns, setTableColumns] = useState<any[]>([])
 
@@ -219,7 +224,7 @@ const SmartTable = <T extends any>({
         if (!isDev && tableColumns.length > 0) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(tableColumns.map(({ key, visible, fixed }) => ({ key, visible, fixed }))))
         }
-    }, [tableColumns, STORAGE_KEY])
+    }, [tableColumns])
 
     const sensors = useSensors(
         useSensor(PointerSensor),

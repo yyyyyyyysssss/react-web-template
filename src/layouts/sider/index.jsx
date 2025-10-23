@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import './index.css'
-import { Flex, Menu } from 'antd';
+import { Avatar, Flex, Menu, Typography } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setActiveKey, setOpenKeys } from '../../redux/slices/layoutSlice';
@@ -22,6 +22,8 @@ const Sider = () => {
     const activeKey = useSelector(state => state.layout.activeKey)
 
     const openKeys = useSelector(state => state.layout.openKeys)
+
+    const tenant = useSelector(state => state.layout.tenant)
 
     const dispatch = useDispatch()
 
@@ -87,6 +89,7 @@ const Sider = () => {
         <>
             <Flex
                 onClick={goHome}
+                gap={10}
                 justify='center'
                 align='center'
                 style={{
@@ -94,7 +97,11 @@ const Sider = () => {
                     cursor: 'pointer',
                 }}
             >
-                <img style={{ height: '58px' }} src='/temp-logo.png' />
+                <Avatar
+                    src={tenant?.logo}
+                    size={48}
+                />
+                <Typography.Text style={{fontSize: '20px', color: themeValue === 'dark' ? 'white' : 'var(--ant-color-text)'}}>{tenant?.tenantName}</Typography.Text>
             </Flex>
             <Menu
                 key={collapsed ? 'collapsed' : 'expanded'}

@@ -1,0 +1,14 @@
+.swiper-slide {
+  user-select: none; /* 禁用选中文本 */
+}
+
+.tenant-item{
+    padding: 20px;
+}
+
+.tenant-item:hover{
+    padding: 20px;
+    cursor: pointer;
+    background-color: var(--ant-control-item-bg-hover);
+    border-radius: var(--ant-border-radius);
+}

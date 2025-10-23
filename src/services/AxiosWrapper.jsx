@@ -38,7 +38,7 @@ httpWrapper.interceptors.request.use(
             req.headers['Authorization'] = `Bearer ${token}`
         }
         // 租户
-        const tenant = reduxStore.getState().auth.tenant
+        const tenant = reduxStore.getState().layout.tenant
         if (tenant) {
             req.headers['x-tenant-id'] = tenant.id
         }
