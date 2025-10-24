@@ -1,7 +1,7 @@
 import { Flex, Form, Select, Tag } from 'antd'
 import { RequestMethod } from '../../../../enums'
 import { useEffect } from 'react'
-import EditableTable from '../../../../component/smart-table/EditableTable'
+import EditableTable from '../../../../components/smart-table/EditableTable'
 
 const requestMethodOptions = Object.entries(RequestMethod).map(([key, value]) => ({
     label: key,

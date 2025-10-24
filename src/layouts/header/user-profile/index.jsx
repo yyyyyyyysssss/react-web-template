@@ -6,16 +6,16 @@ import { logout } from '../../../services/LoginService';
 import { useDispatch, useSelector } from 'react-redux';
 import { changeAvatar, changePassword } from '../../../services/UserProfileService';
 import { getMessageApi } from '../../../utils/MessageUtil';
-import ChunkedUpload from '../../../component/ChunkedUpload';
+import ChunkedUpload from '../../../components/ChunkedUpload';
 import { updateUserAvatar } from '../../../redux/slices/authSlice';
 import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 import { simpleUploadFile } from '../../../services/FileService';
 import { useRequest } from 'ahooks';
-import RemoteSearchSelect from '../../../component/RemoteSearchSelect';
+import RemoteSearchSelect from '../../../components/RemoteSearchSelect';
 import { fetchSearchUser } from '../../../services/SystemService';
 import './index.css'
-import TenantSwitch from '../../../component/tenant-switch';
+import TenantSwitch from '../../../components/tenant-switch';
 
 const UserProfile = () => {
 

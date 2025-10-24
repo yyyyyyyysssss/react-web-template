@@ -5,7 +5,7 @@ import { AuthorityType, RequestMethod } from '../../../../../enums';
 import { UploadOutlined } from '@ant-design/icons';
 import { addAuthority, createMenu, updateAuthority, updateMenu } from '../../../../../services/SystemService';
 import { useRequest } from 'ahooks';
-import EditableTable from '../../../../../component/smart-table/EditableTable';
+import EditableTable from '../../../../../components/smart-table/EditableTable';
 import { getMessageApi } from '../../../../../utils/MessageUtil';
 
 

@@ -5,7 +5,7 @@ import { Outlet } from 'react-router-dom';
 import TopMenuTab from './top-tab';
 import { useSelector } from 'react-redux';
 import Sider from './sider';
-import Loading from '../component/loading';
+import Loading from '../components/loading';
 import Header from './header';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useLocation, useNavigate } from 'react-router-dom';

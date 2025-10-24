@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import './index.css'
 import { Button, Flex, Form, Input, Popconfirm, Select, Space, Tag, Typography } from 'antd'
-import SmartTable from '../../../component/smart-table'
+import SmartTable from '../../../components/smart-table'
 import { deleteTenantById, fetchTenantList, updateTenantStatus } from '../../../services/SystemService'
-import HasPermission from '../../../component/HasPermission'
+import HasPermission from '../../../components/HasPermission'
 import { useRequest } from 'ahooks'
-import Highlight from '../../../component/Highlight'
-import ActionDropdown from '../../../component/ActionDropdown'
+import Highlight from '../../../components/Highlight'
+import ActionDropdown from '../../../components/ActionDropdown'
 import { getMessageApi } from '../../../utils/MessageUtil'
 
 const initQueryParam = {

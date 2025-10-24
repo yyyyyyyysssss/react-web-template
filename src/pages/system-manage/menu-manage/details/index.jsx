@@ -6,7 +6,7 @@ import { deleteAuthorityById, fetchMenuDetails, updateAuthorityUrlsById } from '
 import IdGen from '../../../../utils/IdGen';
 import AuthorityUrl from './AuthorityUrl';
 import MenuAuthority from './menu-authority';
-import HasPermission from '../../../../component/HasPermission';
+import HasPermission from '../../../../components/HasPermission';
 import { getMessageApi } from '../../../../utils/MessageUtil';
 import { useRequest } from 'ahooks';
 

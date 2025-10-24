@@ -4,13 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { bindRoleByUserId, createUser, deleteUserById, fetchUserList, resetPassword, updateUser, updateUserEnabled } from '../../../services/SystemService';
 import { CopyOutlined } from '@ant-design/icons';
-import Highlight from '../../../component/Highlight';
+import Highlight from '../../../components/Highlight';
 import { getMessageApi } from '../../../utils/MessageUtil';
-import RoleSelect from '../../../component/RoleSelect';
-import HasPermission from '../../../component/HasPermission';
+import RoleSelect from '../../../components/RoleSelect';
+import HasPermission from '../../../components/HasPermission';
 import { useRequest } from 'ahooks';
-import SmartTable from '../../../component/smart-table';
-import ActionDropdown from '../../../component/ActionDropdown';
+import SmartTable from '../../../components/smart-table';
+import ActionDropdown from '../../../components/ActionDropdown';
 
 
 const initQueryParam = {

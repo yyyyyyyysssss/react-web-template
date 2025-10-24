@@ -2,7 +2,7 @@ import { Spin } from "antd"
 import { Navigate } from 'react-router-dom';
 import { useAuth } from "./AuthProvider";
 import Forbidden from "../pages/Forbidden";
-import { useHasPermission } from "../component/HasPermission";
+import { useHasPermission } from "../components/HasPermission";
 
 export const ProtectedRoute = ({ children, requiredPermissions, fallback, requireAll = false }) => {
 

@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react'
 import './index.css'
 import { bindAuthorityByRoleId, createRole, deleteRoleById, fetchRoleList, updateRole, updateRoleEnabled } from '../../../services/SystemService'
 import { Button, Drawer, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Space, Switch, Table, Typography } from 'antd'
-import AuthorityTreeSelect from '../../../component/AuthorityTreeSelect'
-import AuthorityTree from '../../../component/AuthorityTree'
-import Highlight from '../../../component/Highlight'
-import HasPermission from '../../../component/HasPermission'
+import AuthorityTreeSelect from '../../../components/AuthorityTreeSelect'
+import AuthorityTree from '../../../components/AuthorityTree'
+import Highlight from '../../../components/Highlight'
+import HasPermission from '../../../components/HasPermission'
 import { getMessageApi } from '../../../utils/MessageUtil'
 import { useRequest } from 'ahooks'
-import SmartTable from '../../../component/smart-table'
+import SmartTable from '../../../components/smart-table'
 
 const initQueryParam = {
     pageNum: 1,

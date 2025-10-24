@@ -7,8 +7,8 @@ import MenuDetails from './details';
 import MenuAuthority from './details/menu-authority';
 import { AuthorityType } from '../../../enums';
 import IdGen from '../../../utils/IdGen';
-import Highlight from '../../../component/Highlight';
-import HasPermission from '../../../component/HasPermission';
+import Highlight from '../../../components/Highlight';
+import HasPermission from '../../../components/HasPermission';
 import { getMessageApi } from '../../../utils/MessageUtil';
 import { useRequest } from 'ahooks';
 
