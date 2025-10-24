@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from "./AuthProvider";
 import Forbidden from "../pages/Forbidden";
 import { useHasPermission } from "../components/HasPermission";
+import reduxStore from "../redux/store";
 
 export const ProtectedRoute = ({ children, requiredPermissions, fallback, requireAll = false }) => {
 
@@ -13,6 +14,10 @@ export const ProtectedRoute = ({ children, requiredPermissions, fallback, requir
 
   // 未登录
   if (!isLoginIn) return <Navigate to="/login" replace />
+
+  // 未选择租户则跳转租户选择页面
+  const tenant = reduxStore.getState().layout.tenant
+  if (!tenant) return <Navigate to="/tenant-selection" replace />
 
   const isAllowed = useHasPermission(requiredPermissions, requireAll)
 

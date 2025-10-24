@@ -6,7 +6,7 @@ import React from "react"
 import './editable.css'
 import IdGen from "../../utils/IdGen"
 import { getMessageApi } from "../../utils/MessageUtil"
-import HasPermission from '../../component/HasPermission';
+import HasPermission from '../../components/HasPermission';
 
 
 interface EditableTableProps {

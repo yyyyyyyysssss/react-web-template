@@ -27,15 +27,11 @@ const TenantSwitch: React.FC<TenantSwitchProps> = ({
     const dispatch = useDispatch()
 
 
-    const { tenants } = useSelector((state: any) => state.auth.userInfo)
-
-    const currentTenant = useSelector((state: any) => state.layout.tenant)
+    const { tenants } = useSelector((state: any) => state.auth.userInfo) || []
 
     const handleSwitchTenant = (tenant: TenantItem) => {
-        if (currentTenant === null || currentTenant.id !== tenant.id) {
-            dispatch(switchTenant({ tenant: tenant }))
-            window.location.href = '/'
-        }
+        dispatch(switchTenant({ tenant: tenant }))
+        window.location.href = '/'
         onTenantChange?.(tenant)
     }
 
@@ -46,7 +42,7 @@ const TenantSwitch: React.FC<TenantSwitchProps> = ({
             pagination={{
                 clickable: true,
             }}
-            loop={true}
+            loop={tenants.length >= 3}
             modules={[Pagination]}
             className="w-full h-full"
         >
@@ -63,12 +59,14 @@ const TenantSwitch: React.FC<TenantSwitchProps> = ({
                 >
                     <Flex
                         className='tenant-item'
-                        gap={10}
+                        gap={15}
+                        justify='center'
+                        align='center'
                         vertical
                     >
                         <Avatar
                             src={item.logo}
-                            size={64}
+                            size={78}
                         />
                         <Typography.Text>
                             {item.tenantName}

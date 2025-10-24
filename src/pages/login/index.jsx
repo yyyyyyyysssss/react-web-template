@@ -145,7 +145,7 @@ const Login = () => {
         <Flex
             justify='end'
             align='center'
-            className="min-h-screen bg-gray-200 p-4"
+            className="min-h-screen p-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400"
         >
             <Flex
                 style={{ marginRight: '10%' }}

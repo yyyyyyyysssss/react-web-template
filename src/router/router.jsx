@@ -7,10 +7,12 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import NotFound from "../pages/NotFound";
 import Forbidden from "../pages/Forbidden";
 import ServerError from "../pages/ServerError";
+import { TenantSelectionRoute } from "./TenantSelectionRoute";
 
 const AppLayout = lazy(() => import('../layouts'))
 const Home = lazy(() => import('../pages/home'))
 const Login = lazy(() => import('../pages/login'))
+const TenantSelection = lazy(() => import('../pages/tenant-selection'))
 const UserManage = lazy(() => import('../pages/system-manage/user-manage'))
 const UserDetails = lazy(() => import('../pages/system-manage/user-manage/details'))
 const RoleManage = lazy(() => import('../pages/system-manage/role-manage'))
@@ -22,6 +24,11 @@ export const routes = [
     {
         path: 'login',
         element: <LoginRoute><Login /></LoginRoute>,
+        protected: false,
+    },
+    {
+        path: 'tenant-selection',
+        element: <TenantSelectionRoute><TenantSelection /></TenantSelectionRoute>,
         protected: false,
     },
     {
@@ -179,17 +186,6 @@ const wrapProtectedRoute = (route) => {
 }
 
 const finalRoutes = routes.map(wrapProtectedRoute)
-
-// const finalRoutes = routes.map((route) => {
-//     return {
-//         ...route,
-//         element: route.protected
-//             ?
-//             (<ProtectedRoute requiredPermissions={route.requiredPermissions} fallback={<Forbidden />}>{route.element}</ProtectedRoute>)
-//             :
-//             route.element
-//     }
-// })
 
 const router = createBrowserRouter(finalRoutes)
 

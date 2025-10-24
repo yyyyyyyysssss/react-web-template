@@ -19,12 +19,8 @@ const loadState = () => {
 }
 
 const saveState = (state) => {
-    try {
-        const serializedState = JSON.stringify(state.layout)
-        localStorage.setItem('layoutState', serializedState)
-    } catch (e) {
-        console.log(e)
-    }
+    const serializedState = JSON.stringify(state.layout)
+    localStorage.setItem('layoutState', serializedState)
 }
 
 const loadedState = loadState();

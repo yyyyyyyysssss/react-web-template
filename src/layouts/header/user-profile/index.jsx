@@ -286,8 +286,8 @@ const UserProfile = () => {
                                             justify='space-between'
                                             flex={1}
                                         >
-                                            <span>退</span>
-                                            <span>出</span>
+                                            <Typography.Text>退</Typography.Text>
+                                            <Typography.Text>出</Typography.Text>
                                         </Flex>
                                     </Flex>
                                 </Typography.Link>
@@ -514,7 +514,7 @@ const UserProfile = () => {
                 </ReactCrop>
             </Modal>
             <Modal
-                title='切换租户'
+                title={<Typography.Title level={3} className="text-gray-700">切换租户</Typography.Title>}
                 width={600}
                 open={tenantSwitchOpen}
                 onCancel={() => setTenantSwitchOpen(false)}
@@ -524,7 +524,7 @@ const UserProfile = () => {
                 maskClosable={false}
                 keyboard={false}
             >
-                <Flex className='w-full h-[200px]'>
+                <Flex className='w-full h-[300px]'>
                     <TenantSwitch
                         onTenantChange={() => setTenantSwitchOpen(false)}
                     />

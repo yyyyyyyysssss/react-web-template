@@ -3,7 +3,7 @@
 export const apiRequestWrapper = async (requestFn) => {
     try {
         const res = await requestFn()
-        return res.data
+        return res?.data
     } catch (err) {
         handleError(err)
         throw err
