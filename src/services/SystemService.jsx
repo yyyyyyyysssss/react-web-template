@@ -191,6 +191,19 @@ export const fetchTenantList = async (queryParam) => {
     return apiRequestWrapper(() => httpWrapper.post('/api/system/tenant/query', queryParam, { meta: { critical: true } }))
 }
 
+
+// 新增租户
+export const createTenant = async (tenant) => {
+
+    return apiRequestWrapper(() => httpWrapper.post(`/api/system/tenant`, tenant))
+}
+
+// 修改租户
+export const updateTenant = async (tenant) => {
+
+    return apiRequestWrapper(() => httpWrapper.put(`/api/system/tenant/${tenant.id}`, tenant))
+}
+
 // 修改租户状态
 export const updateTenantStatus = async (tenantId, status) => {
 

@@ -18,9 +18,11 @@ export const uploadChunkFile = (uploadFormData, onProgress) => {
             },
             onUploadProgress: (progressEvent) => {
                 if (onProgress) {
-                    const progress = progressEvent.loaded - latestUploadSize
-                    onProgress(progress)
-                    latestUploadSize = progressEvent.loaded
+                    const delta = progressEvent.loaded - latestUploadSize
+                    if (delta > 0) {
+                        onProgress(delta)
+                        latestUploadSize = progressEvent.loaded
+                    }
                 }
             }
         })
@@ -55,4 +57,22 @@ export const simpleUploadFile = (formData, onProgress) => {
             }
         })
     })
+}
+
+
+// 文件下载
+export const downloadByUrl = (url, onProgress) => {
+    const downloadUrl = url.includes('?') ? `${url}&type=d` : `${url}?type=d`
+    return apiRequestWrapper(() => {
+        return httpWrapper.get(downloadUrl, {
+            responseType: 'blob',
+            onDownloadProgress: (progressEvent) => {
+                if (onProgress && progressEvent.lengthComputable) {
+                    const { loaded, total } = progressEvent
+                    const percent = Math.round((loaded / total) * 100)
+                    onProgress(loaded, total, percent)
+                }
+            },
+        })
+    }, { raw: true })
 }

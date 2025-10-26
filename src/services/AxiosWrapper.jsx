@@ -54,12 +54,16 @@ httpWrapper.interceptors.request.use(
 httpWrapper.interceptors.response.use(
     (res) => {
         stopProgress()
-        const result = res.data
-        if (result && result.code !== 0) {
-            getMessageApi().error(result.message)
-            return Promise.reject(new Error(result.message))
+        const contentType = res.headers['content-type'] || ''
+        if (contentType.includes('application/json')) {
+            const result = res.data
+            if (result && result.code !== 0) {
+                getMessageApi().error(result.message)
+                return Promise.reject(new Error(result.message))
+            }
+            return result
         }
-        return result
+        return res
     },
     (error) => {
         stopProgress()

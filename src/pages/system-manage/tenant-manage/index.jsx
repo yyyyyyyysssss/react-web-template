@@ -1,13 +1,15 @@
 import React, { useState } from 'react'
 import './index.css'
-import { Button, Flex, Form, Input, Popconfirm, Select, Space, Tag, Typography } from 'antd'
+import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Flex, Form, Input, Modal, Popconfirm, Select, Space, Tag, Typography } from 'antd'
 import SmartTable from '../../../components/smart-table'
-import { deleteTenantById, fetchTenantList, updateTenantStatus } from '../../../services/SystemService'
+import { createTenant, deleteTenantById, fetchTenantList, updateTenant, updateTenantStatus } from '../../../services/SystemService'
 import HasPermission from '../../../components/HasPermission'
 import { useRequest } from 'ahooks'
 import Highlight from '../../../components/Highlight'
 import ActionDropdown from '../../../components/ActionDropdown'
 import { getMessageApi } from '../../../utils/MessageUtil'
+import SmartUpload from '../../../components/smart-upload'
 
 const initQueryParam = {
   pageNum: 1,
@@ -19,9 +21,26 @@ const TenantManage = () => {
 
   const [searchForm] = Form.useForm()
 
+  const [editForm] = Form.useForm()
+
   const [queryParam, setQueryParam] = useState(initQueryParam)
 
-  const { runAsync: deleteTenantByIdAsync, loading: deleteTenantLoading } = useRequest(fetchTenantList, {
+  const [tenantOperation, setTenantOperation] = useState({
+    open: false,
+    title: null,
+    operationType: null,
+    tenantItem: null,
+  })
+
+  const { runAsync: createTenantAsync, loading: createTenantLoading } = useRequest(createTenant, {
+    manual: true
+  })
+
+  const { runAsync: updateTenantAsync, loading: updateTenantLoading } = useRequest(updateTenant, {
+    manual: true
+  })
+
+  const { runAsync: deleteTenantByIdAsync, loading: deleteTenantLoading } = useRequest(deleteTenantById, {
     manual: true
   })
 
@@ -33,17 +52,55 @@ const TenantManage = () => {
       })
   }
 
+  const handleRefresh = () => {
+    const newQueryParam = { ...queryParam }
+    setQueryParam(newQueryParam)
+  }
+
   const handleReset = () => {
     searchForm.resetFields()
     setQueryParam({ ...initQueryParam })
   }
 
-  const handleAddTenant = () => {
+  const handleClose = () => {
+    setTenantOperation({
+      open: false,
+      title: null,
+      operationType: null,
+      tenantItem: null,
+    })
+    editForm.resetFields()
+  }
 
+  const handleAddTenant = () => {
+    setTenantOperation({
+      open: true,
+      title: '新增租户',
+      operationType: 'ADD',
+      tenantItem: null,
+    })
+  }
+
+  const handleSaveTenant = async () => {
+    const tenantData = await editForm.validateFields()
+    if (roleOperation.operationType === 'ADD') {
+      await createTenantAsync(tenantData)
+      getMessageApi().success('租户新增成功')
+    } else {
+      await updateTenantAsync(tenantData)
+      getMessageApi().success('租户修改成功')
+    }
+    handleClose()
+    handleRefresh()
   }
 
   const handleEditTenant = (tenantData) => {
-
+    setTenantOperation({
+      open: true,
+      title: '编辑租户',
+      operationType: 'EDIT',
+      tenantItem: tenantData,
+    })
   }
 
   const handleBindUser = (tenantData) => {
@@ -59,7 +116,7 @@ const TenantManage = () => {
   }
 
   const handleDelete = async (tenantId) => {
-    const data = await deleteTenantById(tenantId)
+    const data = await deleteTenantByIdAsync(tenantId)
     if (data === true) {
       getMessageApi().success('删除成功')
       handleReset()
@@ -281,6 +338,99 @@ const TenantManage = () => {
         queryParam={queryParam}
         setQueryParam={setQueryParam}
       />
+      <Modal
+        title={tenantOperation.title}
+        width={400}
+        centered
+        open={tenantOperation.open}
+        confirmLoading={createTenantLoading || updateTenantLoading}
+        onOk={handleSaveTenant}
+        onCancel={handleClose}
+        onClose={handleClose}
+        maskClosable={false}
+        keyboard={false}
+        okText="保存"
+        cancelText="取消"
+      >
+        <div className='w-full mt-5'>
+          <SmartUpload
+            listType="text"
+            maxCount={1}
+            onSuccess={(accessUrl) => {
+              console.log('accessUrl: ', accessUrl)
+            }}
+          />
+          <Form
+            form={editForm}
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 18 }}
+            layout="horizontal"
+          >
+            <Form.Item name="id" hidden>
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="租户名称"
+              name="tenantName"
+              rules={[
+                {
+                  required: true,
+                  message: `租户名称不能为空`,
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="租户编码"
+              name="tenantCode"
+              rules={[
+                {
+                  required: true,
+                  message: `租户编码不能为空`,
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+            {/* <Form.Item
+              label="图标"
+              name="logo"
+            >
+              <SmartUpload
+                showUploadList={false}
+                onSuccess={(accessUrl) => {
+                  console.log('accessUrl: ',accessUrl)
+                }}
+              />
+            </Form.Item> */}
+            <Form.Item
+              label="联系人"
+              name="contactName"
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="联系人电话"
+              name="contactPhone"
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="联系人邮箱"
+              name="contactEmail"
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="备注"
+              name="remark"
+            >
+              <Input.TextArea rows={4} maxLength={255} />
+            </Form.Item>
+          </Form>
+        </div>
+      </Modal>
     </Flex>
   )
 }

@@ -6,7 +6,7 @@ import { logout } from '../../../services/LoginService';
 import { useDispatch, useSelector } from 'react-redux';
 import { changeAvatar, changePassword } from '../../../services/UserProfileService';
 import { getMessageApi } from '../../../utils/MessageUtil';
-import ChunkedUpload from '../../../components/ChunkedUpload';
+import SmartUpload from '../../../components/smart-upload';
 import { updateUserAvatar } from '../../../redux/slices/authSlice';
 import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
@@ -193,7 +193,10 @@ const UserProfile = () => {
         const blob = await offscreen.convertToBlob({
             type: 'image/png',
         })
-
+        if (blob.size > 10 * 1024 * 1024) {
+            getMessageApi().error('上传失败：头像大小不能超过 10MB')
+            return
+        }
         const file = new File([blob], 'newCropaAvatar.png', { type: 'image/png' })
         const formData = new FormData()
         formData.append('file', file)
@@ -434,14 +437,14 @@ const UserProfile = () => {
                                     left: 0,
                                 }}
                             >
-                                <ChunkedUpload
+                                <SmartUpload
                                     showUploadList={false}
                                     maxCount={1}
                                     accept='image/*'
                                     beforeUpload={handleBeforeUpload}
                                 >
                                     <Button icon={<Pencil size={18} />} />
-                                </ChunkedUpload>
+                                </SmartUpload>
                             </div>
                         </div>
                     </Flex>

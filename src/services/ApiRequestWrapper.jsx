@@ -1,9 +1,9 @@
 
 
-export const apiRequestWrapper = async (requestFn) => {
+export const apiRequestWrapper = async (requestFn, { raw } = {}) => {
     try {
         const res = await requestFn()
-        return res?.data
+        return raw ? res : res?.data
     } catch (err) {
         handleError(err)
         throw err
