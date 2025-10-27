@@ -353,13 +353,7 @@ const TenantManage = () => {
         cancelText="取消"
       >
         <div className='w-full mt-5'>
-          <SmartUpload
-            listType="text"
-            maxCount={1}
-            onSuccess={(accessUrl) => {
-              console.log('accessUrl: ', accessUrl)
-            }}
-          />
+
           <Form
             form={editForm}
             labelCol={{ span: 6 }}
@@ -393,17 +387,22 @@ const TenantManage = () => {
             >
               <Input />
             </Form.Item>
-            {/* <Form.Item
+            <Form.Item
               label="图标"
               name="logo"
+              initialValue={['http://localhost:9090/file/y-chat-bucket/8d0b7651c2504c82b0619e1cc02be0b3.png']}
             >
               <SmartUpload
-                showUploadList={false}
+                // listType='picture-card'
+                listType='text'
+                // accept='image/*'
+                // maxCount={1}
+                multiple
                 onSuccess={(accessUrl) => {
-                  console.log('accessUrl: ',accessUrl)
+                  console.log('accessUrl: ', accessUrl)
                 }}
               />
-            </Form.Item> */}
+            </Form.Item>
             <Form.Item
               label="联系人"
               name="contactName"

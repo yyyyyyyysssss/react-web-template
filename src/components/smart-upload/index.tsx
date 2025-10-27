@@ -15,7 +15,7 @@ import {
 } from '@ant-design/icons'
 import pLimit from 'p-limit';
 import './index.css'
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     CircularProgressbar,
     buildStyles
@@ -23,26 +23,49 @@ import {
 import 'react-circular-progressbar/dist/styles.css'
 import { getMessageApi } from "../../utils/MessageUtil";
 import { downloadFile } from "../../utils/download";
-import { UploadListType } from "antd/es/upload/interface";
+import { UploadFileStatus, UploadListType } from "antd/es/upload/interface";
 
-interface ChunkedUploadProps extends UploadProps {
+interface SmartUploadProps {
     children: React.ReactNode; // 确保 children 作为外部传递
     onProgress?: (totalSize: number, progress: number, progressPercentage: number) => void
     onSuccess?: (accessUrl: any) => void
     onError?: (error: any) => void
     listType: UploadListType
+    value: Array<string>
+    onChange: (urls: Array<string>) => void
 }
 
 // 每块5M
 const SLICE_SIZE = 1024 * 1024 * 5;
 
-const SmartUpload: React.FC<ChunkedUploadProps> = ({ children, onProgress, onSuccess, onError, listType = 'picture-card', ...uploadProps }) => {
+const SmartUpload: React.FC<SmartUploadProps & Partial<UploadProps>> = ({ children, onProgress, onSuccess, onError, listType = 'picture-card', value, onChange, ...uploadProps }) => {
 
     const [fileList, setFileList] = useState<UploadFile[]>([])
 
     const [downloading, setDownloading] = useState(false)
 
     const { token } = theme.useToken()
+
+    const limit = useMemo(() => pLimit(5), [])
+
+    const files = useMemo(() => {
+        return value?.map((url: string, index: number) => {
+            const fileName = url?.split('/').pop()?.split('?')[0]
+            return {
+                uid: `-${index}`,
+                name: fileName || `file-${index}`,
+                status: 'done' as UploadFileStatus,
+                url: url,
+            };
+        });
+    }, [value])
+
+    useEffect(() => {
+        setFileList((prev): any => {
+            const newFiles = prev.filter((file: any) => file.status !== 'done')
+            return [...files, ...newFiles]
+        })
+    }, [files])
 
     const handleBeforeUpload = async (file: File) => {
         // 小于10m的使用普通上传 不获取uploadId
@@ -89,7 +112,6 @@ const SmartUpload: React.FC<ChunkedUploadProps> = ({ children, onProgress, onSuc
             let accessUrl: string
             if (uploadId) {
                 const chunks = splitFile(file, SLICE_SIZE)
-                const limit = pLimit(5)
                 const promises = chunks.map((chunk, index) => limit(async () => {
                     console.log(`第${index + 1}块正在上传,当前块大小：${(chunk.size / (1024 * 1024)).toFixed(2)}MB,起始偏移量：${index * SLICE_SIZE} 结束偏移量：${index * SLICE_SIZE + chunk.size}`)
                     const uploadFormData = new FormData()
@@ -100,7 +122,12 @@ const SmartUpload: React.FC<ChunkedUploadProps> = ({ children, onProgress, onSuc
                     uploadFormData.append("file", chunk)
                     await uploadChunkFile(uploadFormData, progressCallback)
                 }))
-                await Promise.all(promises)
+                const results = await Promise.allSettled(promises)
+                results.forEach((result, index) => {
+                    if (result.status === 'rejected') {
+                        console.log(`第${index + 1}块上传失败，失败原因：${result.reason}`)
+                    }
+                })
                 accessUrl = await fetchAccessUrl(uploadId)
             } else {
                 const formData = new FormData()
@@ -137,12 +164,20 @@ const SmartUpload: React.FC<ChunkedUploadProps> = ({ children, onProgress, onSuc
 
     const handleChange = (info: any) => {
         const newFileList = info.fileList.map((file: any) => {
-            if (file.status === 'done' && file.response) {
-                file.url = file.response
+            if (file.status === 'done') {
+                const url = file.url || file.response
+                file.url = url
             }
             return file
         })
         setFileList(newFileList)
+        const { status } = info.file
+        if (status === 'done') {
+            const f = newFileList
+                .filter((file: any) => file.status === 'done')
+                .map((file: any) => file.url)
+            onChange?.(f)
+        }
     }
 
 
@@ -188,11 +223,8 @@ const SmartUpload: React.FC<ChunkedUploadProps> = ({ children, onProgress, onSuc
                 )
             } else {
                 return (
-                    <div className="ant-upload-list-item ant-upload-list-item-uploading" style={{overflow: 'visible',paddingBottom: 8,}}>
-                        <Flex vertical style={{ width: '100%' }}>
-                            <span style={{ fontSize: 12, color: token.colorTextDescription }}>
-                                {percent}%
-                            </span>
+                    <div className="ant-upload-list-item ant-upload-list-item-uploading" style={{ overflow: 'visible', paddingBottom: 8, }}>
+                        <Flex gap={6} justify="center" align="center" style={{ width: '100%' }}>
                             <Progress
                                 percent={percent}
                                 size="small"
@@ -200,6 +232,9 @@ const SmartUpload: React.FC<ChunkedUploadProps> = ({ children, onProgress, onSuc
                                 strokeColor={token.colorPrimary}
                                 style={{ width: '100%' }}
                             />
+                            <span style={{ fontSize: 12, color: token.colorTextDescription }}>
+                                {percent}%
+                            </span>
                         </Flex>
                     </div>
                 )
@@ -237,14 +272,14 @@ const SmartUpload: React.FC<ChunkedUploadProps> = ({ children, onProgress, onSuc
 
     const handleDownload = async (e: React.MouseEvent, file: UploadFile) => {
         e.stopPropagation()
-        const url = file.url || (file.response && file.response.url)
+        const url = file.url || file.response
         if (!url) {
             getMessageApi().warning('暂无可下载的文件')
             return
         }
         try {
             setDownloading(true)
-            await downloadFile({ url, filename: file.name })
+            await downloadFile({ url: url, filename: file.name })
         } catch (error) {
             console.error(error)
             getMessageApi().error('下载失败')
@@ -285,7 +320,7 @@ const SmartUpload: React.FC<ChunkedUploadProps> = ({ children, onProgress, onSuc
             }}
             {...uploadProps}
         >
-            {uploadProps.maxCount && fileList.length >= uploadProps.maxCount ? null : uploadButton}
+            {uploadProps.maxCount && fileList?.length >= uploadProps.maxCount ? null : uploadButton}
         </Upload>
     )
 }

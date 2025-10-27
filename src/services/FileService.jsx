@@ -62,9 +62,8 @@ export const simpleUploadFile = (formData, onProgress) => {
 
 // 文件下载
 export const downloadByUrl = (url, onProgress) => {
-    const downloadUrl = url.includes('?') ? `${url}&type=d` : `${url}?type=d`
     return apiRequestWrapper(() => {
-        return httpWrapper.get(downloadUrl, {
+        return httpWrapper.get(url, {
             responseType: 'blob',
             onDownloadProgress: (progressEvent) => {
                 if (onProgress && progressEvent.lengthComputable) {

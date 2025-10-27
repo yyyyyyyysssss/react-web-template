@@ -6,7 +6,6 @@ import { logout } from '../../../services/LoginService';
 import { useDispatch, useSelector } from 'react-redux';
 import { changeAvatar, changePassword } from '../../../services/UserProfileService';
 import { getMessageApi } from '../../../utils/MessageUtil';
-import SmartUpload from '../../../components/smart-upload';
 import { updateUserAvatar } from '../../../redux/slices/authSlice';
 import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
@@ -437,14 +436,14 @@ const UserProfile = () => {
                                     left: 0,
                                 }}
                             >
-                                <SmartUpload
+                                <Upload
                                     showUploadList={false}
                                     maxCount={1}
                                     accept='image/*'
                                     beforeUpload={handleBeforeUpload}
                                 >
                                     <Button icon={<Pencil size={18} />} />
-                                </SmartUpload>
+                                </Upload>
                             </div>
                         </div>
                     </Flex>
