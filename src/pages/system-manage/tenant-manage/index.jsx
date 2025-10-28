@@ -83,7 +83,7 @@ const TenantManage = () => {
 
   const handleSaveTenant = async () => {
     const tenantData = await editForm.validateFields()
-    if (roleOperation.operationType === 'ADD') {
+    if (tenantOperation.operationType === 'ADD') {
       await createTenantAsync(tenantData)
       getMessageApi().success('租户新增成功')
     } else {
@@ -390,13 +390,11 @@ const TenantManage = () => {
             <Form.Item
               label="图标"
               name="logo"
-              initialValue={['http://localhost:9090/file/y-chat-bucket/8d0b7651c2504c82b0619e1cc02be0b3.png']}
             >
               <SmartUpload
-                // listType='picture-card'
-                listType='text'
-                // accept='image/*'
-                // maxCount={1}
+                listType='picture-card'
+                accept='image/*'
+                maxCount={1}
                 multiple
                 onSuccess={(accessUrl) => {
                   console.log('accessUrl: ', accessUrl)

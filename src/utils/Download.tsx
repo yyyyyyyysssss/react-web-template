@@ -16,30 +16,31 @@ export const downloadFile = async ({
     onProgress,
 }: DownloadOptions): Promise<void> => {
     try {
-        const response = await downloadByUrl(url, onProgress)
-        if (response.status !== 200) {
-            throw new Error(`下载失败: ${response.statusText}`)
-        }
-        if (!filename) {
-            filename = IdGen.nextId()
-        }
-        const contentType = response.headers['content-type']
-        const fileExtension = getFileExtensionFromContentType(contentType)
-        if (!filename.includes('.')) {
-            filename = `${filename}.${fileExtension}`;
-        }
-        const blob = await response.data
-        const objectUrl = URL.createObjectURL(blob)
-        triggerDownload(objectUrl, filename || extractFileName(url))
-        URL.revokeObjectURL(objectUrl)
+        // const response = await downloadByUrl(url, onProgress)
+        // if (response.status !== 200) {
+        //     throw new Error(`下载失败: ${response.statusText}`)
+        // }
+        // if (!filename) {
+        //     filename = IdGen.nextId()
+        // }
+        // const contentType = response.headers['content-type']
+        // const fileExtension = getFileExtensionFromContentType(contentType)
+        // if (!filename.includes('.')) {
+        //     filename = `${filename}.${fileExtension}`;
+        // }
+        // const blob = await response.data
+        // const objectUrl = URL.createObjectURL(blob)
+        triggerDownload(url, filename || extractFileName(url))
+        // URL.revokeObjectURL(objectUrl)
     } catch (err) {
         throw err
     }
 }
 
-const triggerDownload = (objectUrl: string, filename: string) => {
+const triggerDownload = (url: string, filename: string) => {
+    const downloadUrl = url.includes('?') ? `${url}&type=d` : `${url}?type=d`
     const a = document.createElement('a')
-    a.href = objectUrl
+    a.href = downloadUrl
     a.download = filename
     a.style.display = 'none'
     document.body.appendChild(a)

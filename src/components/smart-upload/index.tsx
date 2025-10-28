@@ -32,7 +32,7 @@ interface SmartUploadProps {
     onError?: (error: any) => void
     listType: UploadListType
     value: Array<string>
-    onChange: (urls: Array<string>) => void
+    onChange: (urls: Array<string> | string) => void
 }
 
 // 每块5M
@@ -46,10 +46,14 @@ const SmartUpload: React.FC<SmartUploadProps & Partial<UploadProps>> = ({ childr
 
     const { token } = theme.useToken()
 
-    const limit = useMemo(() => pLimit(5), [])
+    const limitTask = useMemo(() => pLimit(2), [])
 
     const files = useMemo(() => {
-        return value?.map((url: string, index: number) => {
+        if (!value || (Array.isArray(value) && value.length === 0)) {
+            return []
+        }
+        const valueArray = Array.isArray(value) ? value : [value]
+        return valueArray?.map((url: string, index: number) => {
             const fileName = url?.split('/').pop()?.split('?')[0]
             return {
                 uid: `-${index}`,
@@ -93,7 +97,15 @@ const SmartUpload: React.FC<SmartUploadProps & Partial<UploadProps>> = ({ childr
         }
     }
 
+    // 同时上传2(limitTask配置)个任务 每个任务最大并发请求为5个
     const handleCustomRequest = async (options: any) => {
+        const promises = limitTask(async () => {
+            await uploadFile(options)
+        })
+        await promises
+    }
+
+    const uploadFile = async (options: any) => {
         const file = options.file
         const uploadId = (file as any).metadata?.uploadId
         const totalSize = file.size
@@ -111,8 +123,9 @@ const SmartUpload: React.FC<SmartUploadProps & Partial<UploadProps>> = ({ childr
             // uploadId不为空表示分片上传 否则普通上传
             let accessUrl: string
             if (uploadId) {
+                const limitRequest = pLimit(5)
                 const chunks = splitFile(file, SLICE_SIZE)
-                const promises = chunks.map((chunk, index) => limit(async () => {
+                const promises = chunks.map((chunk, index) => limitRequest(async () => {
                     console.log(`第${index + 1}块正在上传,当前块大小：${(chunk.size / (1024 * 1024)).toFixed(2)}MB,起始偏移量：${index * SLICE_SIZE} 结束偏移量：${index * SLICE_SIZE + chunk.size}`)
                     const uploadFormData = new FormData()
                     uploadFormData.append("uploadId", uploadId)
@@ -140,7 +153,6 @@ const SmartUpload: React.FC<SmartUploadProps & Partial<UploadProps>> = ({ childr
             onError?.(error)
             options.onError(error)
         }
-
     }
 
     // 文件分片
@@ -176,16 +188,17 @@ const SmartUpload: React.FC<SmartUploadProps & Partial<UploadProps>> = ({ childr
             const f = newFileList
                 .filter((file: any) => file.status === 'done')
                 .map((file: any) => file.url)
-            onChange?.(f)
+            if (uploadProps.maxCount) {
+                if (uploadProps.maxCount > 1) {
+                    onChange?.(f)
+                } else {
+                    onChange?.(newFileList[0].url)
+                }
+            } else {
+                onChange?.(f)
+            }
         }
     }
-
-
-    const uploadButton = (
-        <button style={{ border: 0, background: 'none' }} type="button">
-            <PlusOutlined style={{ fontSize: 24, color: '#999' }} />
-        </button>
-    )
 
     const renderItem = (originNode: React.ReactElement, file: UploadFile) => {
         if (file.status === 'uploading') {
@@ -288,6 +301,12 @@ const SmartUpload: React.FC<SmartUploadProps & Partial<UploadProps>> = ({ childr
         }
     }
 
+    const uploadButton = (
+        <button style={{ border: 0, background: 'none' }} type="button">
+            <PlusOutlined style={{ fontSize: 24, color: '#999' }} />
+        </button>
+    )
+
     return (
         <Upload
             listType={listType}
@@ -313,7 +332,8 @@ const SmartUpload: React.FC<SmartUploadProps & Partial<UploadProps>> = ({ childr
                                 :
                                 (
                                     <DownloadOutlined />
-                                )}
+                                )
+                            }
                         </Typography.Link>
                     </Tooltip>
                 )
