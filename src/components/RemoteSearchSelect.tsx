@@ -91,7 +91,8 @@ const RemoteSearchSelect = <T,>({
     }
 
     const handleOpenChange = (open: boolean) => {
-        if (open && options.length === 0) {
+        const v = Array.isArray(value) ? value : value ? [value] : []
+        if ((open && options.length === 0) || (v.length === options.length)) {
             fetchDataHandler('', 1, pageSize)
         }
     }

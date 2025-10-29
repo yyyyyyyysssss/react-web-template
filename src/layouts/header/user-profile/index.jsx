@@ -524,7 +524,6 @@ const UserProfile = () => {
                 footer={null}
                 style={{ textAlign: 'center' }}
                 maskClosable={false}
-                keyboard={false}
             >
                 <Flex className='w-full h-[300px]'>
                     <TenantSwitch

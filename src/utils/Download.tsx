@@ -1,5 +1,4 @@
 import { downloadByUrl } from "../services/FileService"
-import IdGen from "./IdGen"
 
 
 export interface DownloadOptions {
@@ -12,35 +11,38 @@ export interface DownloadOptions {
 
 export const downloadFile = async ({
     url,
+    filename
+}: DownloadOptions): Promise<void> => {
+    const downloadUrl = url.includes('?') ? `${url}&type=d` : `${url}?type=d`
+    triggerDownload(downloadUrl, filename || extractFileName(url))
+}
+
+export const downloadFileUsingXHR = async ({
+    url,
     filename,
     onProgress,
 }: DownloadOptions): Promise<void> => {
-    try {
-        // const response = await downloadByUrl(url, onProgress)
-        // if (response.status !== 200) {
-        //     throw new Error(`下载失败: ${response.statusText}`)
-        // }
-        // if (!filename) {
-        //     filename = IdGen.nextId()
-        // }
-        // const contentType = response.headers['content-type']
-        // const fileExtension = getFileExtensionFromContentType(contentType)
-        // if (!filename.includes('.')) {
-        //     filename = `${filename}.${fileExtension}`;
-        // }
-        // const blob = await response.data
-        // const objectUrl = URL.createObjectURL(blob)
-        triggerDownload(url, filename || extractFileName(url))
-        // URL.revokeObjectURL(objectUrl)
-    } catch (err) {
-        throw err
+    const response = await downloadByUrl(url, onProgress)
+    if (response.status !== 200) {
+        throw new Error(`下载失败: ${response.statusText}`)
     }
+    if (!filename) {
+        filename = extractFileName(url)
+    }
+    const contentType = response.headers['content-type']
+    const fileExtension = getFileExtensionFromContentType(contentType)
+    if (!filename.includes('.')) {
+        filename = `${filename}.${fileExtension}`;
+    }
+    const blob = await response.data
+    const objectUrl = URL.createObjectURL(blob)
+    triggerDownload(objectUrl, filename)
+    URL.revokeObjectURL(objectUrl)
 }
 
 const triggerDownload = (url: string, filename: string) => {
-    const downloadUrl = url.includes('?') ? `${url}&type=d` : `${url}?type=d`
     const a = document.createElement('a')
-    a.href = downloadUrl
+    a.href = url
     a.download = filename
     a.style.display = 'none'
     document.body.appendChild(a)
@@ -49,12 +51,13 @@ const triggerDownload = (url: string, filename: string) => {
 }
 
 const extractFileName = (url: string): string => {
-    try {
-        const pathname = new URL(url, window.location.origin).pathname
-        const name = pathname.split('/').pop()
-        return name || 'download'
-    } catch {
-        return 'download'
+    const fileName = url?.split('/').pop()?.split('?')[0]
+    if (fileName) {
+        return fileName
+    } else {
+        // 使用当前时间拼接文件名
+        const currentTime = new Date().toISOString()
+        return `file-${currentTime}`
     }
 }
 

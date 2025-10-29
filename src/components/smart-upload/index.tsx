@@ -183,21 +183,19 @@ const SmartUpload: React.FC<SmartUploadProps & Partial<UploadProps>> = ({ childr
             return file
         })
         setFileList(newFileList)
-        const { status } = info.file
-        if (status === 'done') {
-            const f = newFileList
-                .filter((file: any) => file.status === 'done')
-                .map((file: any) => file.url)
-            if (uploadProps.maxCount) {
-                if (uploadProps.maxCount > 1) {
-                    onChange?.(f)
-                } else {
-                    onChange?.(newFileList[0].url)
-                }
-            } else {
+        const f = newFileList
+            .filter((file: any) => file.status === 'done')
+            .map((file: any) => file.url)
+        if (uploadProps.maxCount) {
+            if (uploadProps.maxCount > 1) {
                 onChange?.(f)
+            } else {
+                onChange?.(newFileList[0]?.url)
             }
+        } else {
+            onChange?.(f)
         }
+
     }
 
     const renderItem = (originNode: React.ReactElement, file: UploadFile) => {

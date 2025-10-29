@@ -101,6 +101,7 @@ const TenantManage = () => {
       operationType: 'EDIT',
       tenantItem: tenantData,
     })
+    editForm.setFieldsValue(tenantData)
   }
 
   const handleBindUser = (tenantData) => {
@@ -348,12 +349,10 @@ const TenantManage = () => {
         onCancel={handleClose}
         onClose={handleClose}
         maskClosable={false}
-        keyboard={false}
         okText="保存"
         cancelText="取消"
       >
         <div className='w-full mt-5'>
-
           <Form
             form={editForm}
             labelCol={{ span: 6 }}
@@ -385,7 +384,7 @@ const TenantManage = () => {
                 },
               ]}
             >
-              <Input />
+              <Input disabled = {tenantOperation.operationType && tenantOperation.operationType === 'EDIT'} />
             </Form.Item>
             <Form.Item
               label="图标"

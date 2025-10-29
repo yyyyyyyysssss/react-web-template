@@ -7,9 +7,16 @@ export default defineConfig(() => {
       outDir: 'build',
     },
     plugins: [react()],
-    server:{
-        port: 3000,
-        open: true
+    server: {
+      port: 3000,
+      open: true,
+      proxy: {
+        'xxx': {
+          target: 'xxx',
+          changeOrigin: true, // 修改请求头中的Origin字段
+          rewrite: (path) => path.replace(/^\/api/, ''), // 重写路径
+        }
+      }
     }
   };
 })
