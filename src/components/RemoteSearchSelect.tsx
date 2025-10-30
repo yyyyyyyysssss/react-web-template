@@ -49,16 +49,16 @@ const RemoteSearchSelect = <T,>({
 
 
     useEffect(() => {
-        if (value) {
+        if (value && options.length === 0) {
             if (Array.isArray(value)) {
-                if(value.length > 0){
+                if (value.length > 0) {
                     fetchDataHandler(value, 1, pageSize)
                 }
-            }else {
+            } else {
                 fetchDataHandler([value], 1, pageSize)
             }
         }
-    }, [])
+    }, [value, options])
 
     const fetchDataHandler = async (keyword: string | string[], pageNum: number, pageSize: number) => {
         fetchDataAsync(keyword, pageNum, pageSize)
@@ -76,8 +76,7 @@ const RemoteSearchSelect = <T,>({
             setPageNum(1)
             fetchDataHandler(keyword, 1, pageSize)
         }, debounceDelay),
-        [debounceDelay]
-    )
+        [debounceDelay, fetchDataHandler])
 
     const handleSearch = (keyword: string) => {
         setKeyword(keyword)

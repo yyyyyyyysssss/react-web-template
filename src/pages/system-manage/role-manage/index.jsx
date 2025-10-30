@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import './index.css'
-import { bindAuthorityByRoleId, createRole, deleteRoleById, fetchRoleList, updateRole, updateRoleEnabled } from '../../../services/SystemService'
+import { bindAuthorityByRoleId, createRole, deleteRoleById, fetchRoleList, fetchSearchUser, updateRole, updateRoleEnabled } from '../../../services/SystemService'
 import { Button, Drawer, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Space, Switch, Table, Typography } from 'antd'
 import AuthorityTreeSelect from '../../../components/AuthorityTreeSelect'
 import AuthorityTree from '../../../components/AuthorityTree'
@@ -9,6 +9,7 @@ import HasPermission from '../../../components/HasPermission'
 import { getMessageApi } from '../../../utils/MessageUtil'
 import { useRequest } from 'ahooks'
 import SmartTable from '../../../components/smart-table'
+import RemoteSearchSelect from '../../../components/RemoteSearchSelect'
 
 const initQueryParam = {
     pageNum: 1,
@@ -473,6 +474,19 @@ const RoleManage = () => {
                             name="authorityIds"
                         >
                             <AuthorityTreeSelect />
+                        </Form.Item>
+                        <Form.Item
+                            label="绑定用户"
+                            name="userIds"
+                        >
+                            <RemoteSearchSelect
+                                mode='multiple'
+                                fetchData={fetchSearchUser}
+                                labelField='nickname'
+                                valueField='id'
+                                placeholder='请输入用户名称'
+                                allowClear
+                            />
                         </Form.Item>
                     </Form>
                 </div>

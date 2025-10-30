@@ -307,6 +307,7 @@ const UserProfile = () => {
                         cursor: 'pointer',
                         padding: '8px',
                         borderRadius: 'var(--ant-border-radius)',
+                        userSelect: 'none'
                     }}
                     onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--ant-control-item-bg-hover)'}
                     onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
@@ -468,7 +469,6 @@ const UserProfile = () => {
                                     valueField='id'
                                     placeholder='请输入用户名称'
                                     allowClear
-
                                 />
                             </Form.Item>
                         </Form>
