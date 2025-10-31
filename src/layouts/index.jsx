@@ -1,5 +1,5 @@
 import { Suspense, useEffect } from 'react';
-import { Layout, theme } from 'antd';
+import { Flex, Layout, theme } from 'antd';
 import './index.css';
 import { Outlet } from 'react-router-dom';
 import TopMenuTab from './top-tab';
@@ -73,7 +73,14 @@ const AppLayout = () => {
                             fallback={<ServerError />}
                             resetKeys={[location.pathname]}
                         >
-                            <Suspense fallback={<Loading />}>
+                            <Suspense
+                                key={location.key}
+                                fallback={
+                                    <Flex style={{ height: '100%' }} justify='center' align='center'>
+                                        <Loading />
+                                    </Flex>
+                                }
+                            >
                                 <Outlet />
                             </Suspense>
                         </ErrorBoundary>

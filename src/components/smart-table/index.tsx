@@ -218,7 +218,7 @@ const SmartTable = <T extends any>({
             }))
             setTableColumns(updatedColumns)
         }
-    }, [])
+    }, [columns])
 
     useEffect(() => {
         if (!isDev && tableColumns.length > 0) {

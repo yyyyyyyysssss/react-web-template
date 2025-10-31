@@ -7,6 +7,7 @@ import { loadMenuItems, reset } from '../redux/slices/layoutSlice';
 import { fetchUserInfo } from '../services/UserProfileService';
 import { useDispatch } from 'react-redux';
 import { setUserInfo } from '../redux/slices/authSlice';
+import Loading from '../components/loading';
 
 const AuthContext = createContext({
     isLoginIn: null,
@@ -56,7 +57,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     if (isLoginIn === null) {
-        return <Spin fullscreen />
+        return <Loading fullscreen />
     }
 
     return (

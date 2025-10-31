@@ -1,4 +1,4 @@
-import { Button, Flex, Form, Popconfirm, Table, Typography } from "antd"
+import { Button, Flex, Form, Popconfirm, Space, Table, Typography } from "antd"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import EditableRow from "./EditableRow"
 import EditableCell from "./EditableCell"
@@ -7,6 +7,7 @@ import './editable.css'
 import IdGen from "../../utils/IdGen"
 import { getMessageApi } from "../../utils/MessageUtil"
 import HasPermission from '../../components/HasPermission';
+import Loading from "../loading"
 
 
 interface EditableTableProps {
@@ -45,6 +46,8 @@ const EditableTable: React.FC<EditableTableProps> = ({
         key: null,
         flag: false
     })
+
+    const [loadingMap, setLoadingMap] = useState<any>({})
 
     const editRowDataRef = useRef<any>(null)
 
@@ -102,10 +105,16 @@ const EditableTable: React.FC<EditableTableProps> = ({
 
 
     const handleSave = useCallback(async (rowData: any, rowIndex: number) => {
-        await rowValidate(rowIndex)
-        await onSave?.(rowData, rowIndex)
-        setEditingKey(null)
-        editRowDataRef.current = null
+        setLoadingMap((prev: any) => ({ ...prev, [rowIndex]: true }))
+        try {
+            await rowValidate(rowIndex)
+            await onSave?.(rowData, rowIndex)
+            setEditingKey(null)
+            editRowDataRef.current = null
+        } finally {
+            setLoadingMap((prev: any) => ({ ...prev, [rowIndex]: false }))
+        }
+
     }, [onSave])
 
     const handleEdit = useCallback((rowData: any, rowIndex: number) => {
@@ -198,9 +207,14 @@ const EditableTable: React.FC<EditableTableProps> = ({
                             (
                                 <Flex gap={8} justify='center' align='center'>
                                     <HasPermission hasPermissions={editPermission}>
-                                        <Typography.Link onClick={() => handleSave(rowData, rowIndex)}>
-                                            保存
-                                        </Typography.Link>
+                                        {!!loadingMap[rowIndex] ? (
+                                            <Loading />
+                                        ) : (
+                                            <Typography.Link onClick={() => handleSave(rowData, rowIndex)}>
+                                                保存
+                                            </Typography.Link>
+                                        )}
+
                                         <Typography.Link onClick={() => handleCancel(rowData, rowIndex)}>
                                             取消
                                         </Typography.Link>

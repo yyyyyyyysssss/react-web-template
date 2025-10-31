@@ -1,8 +1,8 @@
-import { Button, Drawer, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Space, Switch, Typography } from 'antd'
+import { Button, Drawer, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Skeleton, Space, Switch, Typography } from 'antd'
 import './index.css'
 import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
-import { bindRoleByUserId, createUser, deleteUserById, fetchUserList, resetPassword, updateUser, updateUserEnabled } from '../../../services/SystemService';
+import { bindRoleByUserId, createUser, deleteUserById, fetchUserDetails, fetchUserList, resetPassword, updateUser, updateUserEnabled } from '../../../services/SystemService';
 import { CopyOutlined } from '@ant-design/icons';
 import Highlight from '../../../components/Highlight';
 import { getMessageApi } from '../../../utils/MessageUtil';
@@ -54,6 +54,10 @@ const UserManage = () => {
         manual: true
     })
 
+    const { runAsync: getUserDetailsAsync, loading: getUserDetailsLoading } = useRequest(fetchUserDetails, {
+        manual: true
+    })
+
     const [userEnabledLoadingMap, setUserEnabledLoadingMap] = useState({})
 
     const [userOperation, setUserOperation] = useState({
@@ -101,7 +105,6 @@ const UserManage = () => {
     }
 
     const handleAddUser = () => {
-        // navigate('/system/user/details?id=1')
         setUserOperation({
             open: true,
             title: '新增用户',
@@ -110,13 +113,27 @@ const UserManage = () => {
         })
     }
 
-    const handleEditUser = (userItem) => {
+    const handleEditUser = (userId) => {
         setUserOperation({
             open: true,
             title: '编辑用户',
             operationType: 'EDIT',
-            userItem: userItem,
+            userItem: null,
         })
+        getUserDetailsAsync(userId)
+            .then(
+                (userData) => {
+                    setUserOperation(prev => {
+                        if (prev.open) {
+                            return {
+                                ...prev,
+                                userItem: userData
+                            }
+                        }
+                        return prev
+                    })
+                }
+            )
     }
 
     const handleSaveUser = () => {
@@ -225,12 +242,27 @@ const UserManage = () => {
 
     }
 
-    const handleBindRole = (userItem) => {
+    const handleBindRole = (userId) => {
         setBindRole({
             open: true,
-            title: `分配角色[${userItem.nickname}]`,
-            userItem: userItem,
+            title: `分配角色`,
+            userItem: null,
         })
+        getUserDetailsAsync(userId)
+            .then(
+                (userData) => {
+                    setBindRole(prev => {
+                        if (prev.open) {
+                            return {
+                                ...prev,
+                                title: `分配角色[${userData.nickname}]`,
+                                userItem: userData
+                            }
+                        }
+                        return prev
+                    })
+                }
+            )
     }
 
     const handleBindRoleSave = () => {
@@ -383,10 +415,10 @@ const UserManage = () => {
                         <HasPermission
                             hasPermissions='system:user:write'
                         >
-                            <Typography.Link onClick={() => handleBindRole(record)} style={{ marginInlineEnd: 8 }}>
+                            <Typography.Link onClick={() => handleBindRole(record.id)} style={{ marginInlineEnd: 8 }}>
                                 分配角色
                             </Typography.Link>
-                            <Typography.Link onClick={() => handleEditUser(record)} style={{ marginInlineEnd: 8 }}>
+                            <Typography.Link onClick={() => handleEditUser(record.id)} style={{ marginInlineEnd: 8 }}>
                                 编辑
                             </Typography.Link>
                             <Typography.Link
@@ -425,7 +457,7 @@ const UserManage = () => {
                                             title: '确定删除？',
                                             content: (
                                                 <>
-                                                     是否删除 <Highlight>{record.nickname}</Highlight> 的账号？删除后将无法恢复！
+                                                    是否删除 <Highlight>{record.nickname}</Highlight> 的账号？删除后将无法恢复！
                                                 </>
                                             ),
                                             onOk: async () => {
@@ -524,80 +556,87 @@ const UserManage = () => {
                 keyboard={false}
                 okText="保存"
                 cancelText="取消"
+                okButtonProps={{
+                    disabled: getUserDetailsLoading
+                }}
             >
-                <div
-                    className='w-full mt-5'
-                >
-                    <Form
-                        form={editForm}
-                        labelCol={{ span: 6 }}
-                        wrapperCol={{ span: 18 }}
-                        layout="horizontal"
+                {getUserDetailsLoading ? (
+                    <Skeleton active />
+                ) : (
+                    <div
+                        className='w-full mt-5'
                     >
-                        <Form.Item name="id" hidden>
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            label="用户姓名"
-                            name="nickname"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: `用户姓名不能为空`,
-                                },
-                            ]}
+                        <Form
+                            form={editForm}
+                            labelCol={{ span: 6 }}
+                            wrapperCol={{ span: 18 }}
+                            layout="horizontal"
                         >
-                            <Input placeholder="请输入用户姓名" />
-                        </Form.Item>
-                        <Form.Item
-                            label="用户账号"
-                            name="username"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: `角色账号不能为空`,
-                                },
-                            ]}
-                        >
-                            <Input placeholder="请输入用户账号" />
-                        </Form.Item>
-                        <Form.Item
-                            label="用户邮箱"
-                            name="email"
-                        >
-                            <Input placeholder="请输入用户邮箱" />
-                        </Form.Item>
-                        <Form.Item
-                            label="用户手机号"
-                            name="phone"
-                        >
-                            <Input placeholder="请输入用户手机号" />
-                        </Form.Item>
-                        <Form.Item
-                            label="启用状态"
-                            name="enabled"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: `启用状态不能为空`,
-                                },
-                            ]}
-                        >
-                            <Radio.Group
-                                options={[
-                                    { value: true, label: '启用' },
-                                    { value: false, label: '停用' }
+                            <Form.Item name="id" hidden>
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                label="用户姓名"
+                                name="nickname"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: `用户姓名不能为空`,
+                                    },
                                 ]}
-                            />
-                        </Form.Item>
-                        <Form.Item
-                            label="分配角色"
-                            name="roleIds"
-                        >
-                            <RoleSelect />
-                        </Form.Item>
-                    </Form>
-                </div>
+                            >
+                                <Input placeholder="请输入用户姓名" />
+                            </Form.Item>
+                            <Form.Item
+                                label="用户账号"
+                                name="username"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: `角色账号不能为空`,
+                                    },
+                                ]}
+                            >
+                                <Input placeholder="请输入用户账号" />
+                            </Form.Item>
+                            <Form.Item
+                                label="用户邮箱"
+                                name="email"
+                            >
+                                <Input placeholder="请输入用户邮箱" />
+                            </Form.Item>
+                            <Form.Item
+                                label="用户手机号"
+                                name="phone"
+                            >
+                                <Input placeholder="请输入用户手机号" />
+                            </Form.Item>
+                            <Form.Item
+                                label="启用状态"
+                                name="enabled"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: `启用状态不能为空`,
+                                    },
+                                ]}
+                            >
+                                <Radio.Group
+                                    options={[
+                                        { value: true, label: '启用' },
+                                        { value: false, label: '停用' }
+                                    ]}
+                                />
+                            </Form.Item>
+                            <Form.Item
+                                label="分配角色"
+                                name="roleIds"
+                            >
+                                <RoleSelect />
+                            </Form.Item>
+                        </Form>
+                    </div>
+                )}
             </Modal>
             <Drawer
                 title={bindRole.title}
@@ -615,14 +654,24 @@ const UserManage = () => {
                 <Form
                     form={bindRoleForm}
                 >
-                    <Form.Item name="id" hidden>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        name="roleIds"
-                    >
-                        <RoleSelect type='checkbox' />
-                    </Form.Item>
+                    {getUserDetailsLoading
+                        ?
+                        (
+                            <Skeleton style={{ height: '100%' }} active />
+                        )
+                        :
+                        (
+                            <>
+                                <Form.Item name="id" hidden>
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item
+                                    name="roleIds"
+                                >
+                                    <RoleSelect type='checkbox' />
+                                </Form.Item>
+                            </>
+                        )}
                 </Form>
             </Drawer>
             {contextHolder}

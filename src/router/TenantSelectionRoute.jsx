@@ -2,13 +2,14 @@ import { Spin } from "antd"
 import { useAuth } from "./AuthProvider"
 import { Navigate } from 'react-router-dom';
 import reduxStore from "../redux/store";
+import Loading from "../components/loading";
 
 
 export const TenantSelectionRoute = ({ children }) => {
   const { isLoginIn } = useAuth()
 
   // 等待登录状态
-  if (isLoginIn === null) return <Spin fullscreen />
+  if (isLoginIn === null) return <Loading fullscreen />
 
   // 未登录
   if (!isLoginIn) return <Navigate to="/login" replace />

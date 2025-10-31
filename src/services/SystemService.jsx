@@ -7,6 +7,12 @@ export const fetchUserList = async (queryParam) => {
     return apiRequestWrapper(() => httpWrapper.post('/api/system/user/query', queryParam, { meta: { critical: true } }))
 }
 
+// 用户详情
+export const fetchUserDetails = async (userId) => {
+
+    return apiRequestWrapper(() => httpWrapper.get(`/api/system/user/${userId}`))
+}
+
 // 用户停启用
 export const updateUserEnabled = async (userId, enabled) => {
     const roleBody = {
@@ -28,7 +34,7 @@ export const updateUser = async (userBody) => {
     return apiRequestWrapper(() => httpWrapper.put('/api/system/user', userBody))
 }
 
-// 用户列表
+// 用户搜索
 export const fetchSearchUser = async (keyword, pageNum, pageSize) => {
     const searchUserReq = {
         pageNum: pageNum,
@@ -94,6 +100,12 @@ export const deleteRoleById = async (roleId) => {
 export const fetchRoleList = async (queryParam) => {
 
     return apiRequestWrapper(() => httpWrapper.post('/api/system/role/query', queryParam))
+}
+
+// 角色详情
+export const fetchRoleDetails = async (roleId) => {
+
+    return apiRequestWrapper(() => httpWrapper.get(`/api/system/role/${roleId}`))
 }
 
 // 角色选择

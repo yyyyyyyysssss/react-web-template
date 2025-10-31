@@ -19,6 +19,7 @@ interface RemoteSearchSelectProps<T> {
     pageSize?: number;
     mode: 'multiple' | 'tags' | undefined;
     optionRender: any;
+    maxTagCount: number;
 
     [key: string]: any;
 }
@@ -34,6 +35,7 @@ const RemoteSearchSelect = <T,>({
     pageSize = 10,
     mode = undefined,
     optionRender,
+    maxTagCount = 3,
     ...rest
 }: RemoteSearchSelectProps<T>) => {
 
@@ -49,7 +51,7 @@ const RemoteSearchSelect = <T,>({
 
 
     useEffect(() => {
-        if (value && options.length === 0) {
+        if (value && options?.length === 0) {
             if (Array.isArray(value)) {
                 if (value.length > 0) {
                     fetchDataHandler(value, 1, pageSize)
@@ -58,7 +60,7 @@ const RemoteSearchSelect = <T,>({
                 fetchDataHandler([value], 1, pageSize)
             }
         }
-    }, [value, options])
+    }, [value, options, maxTagCount])
 
     const fetchDataHandler = async (keyword: string | string[], pageNum: number, pageSize: number) => {
         fetchDataAsync(keyword, pageNum, pageSize)
@@ -72,11 +74,11 @@ const RemoteSearchSelect = <T,>({
     }
 
     const debounceFetcher = useCallback(
-        debounce((keyword: string) => {
+        debounce((kw: string) => {
             setPageNum(1)
-            fetchDataHandler(keyword, 1, pageSize)
+            fetchDataHandler(kw, 1, pageSize)
         }, debounceDelay),
-        [debounceDelay, fetchDataHandler])
+        [debounceDelay])
 
     const handleSearch = (keyword: string) => {
         setKeyword(keyword)
@@ -84,14 +86,12 @@ const RemoteSearchSelect = <T,>({
     }
 
     const handleChange = (value: string) => {
-        if (onChange) {
-            onChange(value)
-        }
+        onChange?.(value)
     }
 
     const handleOpenChange = (open: boolean) => {
         const v = Array.isArray(value) ? value : value ? [value] : []
-        if ((open && options.length === 0) || (v.length === options.length)) {
+        if ((open && options?.length === 0) || (v.length >= options?.length)) {
             fetchDataHandler('', 1, pageSize)
         }
     }
@@ -123,7 +123,7 @@ const RemoteSearchSelect = <T,>({
             }}
             showSearch
             mode={mode}
-            maxTagCount={3}
+            maxTagCount={maxTagCount}
             placeholder={placeholder}
             notFoundContent={fetchDataLoading ? <Spin size="small" style={{ display: 'block', margin: '0 auto' }} /> : <div style={{ textAlign: 'center' }}>没有数据</div>}
             onSearch={handleSearch}

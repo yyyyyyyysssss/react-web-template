@@ -9,6 +9,7 @@ import MenuAuthority from './menu-authority';
 import HasPermission from '../../../../components/HasPermission';
 import { getMessageApi } from '../../../../utils/MessageUtil';
 import { useRequest } from 'ahooks';
+import Loading from '../../../../components/loading';
 
 
 const MenuDetails = ({ menuId }) => {
@@ -221,7 +222,7 @@ const MenuDetails = ({ menuId }) => {
     if (fetchMenuDetailsLoading) {
         return (
             <Flex flex={1} justify='center' align='center'>
-                <Spin />
+                <Loading />
             </Flex>
         )
     }

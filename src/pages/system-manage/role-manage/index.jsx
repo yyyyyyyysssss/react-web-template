@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import './index.css'
-import { bindAuthorityByRoleId, createRole, deleteRoleById, fetchRoleList, fetchSearchUser, updateRole, updateRoleEnabled } from '../../../services/SystemService'
-import { Button, Drawer, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Space, Switch, Table, Typography } from 'antd'
+import { bindAuthorityByRoleId, createRole, deleteRoleById, fetchRoleDetails, fetchRoleList, fetchSearchUser, updateRole, updateRoleEnabled } from '../../../services/SystemService'
+import { Button, Drawer, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Skeleton, Space, Switch, Table, Typography } from 'antd'
 import AuthorityTreeSelect from '../../../components/AuthorityTreeSelect'
 import AuthorityTree from '../../../components/AuthorityTree'
 import Highlight from '../../../components/Highlight'
@@ -43,6 +43,10 @@ const RoleManage = () => {
     })
 
     const { runAsync: bindAuthorityByRoleIdAsync, loading: bindAuthorityByRoleIdLoading } = useRequest(bindAuthorityByRoleId, {
+        manual: true
+    })
+
+    const { runAsync: getRoleDetailsAsync, loading: getRoleDetailsLoading } = useRequest(fetchRoleDetails, {
         manual: true
     })
 
@@ -101,13 +105,28 @@ const RoleManage = () => {
         })
     }
 
-    const handleEditRole = (roleItem) => {
+    const handleEditRole = (roleId) => {
         setRoleOperation({
             open: true,
             title: '编辑角色',
             operationType: 'EDIT',
-            roleItem: roleItem,
+            roleItem: null,
         })
+        getRoleDetailsAsync(roleId)
+            .then(
+                (roleData) => {
+                    setRoleOperation(prev => {
+                        if (prev.open) {
+                            return {
+                                ...prev,
+                                roleItem: roleData
+                            }
+                        }
+                        return prev
+                    })
+                }
+            )
+
     }
 
     const handleClose = () => {
@@ -173,12 +192,27 @@ const RoleManage = () => {
             )
     }
 
-    const handleBindAuthority = (roleItem) => {
+    const handleBindAuthority = (roleId) => {
         setBindAuthority({
             open: true,
-            title: `分配权限[${roleItem.name}]`,
-            roleItem: roleItem,
+            title: `分配权限`,
+            roleItem: null,
         })
+        getRoleDetailsAsync(roleId)
+            .then(
+                (roleData) => {
+                    setBindAuthority(prev => {
+                        if (prev.open) {
+                            return {
+                                ...prev,
+                                title: `分配权限[${roleData.name}]`,
+                                roleItem: roleData,
+                            }
+                        }
+                        return prev
+                    })
+                }
+            )
     }
 
     const handleBindAuthoritySave = () => {
@@ -309,10 +343,10 @@ const RoleManage = () => {
                 return (
                     <span>
                         <HasPermission hasPermissions='system:role:write'>
-                            <Typography.Link onClick={() => handleBindAuthority(record)} style={{ marginInlineEnd: 8 }}>
+                            <Typography.Link onClick={() => handleBindAuthority(record.id)} style={{ marginInlineEnd: 8 }}>
                                 分配权限
                             </Typography.Link>
-                            <Typography.Link onClick={() => handleEditRole(record)} style={{ marginInlineEnd: 8 }}>
+                            <Typography.Link onClick={() => handleEditRole(record.id)} style={{ marginInlineEnd: 8 }}>
                                 编辑
                             </Typography.Link>
                         </HasPermission>
@@ -414,82 +448,91 @@ const RoleManage = () => {
                 maskClosable={false}
                 keyboard={false}
                 okText="保存"
+                okButtonProps={{
+                    disabled: getRoleDetailsLoading
+                }}
                 cancelText="取消"
             >
-                <div
-                    className='w-full mt-5'
+                <Form
+                    form={editForm}
+                    labelCol={{ span: 6 }}
+                    wrapperCol={{ span: 18 }}
+                    layout="horizontal"
                 >
-                    <Form
-                        form={editForm}
-                        labelCol={{ span: 6 }}
-                        wrapperCol={{ span: 18 }}
-                        layout="horizontal"
-                    >
-                        <Form.Item name="id" hidden>
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            label="角色名称"
-                            name="name"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: `角色名称不能为空`,
-                                },
-                            ]}
+
+                    {getRoleDetailsLoading ? (
+                        <Skeleton active />
+                    ) : (
+                        <div
+                            className='w-full mt-5'
                         >
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            label="角色编码"
-                            name="code"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: `角色编码不能为空`,
-                                },
-                            ]}
-                        >
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            label="启用状态"
-                            name="enabled"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: `启用状态不能为空`,
-                                },
-                            ]}
-                        >
-                            <Radio.Group
-                                options={[
-                                    { value: true, label: '启用' },
-                                    { value: false, label: '停用' }
+                            <Form.Item name="id" hidden>
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                label="角色名称"
+                                name="name"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: `角色名称不能为空`,
+                                    },
                                 ]}
-                            />
-                        </Form.Item>
-                        <Form.Item
-                            label="分配权限"
-                            name="authorityIds"
-                        >
-                            <AuthorityTreeSelect />
-                        </Form.Item>
-                        <Form.Item
-                            label="绑定用户"
-                            name="userIds"
-                        >
-                            <RemoteSearchSelect
-                                mode='multiple'
-                                fetchData={fetchSearchUser}
-                                labelField='nickname'
-                                valueField='id'
-                                placeholder='请输入用户名称'
-                                allowClear
-                            />
-                        </Form.Item>
-                    </Form>
-                </div>
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                label="角色编码"
+                                name="code"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: `角色编码不能为空`,
+                                    },
+                                ]}
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                label="启用状态"
+                                name="enabled"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: `启用状态不能为空`,
+                                    },
+                                ]}
+                            >
+                                <Radio.Group
+                                    options={[
+                                        { value: true, label: '启用' },
+                                        { value: false, label: '停用' }
+                                    ]}
+                                />
+                            </Form.Item>
+                            <Form.Item
+                                label="分配权限"
+                                name="authorityIds"
+                            >
+                                <AuthorityTreeSelect />
+                            </Form.Item>
+                            <Form.Item
+                                label="分配用户"
+                                name="userIds"
+                            >
+                                <RemoteSearchSelect
+                                    mode='multiple'
+                                    fetchData={fetchSearchUser}
+                                    labelField='nickname'
+                                    valueField='id'
+                                    placeholder='请输入用户名称'
+                                    allowClear
+                                />
+                            </Form.Item>
+                        </div>
+                    )}
+                </Form>
+
             </Modal>
             <Drawer
                 title={bindAuthority.title}
@@ -507,14 +550,24 @@ const RoleManage = () => {
                 <Form
                     form={bindAuthorityForm}
                 >
-                    <Form.Item name="id" hidden>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        name="authorityIds"
-                    >
-                        <AuthorityTree />
-                    </Form.Item>
+                    {getRoleDetailsLoading
+                        ?
+                        (
+                            <Skeleton style={{height: '100%'}} active />
+                        )
+                        :
+                        (
+                            <>
+                                <Form.Item name="id" hidden>
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item
+                                    name="authorityIds"
+                                >
+                                    <AuthorityTree />
+                                </Form.Item>
+                            </>
+                        )}
                 </Form>
             </Drawer>
             {contextHolder}

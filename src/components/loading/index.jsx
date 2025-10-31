@@ -1,12 +1,9 @@
+import { Spin } from 'antd';
 import './index.css'
-import NProgress from 'nprogress';
-import 'nprogress/nprogress.css';
-import { useEffect } from 'react';
 
-const Loading = () => {
+const Loading = (props) => {
 
-
-    return <></>
+    return <Spin {...props} />
 }
 
 export default Loading
