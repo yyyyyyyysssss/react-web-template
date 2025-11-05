@@ -83,6 +83,16 @@ export const layoutSlice = createSlice({
             }
             const path = tabItem.path
             const menuItem = findBestMatchMenu(path, state.flattenMenuItems)
+            // 先检查是否存在
+            const checkTabItem = state.tabItems.find(f => f.path === path)
+            if(checkTabItem){
+                state.activeKey = checkTabItem.key
+                if(menuItem){
+                    state.openKeys = state.menuCollapsed ? [] : menuItem.parentPath
+                }
+                return
+            }
+            // 不存在且在菜单中则新增
             if (!menuItem) {
                 return
             }
@@ -103,7 +113,7 @@ export const layoutSlice = createSlice({
             if (selectKey) {
                 state.activeKey = selectKey
                 const menuItem = findMenuByKey(selectKey, state.flattenMenuItems)
-                state.openKeys = state.menuCollapsed ? [] : menuItem.parentPath
+                state.openKeys = state.menuCollapsed ? [] : menuItem?.parentPath
             }
             state.tabItems = newPanes
         },
