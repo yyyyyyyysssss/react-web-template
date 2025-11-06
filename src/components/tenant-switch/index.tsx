@@ -26,8 +26,7 @@ const TenantSwitch: React.FC<TenantSwitchProps> = ({
 
     const dispatch = useDispatch()
 
-
-    const { tenants } = useSelector((state: any) => state.auth.userInfo) || []
+    const tenants = useSelector((state: any) => state.auth.userInfo.tenants) || []
 
     const handleSwitchTenant = (tenant: TenantItem) => {
         dispatch(switchTenant({ tenant: tenant }))

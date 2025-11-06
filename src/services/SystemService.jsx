@@ -62,6 +62,12 @@ export const deleteUserById = async (userId) => {
     return apiRequestWrapper(() => httpWrapper.delete(`/api/system/user/${userId}`))
 }
 
+// 用户选择
+export const fetchUserOptions = async () => {
+
+    return apiRequestWrapper(() => httpWrapper.get('/api/authenticated/user/options'))
+}
+
 // 重置用户密码
 export const resetPassword = async (userId) => {
 
@@ -216,6 +222,14 @@ export const updateTenant = async (tenant) => {
     return apiRequestWrapper(() => httpWrapper.put(`/api/system/tenant/${tenant.id}`, tenant))
 }
 
+// 租户绑定用户
+export const bindTenantUser = async (id, userIds) => {
+    const req = {
+        userIds: userIds
+    }
+    return apiRequestWrapper(() => httpWrapper.post(`/api/system/tenant/${id}/users`, req))
+}
+
 // 修改租户状态
 export const updateTenantStatus = async (tenantId, status) => {
 
@@ -226,4 +240,10 @@ export const updateTenantStatus = async (tenantId, status) => {
 export const deleteTenantById = async (tenantId) => {
 
     return apiRequestWrapper(() => httpWrapper.delete(`/api/system/tenant/${tenantId}`))
+}
+
+// 根据租户id获取关联的用户id
+export const fetchUserIdByTenantId = async (tenantId) => {
+
+    return apiRequestWrapper(() => httpWrapper.get(`/api/system/tenant/${tenantId}/userId`))
 }

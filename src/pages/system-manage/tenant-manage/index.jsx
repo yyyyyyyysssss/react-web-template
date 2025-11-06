@@ -1,15 +1,17 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import './index.css'
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Flex, Form, Input, Modal, Popconfirm, Select, Space, Tag, Typography } from 'antd'
+import { Button, Drawer, Flex, Form, Input, Modal, Popconfirm, Select, Space, Tag, Typography } from 'antd'
 import SmartTable from '../../../components/smart-table'
-import { createTenant, deleteTenantById, fetchTenantList, updateTenant, updateTenantStatus } from '../../../services/SystemService'
+import { bindTenantUser, createTenant, deleteTenantById, fetchTenantList, fetchUserIdByTenantId, updateTenant, updateTenantStatus } from '../../../services/SystemService'
 import HasPermission from '../../../components/HasPermission'
 import { useRequest } from 'ahooks'
 import Highlight from '../../../components/Highlight'
 import ActionDropdown from '../../../components/ActionDropdown'
 import { getMessageApi } from '../../../utils/MessageUtil'
 import SmartUpload from '../../../components/smart-upload'
+import UserTransfer from '../../../components/UserTransfer';
+import Loading from '../../../components/loading';
 
 const initQueryParam = {
   pageNum: 1,
@@ -23,6 +25,9 @@ const TenantManage = () => {
 
   const [editForm] = Form.useForm()
 
+  const [bindUserForm] = Form.useForm()
+
+
   const [queryParam, setQueryParam] = useState(initQueryParam)
 
   const [tenantOperation, setTenantOperation] = useState({
@@ -30,6 +35,12 @@ const TenantManage = () => {
     title: null,
     operationType: null,
     tenantItem: null,
+  })
+
+  const [bindUser, setBindUser] = useState({
+    open: false,
+    title: null,
+    tenantId: null,
   })
 
   const { runAsync: createTenantAsync, loading: createTenantLoading } = useRequest(createTenant, {
@@ -41,6 +52,14 @@ const TenantManage = () => {
   })
 
   const { runAsync: deleteTenantByIdAsync, loading: deleteTenantLoading } = useRequest(deleteTenantById, {
+    manual: true
+  })
+
+  const { runAsync: getUserIdByTenantIdAsync, loading: getUserIdByTenantIdLoading } = useRequest(fetchUserIdByTenantId, {
+    manual: true
+  })
+
+  const { runAsync: bindTenantUserAsync, loading: bindTenantUserLoading } = useRequest(bindTenantUser, {
     manual: true
   })
 
@@ -69,7 +88,6 @@ const TenantManage = () => {
       operationType: null,
       tenantItem: null,
     })
-    editForm.resetFields()
   }
 
   const handleAddTenant = () => {
@@ -104,10 +122,6 @@ const TenantManage = () => {
     editForm.setFieldsValue(tenantData)
   }
 
-  const handleBindUser = (tenantData) => {
-
-  }
-
   const handleUpdateStatus = async (tenantId, status) => {
     const data = await updateTenantStatus(tenantId, status)
     if (data === true) {
@@ -122,6 +136,40 @@ const TenantManage = () => {
       getMessageApi().success('删除成功')
       handleReset()
     }
+  }
+
+  const handleBindUser = async (tenantId) => {
+    setBindUser({
+      open: true,
+      title: '分配用户',
+      tenantId: tenantId
+    })
+    const userIds = await getUserIdByTenantIdAsync(tenantId)
+    setBindUser(prev => {
+      if (prev.open) {
+        return {
+          ...prev,
+          userIds: userIds
+        }
+      }
+      return prev
+    })
+    bindUserForm.setFieldValue('userIds', userIds)
+  }
+
+  const handleBindUserSave = async () => {
+    const { userIds } = await bindUserForm.validateFields()
+    await bindTenantUserAsync(bindUser.tenantId,userIds)
+    getMessageApi().success('操作成功')
+    handleBindUserClose()
+  }
+
+  const handleBindUserClose = () => {
+    setBindUser({
+      open: false,
+      title: null,
+      tenantId: null,
+    })
   }
 
   const columns = [
@@ -223,7 +271,7 @@ const TenantManage = () => {
             <HasPermission
               hasPermissions='system:tenant:write'
             >
-              <Typography.Link onClick={() => handleBindUser(record)} style={{ marginInlineEnd: 8 }}>
+              <Typography.Link onClick={() => handleBindUser(record.id)} style={{ marginInlineEnd: 8 }}>
                 分配用户
               </Typography.Link>
               <Typography.Link onClick={() => handleEditTenant(record)} style={{ marginInlineEnd: 8 }}>
@@ -351,6 +399,7 @@ const TenantManage = () => {
         maskClosable={false}
         okText="保存"
         cancelText="取消"
+        afterClose={() => editForm.resetFields()}
       >
         <div className='w-full mt-5'>
           <Form
@@ -384,7 +433,7 @@ const TenantManage = () => {
                 },
               ]}
             >
-              <Input disabled = {tenantOperation.operationType && tenantOperation.operationType === 'EDIT'} />
+              <Input disabled={tenantOperation.operationType && tenantOperation.operationType === 'EDIT'} />
             </Form.Item>
             <Form.Item
               label="图标"
@@ -427,7 +476,36 @@ const TenantManage = () => {
           </Form>
         </div>
       </Modal>
-    </Flex>
+      <Modal
+        title={bindUser.title}
+        width={600}
+        centered
+        open={bindUser.open}
+        onOk={handleBindUserSave}
+        onCancel={handleBindUserClose}
+        onClose={handleBindUserClose}
+        confirmLoading={bindTenantUserLoading}
+        maskClosable={false}
+        destroyOnHidden
+        okText="保存"
+        cancelText="取消"
+        afterClose={() => bindUserForm.resetFields()}
+        okButtonProps={{
+          disabled: getUserIdByTenantIdLoading
+        }}
+      >
+
+        <Form
+          form={bindUserForm}
+        >
+          <Loading spinning={getUserIdByTenantIdLoading}>
+            <Form.Item name="userIds">
+              <UserTransfer />
+            </Form.Item>
+          </Loading>
+        </Form>
+      </Modal>
+    </Flex >
   )
 }
 

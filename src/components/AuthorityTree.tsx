@@ -2,6 +2,7 @@ import { Spin, Tree } from "antd"
 import { useEffect, useMemo, useState } from "react"
 import { fetchAuthorityTree } from "../services/SystemService"
 import { DataNode } from "antd/es/tree"
+import Loading from "./loading"
 
 
 interface AuthorityTreeProps {
@@ -101,7 +102,7 @@ const AuthorityTree: React.FC<AuthorityTreeProps> = ({ value = [], onChange }) =
     }, [value, availableKeys])
 
     return (
-        <Spin spinning={loading}>
+        <Loading spinning={loading}>
             <Tree
                 checkable
                 onExpand={(keys) => setExpandedKeys(keys)}
@@ -115,7 +116,7 @@ const AuthorityTree: React.FC<AuthorityTreeProps> = ({ value = [], onChange }) =
                     children: 'children'
                 }}
             />
-        </Spin>
+        </Loading>
     )
 }
 

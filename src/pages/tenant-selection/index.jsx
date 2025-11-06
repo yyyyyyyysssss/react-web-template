@@ -1,8 +1,28 @@
 import { Card, Flex, Typography } from 'antd'
 import './index.css'
 import TenantSwitch from '../../components/tenant-switch'
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react'
+import { switchTenant } from '../../redux/slices/layoutSlice';
 
 const TenantSelection = () => {
+
+    const dispatch = useDispatch()
+
+    const tenants = useSelector((state) => state.auth.userInfo.tenants) || []
+
+    // 当只有一个租户时直接跳转 无需选择
+    useEffect(() => {
+        if (tenants.length === 1) {
+            dispatch(switchTenant({ tenant: tenants[0] }))
+            window.location.href = '/'
+        }
+    }, [tenants])
+
+    if (tenants && tenants.length === 1) {
+
+        return null
+    }
 
     return (
         <Flex className="h-screen bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400" justify="center" align="center">

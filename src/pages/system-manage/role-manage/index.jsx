@@ -10,6 +10,7 @@ import { getMessageApi } from '../../../utils/MessageUtil'
 import { useRequest } from 'ahooks'
 import SmartTable from '../../../components/smart-table'
 import RemoteSearchSelect from '../../../components/RemoteSearchSelect'
+import Loading from '../../../components/loading'
 
 const initQueryParam = {
     pageNum: 1,
@@ -459,10 +460,7 @@ const RoleManage = () => {
                     wrapperCol={{ span: 18 }}
                     layout="horizontal"
                 >
-
-                    {getRoleDetailsLoading ? (
-                        <Skeleton active />
-                    ) : (
+                    <Loading spinning={getRoleDetailsLoading}>
                         <div
                             className='w-full mt-5'
                         >
@@ -530,7 +528,7 @@ const RoleManage = () => {
                                 />
                             </Form.Item>
                         </div>
-                    )}
+                    </Loading>
                 </Form>
 
             </Modal>
@@ -550,24 +548,16 @@ const RoleManage = () => {
                 <Form
                     form={bindAuthorityForm}
                 >
-                    {getRoleDetailsLoading
-                        ?
-                        (
-                            <Skeleton style={{height: '100%'}} active />
-                        )
-                        :
-                        (
-                            <>
-                                <Form.Item name="id" hidden>
-                                    <Input />
-                                </Form.Item>
-                                <Form.Item
-                                    name="authorityIds"
-                                >
-                                    <AuthorityTree />
-                                </Form.Item>
-                            </>
-                        )}
+                    <Skeleton loading={getRoleDetailsLoading} active>
+                        <Form.Item name="id" hidden>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            name="authorityIds"
+                        >
+                            <AuthorityTree />
+                        </Form.Item>
+                    </Skeleton>
                 </Form>
             </Drawer>
             {contextHolder}

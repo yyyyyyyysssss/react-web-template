@@ -11,6 +11,7 @@ import HasPermission from '../../../components/HasPermission';
 import { useRequest } from 'ahooks';
 import SmartTable from '../../../components/smart-table';
 import ActionDropdown from '../../../components/ActionDropdown';
+import Loading from '../../../components/loading';
 
 
 const initQueryParam = {
@@ -191,7 +192,6 @@ const UserManage = () => {
             operationType: null,
             userItem: null,
         })
-        editForm.resetFields()
     }
 
     const handleUpdateEnabled = async (id, enabled) => {
@@ -559,10 +559,9 @@ const UserManage = () => {
                 okButtonProps={{
                     disabled: getUserDetailsLoading
                 }}
+                afterClose={() => editForm.resetFields()}
             >
-                {getUserDetailsLoading ? (
-                    <Skeleton active />
-                ) : (
+                <Loading spinning={getUserDetailsLoading}>
                     <div
                         className='w-full mt-5'
                     >
@@ -636,7 +635,7 @@ const UserManage = () => {
                             </Form.Item>
                         </Form>
                     </div>
-                )}
+                </Loading>
             </Modal>
             <Drawer
                 title={bindRole.title}
@@ -654,24 +653,16 @@ const UserManage = () => {
                 <Form
                     form={bindRoleForm}
                 >
-                    {getUserDetailsLoading
-                        ?
-                        (
-                            <Skeleton style={{ height: '100%' }} active />
-                        )
-                        :
-                        (
-                            <>
-                                <Form.Item name="id" hidden>
-                                    <Input />
-                                </Form.Item>
-                                <Form.Item
-                                    name="roleIds"
-                                >
-                                    <RoleSelect type='checkbox' />
-                                </Form.Item>
-                            </>
-                        )}
+                    <Skeleton loading={getUserDetailsLoading} active>
+                        <Form.Item name="id" hidden>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            name="roleIds"
+                        >
+                            <RoleSelect type='checkbox' />
+                        </Form.Item>
+                    </Skeleton>
                 </Form>
             </Drawer>
             {contextHolder}
