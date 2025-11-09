@@ -1,4 +1,4 @@
-import { Spin } from 'antd';
+import { Flex, Spin } from 'antd';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { checkTokenValid, clearToken, saveToken } from '../services/LoginService';
 import { setGlobalSignout } from './auth';
@@ -42,8 +42,8 @@ export const AuthProvider = ({ children }) => {
         fetchUserInfo()
             .then(
                 (userInfo) => {
-                    dispatch(setUserInfo({userInfo: userInfo}))
-                    dispatch(loadMenuItems({menuItems: userInfo.menuTree}))
+                    dispatch(setUserInfo({ userInfo: userInfo }))
+                    dispatch(loadMenuItems({ menuItems: userInfo.menuTree }))
                     setIsLoginIn(true)
                 }
             )
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     if (isLoginIn === null) {
-        return <Loading fullscreen />
+        return <Flex justify='center' align='center' style={{width: '100vw',height: '100vh'}}><Loading fullscreen /></Flex>
     }
 
     return (
