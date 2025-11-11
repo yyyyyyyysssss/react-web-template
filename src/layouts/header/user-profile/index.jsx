@@ -11,8 +11,6 @@ import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 import { simpleUploadFile } from '../../../services/FileService';
 import { useRequest } from 'ahooks';
-import RemoteSearchSelect from '../../../components/RemoteSearchSelect';
-import { fetchSearchUser } from '../../../services/SystemService';
 import './index.css'
 import TenantSwitch from '../../../components/tenant-switch';
 
@@ -234,20 +232,6 @@ const UserProfile = () => {
                         {
                             key: 'switch_tenant',
                             label: (
-                                <Typography.Link onClick={() => setTenantSwitchOpen(true)}>
-                                    <Flex
-                                        gap={8}
-                                        align='center'
-                                    >
-                                        <Building size={16} />
-                                        <span>切换租户</span>
-                                    </Flex>
-                                </Typography.Link>
-                            )
-                        },
-                        {
-                            key: 'profile',
-                            label: (
                                 <Typography.Link onClick={() => setProfileOpen(true)}>
                                     <Flex
                                         gap={8}
@@ -256,7 +240,21 @@ const UserProfile = () => {
                                         <UserPen size={16} />
                                         <span>个人信息</span>
                                     </Flex>
-
+                                </Typography.Link>
+                                
+                            )
+                        },
+                        {
+                            key: 'profile',
+                            label: (
+                                <Typography.Link onClick={() => setTenantSwitchOpen(true)}>
+                                    <Flex
+                                        gap={8}
+                                        align='center'
+                                    >
+                                        <Building size={16} />
+                                        <span>切换租户</span>
+                                    </Flex>
                                 </Typography.Link>
                             )
                         },
@@ -454,23 +452,8 @@ const UserProfile = () => {
                         <Form
                             layout='vertical'
                             form={profileForm}
-                            initialValues={{
-                                userIds: ['1', '2', '3']
-                            }}
                         >
-                            <Form.Item
-                                label=""
-                                name="userIds"
-                            >
-                                <RemoteSearchSelect
-                                    mode='multiple'
-                                    fetchData={fetchSearchUser}
-                                    labelField='nickname'
-                                    valueField='id'
-                                    placeholder='请输入用户名称'
-                                    allowClear
-                                />
-                            </Form.Item>
+                            
                         </Form>
                     </Flex>
                 </Flex>

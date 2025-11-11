@@ -138,10 +138,12 @@ const TenantManage = () => {
     }
   }
 
-  const handleBindUser = async (tenantId) => {
+  const handleBindUser = async (tenant) => {
+    const tenantId = tenant.id
+    const tenantName = tenant.tenantName
     setBindUser({
       open: true,
-      title: '分配用户',
+      title: `分配用户[${tenantName}]`,
       tenantId: tenantId
     })
     const userIds = await getUserIdByTenantIdAsync(tenantId)
@@ -271,7 +273,7 @@ const TenantManage = () => {
             <HasPermission
               hasPermissions='system:tenant:write'
             >
-              <Typography.Link onClick={() => handleBindUser(record.id)} style={{ marginInlineEnd: 8 }}>
+              <Typography.Link onClick={() => handleBindUser(record)} style={{ marginInlineEnd: 8 }}>
                 分配用户
               </Typography.Link>
               <Typography.Link onClick={() => handleEditTenant(record)} style={{ marginInlineEnd: 8 }}>

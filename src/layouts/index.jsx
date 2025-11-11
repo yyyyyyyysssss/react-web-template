@@ -10,6 +10,7 @@ import Header from './header';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ServerError from '../pages/ServerError';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 
 const { Header: LayoutHeader, Content: LayoutContent, Sider: LayoutSider } = Layout;
@@ -82,12 +83,12 @@ const AppLayout = () => {
                                 }
                             >
                                 <Outlet />
-                            </Suspense>
-                        </ErrorBoundary>
-                    </div>
-                </LayoutContent>
-            </Layout>
+                        </Suspense>
+                    </ErrorBoundary>
+                </div>
+            </LayoutContent>
         </Layout>
+        </Layout >
     )
 }
 

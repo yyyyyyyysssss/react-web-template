@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './index.css'
-import { Divider, Dropdown, Flex, Tree, Modal, Tooltip } from 'antd'
+import { Divider, Dropdown, Flex, Tree, Modal, Tooltip, Splitter } from 'antd'
 import { deleteMenu, fetchMenuTree, menuDrag } from '../../../services/SystemService'
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import MenuDetails from './details';
@@ -388,40 +388,29 @@ const MenuManage = () => {
 
     return (
         <Flex flex={1} gap={10} className='h-full'>
-            <Flex
-                style={{
-                    minWidth: '240px',
-                }}
-            >
-                <Tree
-                    className="draggable-tree"
-                    draggable={{
-                        icon: false
-                    }}
-                    blockNode
-                    onDragEnter={onDragEnter}
-                    onDrop={onDrop}
-                    treeData={menuItems}
-                    selectedKeys={selectedKeys}
-                    onSelect={handleSelect}
-                />
-            </Flex>
-            <Divider
-                type="vertical"
-                style={{
-                    height: 'calc(100% + 40px)',
-                    width: '1px',
-                    backgroundColor: 'lightgray',
-                    marginInline: '12px',
-                    marginTop: '-20px',
-                    marginBottom: '-20px'
-                }}
-            />
-            <Flex flex={8}>
-                {selectedKeys && (
-                    <MenuDetails key={menuDetailsKey} menuId={selectedMenu.id} />
-                )}
-            </Flex>
+            <Splitter>
+                <Splitter.Panel style={{padding: '10px'}} defaultSize="25%" min="20%" max="50%">
+                    <Tree
+                        className="draggable-tree"
+                        draggable={{
+                            icon: false
+                        }}
+                        blockNode
+                        onDragEnter={onDragEnter}
+                        onDrop={onDrop}
+                        treeData={menuItems}
+                        selectedKeys={selectedKeys}
+                        onSelect={handleSelect}
+                    />
+                </Splitter.Panel>
+                <Splitter.Panel style={{padding: '20px'}}>
+                    <Flex style={{width: '100%', height: '100%'}} flex={8}>
+                        {selectedKeys && (
+                            <MenuDetails key={menuDetailsKey} menuId={selectedMenu.id} />
+                        )}
+                    </Flex>
+                </Splitter.Panel>
+            </Splitter>
             <MenuAuthority
                 {...menuAuthorityOpen}
                 onClose={handleCloseMenuAuthority}
