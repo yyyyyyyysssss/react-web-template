@@ -1,22 +1,24 @@
-import { Suspense, useEffect } from 'react';
 import { Flex, Layout, theme } from 'antd';
-import './index.css';
-import { Outlet } from 'react-router-dom';
-import TopMenuTab from './top-tab';
-import { useSelector } from 'react-redux';
-import Sider from './sider';
-import Loading from '../components/loading';
-import Header from './header';
+import { Suspense, useEffect, useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { Outlet, useLocation, useNavigate, useOutlet } from 'react-router-dom';
+import Loading from '../components/loading';
 import ServerError from '../pages/ServerError';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import Header from './header';
+import './index.css';
+import Sider from './sider';
+import TopMenuTab from './top-tab';
+import { SwitchTransition, CSSTransition } from 'react-transition-group';
 
 
 const { Header: LayoutHeader, Content: LayoutContent, Sider: LayoutSider } = Layout;
 
 const AppLayout = () => {
 
+    const outlet = useOutlet()
+
+    const nodeRef = useRef(null)
 
     const collapsed = useSelector(state => state.layout.menuCollapsed)
 
@@ -64,6 +66,7 @@ const AppLayout = () => {
                     <div
                         style={{
                             height: 'calc(100vh - 109px)',
+                            width: '100%',
                             overflow: 'auto',
                             padding: 20,
                             borderRadius: borderRadius,
@@ -74,20 +77,33 @@ const AppLayout = () => {
                             fallback={<ServerError />}
                             resetKeys={[location.pathname]}
                         >
-                            <Suspense
-                                key={location.key}
-                                fallback={
-                                    <Flex style={{ height: '100%' }} justify='center' align='center'>
-                                        <Loading />
-                                    </Flex>
-                                }
-                            >
-                                <Outlet />
-                        </Suspense>
-                    </ErrorBoundary>
-                </div>
-            </LayoutContent>
-        </Layout>
+
+                            <SwitchTransition mode="out-in">
+                                <CSSTransition
+                                    key={location.pathname}
+                                    nodeRef={nodeRef}
+                                    appear={true}
+                                    timeout={300}
+                                    classNames="page"
+                                    unmountOnExit
+                                >
+                                    <Suspense
+                                        fallback={
+                                            <Flex style={{ height: '100%' }} justify='center' align='center'>
+                                                <Loading />
+                                            </Flex>
+                                        }
+                                    >
+                                        <div style={{ height: '100%', width: '100%' }} ref={nodeRef}>
+                                            {outlet}
+                                        </div>
+                                    </Suspense>
+                                </CSSTransition>
+                            </SwitchTransition>
+                        </ErrorBoundary>
+                    </div>
+                </LayoutContent>
+            </Layout>
         </Layout >
     )
 }

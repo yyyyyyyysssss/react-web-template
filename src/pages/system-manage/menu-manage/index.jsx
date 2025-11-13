@@ -406,7 +406,7 @@ const MenuManage = () => {
                 <Splitter.Panel style={{padding: '20px'}}>
                     <Flex style={{width: '100%', height: '100%'}} flex={8}>
                         {selectedKeys && (
-                            <MenuDetails key={menuDetailsKey} menuId={selectedMenu.id} />
+                            <MenuDetails menuId={selectedMenu.id} />
                         )}
                     </Flex>
                 </Splitter.Panel>
