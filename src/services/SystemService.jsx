@@ -219,7 +219,7 @@ export const createTenant = async (tenant) => {
 // 修改租户
 export const updateTenant = async (tenant) => {
 
-    return apiRequestWrapper(() => httpWrapper.put(`/api/system/tenant/${tenant.id}`, tenant))
+    return apiRequestWrapper(() => httpWrapper.patch(`/api/system/tenant/${tenant.id}`, tenant))
 }
 
 // 租户绑定用户

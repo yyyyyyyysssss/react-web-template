@@ -1,7 +1,7 @@
 import { Flex, Layout, theme } from 'antd';
-import { Suspense, useEffect, useRef } from 'react';
+import { Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Outlet, useLocation, useNavigate, useOutlet } from 'react-router-dom';
 import Loading from '../components/loading';
 import ServerError from '../pages/ServerError';
@@ -10,6 +10,9 @@ import './index.css';
 import Sider from './sider';
 import TopMenuTab from './top-tab';
 import { SwitchTransition, CSSTransition } from 'react-transition-group';
+import { setUserInfo } from '../redux/slices/authSlice';
+import { loadMenuItems } from '../redux/slices/layoutSlice';
+import { fetchUserInfo } from '../services/UserProfileService';
 
 
 const { Header: LayoutHeader, Content: LayoutContent, Sider: LayoutSider } = Layout;
@@ -29,6 +32,24 @@ const AppLayout = () => {
     const location = useLocation()
     const navigate = useNavigate()
 
+    const dispatch = useDispatch()
+
+    const [loading, setLoading] = useState(true)
+
+    useLayoutEffect(() => {
+        const fetchData = async () => {
+            try {
+                const userInfo = await fetchUserInfo()
+                dispatch(setUserInfo({ userInfo }))
+                dispatch(loadMenuItems({ menuItems: userInfo.menuTree }))
+            } finally {
+                setLoading(false)
+            }
+
+        }
+        fetchData()
+    }, [])
+
     useEffect(() => {
         if (redirectTo) {
             navigate(redirectTo)
@@ -41,6 +62,10 @@ const AppLayout = () => {
             borderRadius
         }
     } = theme.useToken()
+
+    if (loading) {
+        return <Flex justify='center' align='center' style={{width: '100vw',height: '100vh'}}><Loading fullscreen /></Flex>
+    }
 
     return (
         <Layout style={{ minHeight: '100vh' }}>

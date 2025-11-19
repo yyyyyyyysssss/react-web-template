@@ -20,6 +20,7 @@ const UserProfile = () => {
 
     const { nickname, avatar } = useSelector(state => state.auth.userInfo)
 
+    const tenants = useSelector((state) => state.auth.userInfo.tenants) || []
 
     const [profileForm] = Form.useForm()
 
@@ -241,7 +242,7 @@ const UserProfile = () => {
                                         <span>个人信息</span>
                                     </Flex>
                                 </Typography.Link>
-                                
+
                             )
                         },
                         {
@@ -453,7 +454,7 @@ const UserProfile = () => {
                             layout='vertical'
                             form={profileForm}
                         >
-                            
+
                         </Form>
                     </Flex>
                 </Flex>
@@ -510,6 +511,7 @@ const UserProfile = () => {
             >
                 <Flex className='w-full h-[300px]'>
                     <TenantSwitch
+                        tenantList={tenants}
                         onTenantChange={() => setTenantSwitchOpen(false)}
                     />
                 </Flex>

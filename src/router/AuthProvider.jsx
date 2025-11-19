@@ -20,8 +20,6 @@ export const AuthProvider = ({ children }) => {
 
     const [isLoginIn, setIsLoginIn] = useState(null)
 
-    const dispatch = useDispatch()
-
     useEffect(() => {
         const check = async () => {
             const isValid = await checkTokenValid()
@@ -39,15 +37,7 @@ export const AuthProvider = ({ children }) => {
         if (tokenInfo) {
             saveToken(tokenInfo)
         }
-        fetchUserInfo()
-            .then(
-                (userInfo) => {
-                    dispatch(setUserInfo({ userInfo: userInfo }))
-                    dispatch(loadMenuItems({ menuItems: userInfo.menuTree }))
-                    setIsLoginIn(true)
-                }
-            )
-
+        setIsLoginIn(true)
     }
 
     const signout = async () => {

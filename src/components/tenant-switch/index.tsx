@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Pagination } from 'swiper/modules';
 import { Avatar, Flex, Typography } from 'antd';
 import { switchTenant } from '../../redux/slices/layoutSlice';
+import { switchTenantByTenantId } from '../../services/UserProfileService';
 
 
 
@@ -17,21 +18,24 @@ interface TenantItem {
 }
 
 interface TenantSwitchProps {
+    tenantList: TenantItem[]
     onTenantChange?: (tenant: TenantItem) => void
 }
 
 const TenantSwitch: React.FC<TenantSwitchProps> = ({
+    tenantList,
     onTenantChange
 }) => {
 
     const dispatch = useDispatch()
 
-    const tenants = useSelector((state: any) => state.auth.userInfo.tenants) || []
-
     const handleSwitchTenant = (tenant: TenantItem) => {
-        dispatch(switchTenant({ tenant: tenant }))
-        window.location.href = '/'
-        onTenantChange?.(tenant)
+        switchTenantByTenantId(tenant.id)
+            .then(() => {
+                dispatch(switchTenant({ tenant: tenant }))
+                window.location.href = '/'
+                onTenantChange?.(tenant)
+            })
     }
 
     return (
@@ -41,11 +45,11 @@ const TenantSwitch: React.FC<TenantSwitchProps> = ({
             pagination={{
                 clickable: true,
             }}
-            loop={tenants.length >= 3}
+            loop={tenantList.length >= 3}
             modules={[Pagination]}
             className="w-full h-full"
         >
-            {tenants.map((item: TenantItem, index: number) => (
+            {tenantList.map((item: TenantItem, index: number) => (
                 <SwiperSlide
                     key={item.id}
                     onClick={() => handleSwitchTenant(item)}

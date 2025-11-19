@@ -1,5 +1,5 @@
 import React, { ReactNode, useMemo } from "react";
-import { useSelector } from 'react-redux';
+import { shallowEqual, useSelector } from 'react-redux';
 
 interface HasPermissionProps {
     hasPermissions: string | string[] | undefined // 需要的权限编码，支持单个或多个
@@ -14,7 +14,7 @@ export const useHasPermission = (
     requireAll: boolean = false
 ): boolean => {
 
-    const permissionCodes = useSelector((state: any) => state.auth.userInfo.permissionCodes || [])
+    const permissionCodes = useSelector((state: any) => state.auth.userInfo.permissionCodes || [], shallowEqual)
 
     const permissions = useMemo(() => {
         if (!hasPermissions) return []
