@@ -10,6 +10,7 @@ import { menuCollapsed, switchTheme } from '../../redux/slices/layoutSlice';
 import TopBreadcrumbTab from '../breadcrumb-tab';
 import './index.css';
 import UserProfile from './user-profile';
+import SearchMenu from './search-menu';
 
 
 const Header = () => {
@@ -50,8 +51,9 @@ const Header = () => {
                 style={{ paddingRight: 10 }}
                 align='center'
                 justify='center'
-                gap={5}
+                gap={10}
             >
+                <SearchMenu/>
                 <Segmented
                     size='middle'
                     shape="round"

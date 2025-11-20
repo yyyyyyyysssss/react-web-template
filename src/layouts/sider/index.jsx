@@ -97,12 +97,26 @@ const Sider = () => {
                     cursor: 'pointer',
                 }}
             >
-                <Avatar
-                    src={tenant?.logo}
-                    size={48}
-                />
-                <Typography.Text style={{fontSize: '20px', color: themeValue === 'dark' ? 'white' : 'var(--ant-color-text)'}}>{tenant?.tenantName}</Typography.Text>
-            </Flex>
+                {collapsed ?
+                    (
+                        <Avatar
+                            src={tenant?.logo}
+                            size={32}
+                        />
+                    )
+                    :
+                    (
+                        <>
+                            <Avatar
+                                src={tenant?.logo}
+                                size={48}
+                            />
+                            <Typography.Text style={{ fontSize: '20px', color: themeValue === 'dark' ? 'white' : 'var(--ant-color-text)' }}>{tenant?.tenantName}</Typography.Text>
+                        </>
+                    )
+                }
+
+            </Flex >
             <Menu
                 key={collapsed ? 'collapsed' : 'expanded'}
                 style={{
