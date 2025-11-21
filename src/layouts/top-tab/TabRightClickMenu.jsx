@@ -10,7 +10,7 @@ const TabRightClickMenu = ({ tabKey, index, x, y, close }) => {
     const dispatch = useDispatch()
 
     const { token } = theme.useToken()
-    const { borderRadius } = token
+    const { borderRadius, colorBgContainer, colorBorder,boxShadow } = token
 
     const tabItems = useSelector(state => state.layout.tabItems)
 
@@ -74,9 +74,9 @@ const TabRightClickMenu = ({ tabKey, index, x, y, close }) => {
                 left: x,
                 zIndex: 1000,
                 borderRadius: borderRadius,
-                backgroundColor: '#fff',
-                border: '1px solid rgba(0, 0, 0, 0.15)',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                backgroundColor: colorBgContainer,
+                border: colorBorder,
+                boxShadow: boxShadow,
                 padding: '8px 0',
             }}
             vertical
@@ -87,19 +87,19 @@ const TabRightClickMenu = ({ tabKey, index, x, y, close }) => {
                 vertical
             >
                 {tabSize !== 0 && (
-                    <div className='menu-btn' onClick={closeOther}>关闭其它</div>
+                    <div style={{borderRadius: borderRadius}} className='menu-btn' onClick={closeOther}>关闭其它</div>
                 )}
-                <div className='menu-btn' onClick={closeAll}>关闭所有</div>
+                <div style={{borderRadius: borderRadius}} className='menu-btn' onClick={closeAll}>关闭所有</div>
                 {index === tabSize && tabSize !== 0 && (
-                    <div className='menu-btn' onClick={closeLeft}>关闭左侧</div>
+                    <div style={{borderRadius: borderRadius}} className='menu-btn' onClick={closeLeft}>关闭左侧</div>
                 )}
                 {index === 0 && tabSize !== 0 && (
-                    <div className='menu-btn' onClick={closeRight}>关闭右侧</div>
+                    <div style={{borderRadius: borderRadius}} className='menu-btn' onClick={closeRight}>关闭右侧</div>
                 )}
                 {index > 0 && index < tabSize && (
                     <>
-                        <div className='menu-btn' onClick={closeLeft}>关闭左侧</div>
-                        <div className='menu-btn' onClick={closeRight}>关闭右侧</div>
+                        <div style={{borderRadius: borderRadius}} className='menu-btn' onClick={closeLeft}>关闭左侧</div>
+                        <div style={{borderRadius: borderRadius}} className='menu-btn' onClick={closeRight}>关闭右侧</div>
                     </>
                 )}
 
