@@ -64,7 +64,7 @@ const AppLayout = () => {
     } = theme.useToken()
 
     if (loading) {
-        return <Flex justify='center' align='center' style={{width: '100vw',height: '100vh'}}><Loading fullscreen /></Flex>
+        return <Flex justify='center' align='center' style={{ width: '100vw', height: '100vh' }}><Loading fullscreen /></Flex>
     }
 
     return (
