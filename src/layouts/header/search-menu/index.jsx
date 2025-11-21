@@ -6,6 +6,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import './index.css'
+import { findRouteByPath } from '../../../router/router';
 
 const SearchMenu = () => {
 
@@ -34,10 +35,13 @@ const SearchMenu = () => {
             setOptions([])
             return
         }
-
         // 模糊匹配菜单项
         const filteredOptions = menuItems
             .filter(item => item.name.toLowerCase().includes(value.toLowerCase()))
+            .filter(item => {
+                const route = findRouteByPath(item.routePath);
+                return route && route.element
+            })
             .map(item => ({
                 value: item.routePath,
                 label: item.name,
@@ -74,7 +78,7 @@ const SearchMenu = () => {
             >
                 <Input
                     ref={inputRef}
-                    placeholder="请输入搜索内容"
+                    placeholder="请输入菜单名称"
                     className={`search-input ${isSearching ? 'active' : ''}`}
                     style={{ width: isSearching ? 200 : 0 }}
                     onBlur={handleBlur}
