@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import router from './router/router';
 import { RouterProvider } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import store from './redux/store';
 import { ConfigProvider, Empty, message } from 'antd';
+import { useSelector } from 'react-redux';
 import 'antd/dist/reset.css';
 import zhCN from 'antd/es/locale/zh_CN';
 import NProgress from 'nprogress';
@@ -24,6 +23,7 @@ const App = () => {
 
   const [colorPrimary, setColorPrimary] = useState(defaultColorPrimary)
 
+  const themeValue = useSelector(state => state.layout.theme)
 
   useEffect(() => {
     document.documentElement.style.setProperty('--color-primary', defaultColorPrimary)
@@ -38,12 +38,13 @@ const App = () => {
         cssVar: true,
         token: {
           colorText: 'rgba(0,0,0,0.88)',
+          colorSplit: 'rgba(5,5,5,0.06)',
+          colorTextDescription: 'rgba(0,0,0,0.45)',
           colorPrimary: colorPrimary,
           colorLink: colorPrimary,
           borderRadius: 8,
           colorBgContainer: 'white',
           fontSize: 14,
-          colorSplit: 'rgba(5,5,5,0.06)'
         },
         components: {
           Breadcrumb: {
@@ -76,18 +77,16 @@ const App = () => {
       }}
       renderEmpty={() => (<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无数据" />)}
     >
-      <Provider store={store}>
-        <AuthProvider>
-          {contextHolder}
-          <RouterProvider
-            future={{
-              v7_startTransition: true,
-              v7_relativeSplatPath: true
-            }}
-            router={router}
-          />
-        </AuthProvider>
-      </Provider>
+      <AuthProvider>
+        {contextHolder}
+        <RouterProvider
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true
+          }}
+          router={router}
+        />
+      </AuthProvider>
     </ConfigProvider>
   );
 }

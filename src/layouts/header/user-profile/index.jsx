@@ -239,7 +239,7 @@ const UserProfile = () => {
                                         align='center'
                                     >
                                         <UserPen size={16} />
-                                        <span>个人信息</span>
+                                        <Typography.Text>个人信息</Typography.Text>
                                     </Flex>
                                 </Typography.Link>
 
@@ -254,7 +254,7 @@ const UserProfile = () => {
                                         align='center'
                                     >
                                         <Building size={16} />
-                                        <span>切换租户</span>
+                                        <Typography.Text>切换租户</Typography.Text>
                                     </Flex>
                                 </Typography.Link>
                             )
@@ -268,7 +268,7 @@ const UserProfile = () => {
                                         align='center'
                                     >
                                         <Lock size={16} />
-                                        <span>修改密码</span>
+                                        <Typography.Text>修改密码</Typography.Text>
                                     </Flex>
 
                                 </Typography.Link>
@@ -463,7 +463,7 @@ const UserProfile = () => {
                 title={
                     <Flex justify='center' align='center' vertical>
                         <Flex style={{ width: '100%' }} align='start'>
-                            <span>裁剪你的新头像</span>
+                            <Typography.Text>裁剪你的新头像</Typography.Text>
                         </Flex>
                         <Divider style={{ width: '450px', marginBottom: '6px', marginTop: '8px' }} />
                     </Flex>

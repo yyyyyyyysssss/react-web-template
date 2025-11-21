@@ -2,7 +2,7 @@ import { Flex, Layout, theme } from 'antd';
 import { Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useSelector, useDispatch } from 'react-redux';
-import { Outlet, useLocation, useNavigate, useOutlet } from 'react-router-dom';
+import { useLocation, useNavigate, useOutlet } from 'react-router-dom';
 import Loading from '../components/loading';
 import ServerError from '../pages/ServerError';
 import Header from './header';
@@ -76,12 +76,19 @@ const AppLayout = () => {
                 collapsible
                 collapsed={collapsed}
                 trigger={null}
+                style={{
+                    borderRight: '1px solid rgba(0, 0, 0, 0.1)',
+                }}
             >
                 <Sider />
             </LayoutSider>
             <Layout>
                 {/* 头部 */}
-                <LayoutHeader className='layout-header' style={{ boxShadow: '0 4px 6px -4px rgba(0, 0, 0, 0.1)' }}>
+                <LayoutHeader className='layout-header'
+                    style={{
+                        borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
+                    }}
+                >
                     <Header />
                 </LayoutHeader>
                 {/* 主题内容 */}
