@@ -290,8 +290,8 @@ const TopMenuTab = ({ style }) => {
                         <div
                             className="ant-tabs-tab ant-tabs-tab-active"
                             style={{
-                                background: '#fff',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                background: token.colorBgContainer,
+                                boxShadow: token.boxShadow,
                                 borderRadius: token.borderRadius,
                                 padding: '5px 12px',
                                 cursor: 'grabbing',
@@ -314,7 +314,9 @@ const TopMenuTab = ({ style }) => {
                 type="editable-card"
                 onEdit={handleEdit}
                 items={items}
-                tabBarStyle={{ borderBottom: 'none' }}
+                tabBarStyle={{ 
+                    borderBottom: 'none',
+                }}
                 renderTabBar={renderTabBar}
             />
             {rightMenu.visible && (

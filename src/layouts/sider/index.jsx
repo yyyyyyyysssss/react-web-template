@@ -112,7 +112,7 @@ const Sider = () => {
                                 src={tenant?.logo}
                                 size={48}
                             />
-                            <Typography.Text style={{ fontSize: '20px', color: themeValue === 'dark' ? 'white' : 'var(--ant-color-text)' }}>{tenant?.tenantName}</Typography.Text>
+                            <Typography.Text style={{ fontSize: '20px'}}>{tenant?.tenantName}</Typography.Text>
                         </>
                     )
                 }

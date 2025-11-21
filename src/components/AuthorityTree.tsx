@@ -109,6 +109,7 @@ const AuthorityTree: React.FC<AuthorityTreeProps> = ({ value = [], onChange }) =
                 expandedKeys={expandedKeys}
                 checkedKeys={safeValue}
                 treeData={treeData}
+                selectable={false}
                 onCheck={(checkedKeys) => handleChange(checkedKeys as string[])}
                 fieldNames={{
                     key: 'id',

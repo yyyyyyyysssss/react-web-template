@@ -18,6 +18,7 @@ interface EditableCellProps {
     required?: boolean
     rules?: Rule[]
     onChange?: (value: any, rowIndex: number) => void
+    render?: React.ReactNode | ((value: any, record: any, index: any) => React.ReactNode),
     editRender?: React.ReactNode | ((record: any) => React.ReactNode)
     rowIndex: number
 }
@@ -43,7 +44,7 @@ const EditableInputNode: React.FC<EditableInputNodeProps> = React.memo(({
         case 'number':
             return <InputNumber style={{ width: '100%' }} value={value} onChange={onChange} />
         case 'date':
-            return <DatePicker style={{ width: '100%' }} value={value ? dayjs(value) : null}  onChange={(_, str) => onChange(str)} />
+            return <DatePicker style={{ width: '100%' }} value={value ? dayjs(value) : null} onChange={(_, str) => onChange(str)} />
         case 'datetime':
             return <DatePicker showTime style={{ width: '100%' }} value={value ? dayjs(value) : null} onChange={(_, str) => onChange(str)} />
         case 'select':
@@ -66,6 +67,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
     required = false,
     rules,
     onChange,
+    render,
     editRender,
     rowIndex,
     ...restProps
@@ -107,7 +109,13 @@ const EditableCell: React.FC<EditableCellProps> = ({
                     </Form.Item>
                 )
                 :
-                (rowData?.[dataIndex] !== undefined ? rowData[dataIndex].toString() : children)
+                (
+                    render
+                        ? typeof render === 'function'
+                            ? render(rowData[dataIndex], rowData, index) // 如果 render 是函数，调用它
+                            : render // 如果 render 是 ReactNode 类型，直接渲染
+                        : (rowData?.[dataIndex] !== undefined ? rowData[dataIndex].toString() : children)
+                )
             }
         </td>
     )

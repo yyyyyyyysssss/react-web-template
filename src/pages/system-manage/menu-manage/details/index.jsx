@@ -177,16 +177,20 @@ const MenuDetails = ({ menuId }) => {
             align: 'center',
             render: (_, { type }) => {
                 let color
+                let text
                 if (type === AuthorityType.BUTTON) {
-                    color = 'geekblue'
+                    color = '#1890ff'
+                    text = '按钮'
                 } else if (type === AuthorityType.API) {
-                    color = 'volcano'
+                    color = '#722ed1'
+                    text = 'API'
                 } else {
                     color = 'gray'
+                    text = '未知'
                 }
                 return (
                     <Tag color={color}>
-                        {type.toUpperCase()}
+                        {text}
                     </Tag>
                 )
             }

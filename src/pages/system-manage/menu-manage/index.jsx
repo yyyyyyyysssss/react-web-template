@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './index.css'
-import { Divider, Dropdown, Flex, Tree, Modal, Tooltip, Splitter } from 'antd'
+import { Dropdown, Flex, Tree, Modal, Tooltip, Splitter, Typography } from 'antd'
 import { deleteMenu, fetchMenuTree, menuDrag } from '../../../services/SystemService'
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import MenuDetails from './details';
@@ -25,14 +25,15 @@ const MenuItem = ({ item, onAddMenu, onEditMenu, onDeleteMenu }) => {
 
 
     return (
-        <div
-            className="flex justify-between items-center w-full"
+        <Flex
+            justify='space-between'
+            align='center'
             onMouseEnter={() => setHovering(true)}
             onMouseLeave={() => setHovering(false)}
         >
-            <div>
+            <Typography.Text>
                 {item.name}
-            </div>
+            </Typography.Text>
             <HasPermission requireAll={true} hasPermissions={['system:menu:write', 'system:menu:delete']}>
                 <div className={`flex items-center transition-opacity ${showOps ? 'opacity-100' : 'opacity-0'}`}>
                     <Dropdown
@@ -62,7 +63,7 @@ const MenuItem = ({ item, onAddMenu, onEditMenu, onDeleteMenu }) => {
                                 e.stopPropagation()
                             }}
                         >
-                            <Plus size={18} color='gray' />
+                            <Plus size={18} />
                         </div>
                     </Dropdown>
                     <div
@@ -73,7 +74,7 @@ const MenuItem = ({ item, onAddMenu, onEditMenu, onDeleteMenu }) => {
                         }}
                     >
                         <Tooltip title='编辑菜单'>
-                            <Pencil size={16} color='gray' />
+                            <Pencil size={16} />
                         </Tooltip>
                     </div>
                     <div
@@ -84,12 +85,12 @@ const MenuItem = ({ item, onAddMenu, onEditMenu, onDeleteMenu }) => {
                         }}
                     >
                         <Tooltip title='删除菜单'>
-                            <Trash2 size={16} color='gray' />
+                            <Trash2 size={16} />
                         </Tooltip>
                     </div>
                 </div>
             </HasPermission>
-        </div>
+        </Flex>
     )
 }
 

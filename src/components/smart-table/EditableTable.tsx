@@ -171,6 +171,7 @@ const EditableTable: React.FC<EditableTableProps> = ({
                         options: col.options,
                         required: col.required,
                         rules: col.rules,
+                        render: col.render,
                         editRender: col.editRender,
                         editing: isEditing(rowData) && col.editable && col.editable !== false,
                         onChange: col.onChange,
