@@ -95,7 +95,6 @@ const Sider = () => {
                 style={{
                     height: '64px',
                     cursor: 'pointer',
-                    borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
                 }}
             >
                 {collapsed ?

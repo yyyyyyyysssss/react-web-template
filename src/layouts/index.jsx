@@ -76,9 +76,6 @@ const AppLayout = () => {
                 collapsible
                 collapsed={collapsed}
                 trigger={null}
-                style={{
-                    borderRight: '1px solid rgba(0, 0, 0, 0.1)',
-                }}
             >
                 <Sider />
             </LayoutSider>
@@ -86,7 +83,7 @@ const AppLayout = () => {
                 {/* 头部 */}
                 <LayoutHeader className='layout-header'
                     style={{
-                        borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
+                        boxShadow: themeValue === 'dark' ? '0 1px 4px rgba(0, 0, 0, 0.45)' : '0 2px 4px rgba(0, 0, 0, 0.06)'
                     }}
                 >
                     <Header />

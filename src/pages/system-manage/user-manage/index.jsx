@@ -1,4 +1,4 @@
-import { Button, Drawer, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Skeleton, Space, Switch, Typography } from 'antd'
+import { Button, Drawer, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Skeleton, Space, Switch, theme, Typography } from 'antd'
 import './index.css'
 import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
@@ -22,6 +22,8 @@ const initQueryParam = {
 }
 
 const UserManage = () => {
+
+    const { token } = theme.useToken()
 
     const [modal, contextHolder] = Modal.useModal()
 
@@ -155,16 +157,17 @@ const UserManage = () => {
                                                 <p>
                                                     用户 <strong>{values.nickname}</strong> 的初始密码为：
                                                 </p>
-                                                <div className='bg-gray-100 py-2 px-3 rounded-md flex justify-between items-center font-mono'>
-                                                    <span>{data.initialPassword}</span>
-                                                    <CopyOutlined
-                                                        className='cursor-pointer ml-2 p-1 rounded hover:bg-gray-200'
+                                                <Flex justify='space-between' align='center' style={{ backgroundColor: token.controlItemBgHover, paddingLeft: '10px' }} className='py-2 px-3 rounded-md'>
+                                                    <Typography.Text>{data.initialPassword}</Typography.Text>
+                                                    <Button
+                                                        type="text"
+                                                        icon={<CopyOutlined />}
                                                         onClick={() => {
-                                                            navigator.clipboard.writeText(data.initialPassword)
-                                                            getMessageApi().success('已复制到剪贴板')
+                                                            navigator.clipboard.writeText(newPassword);
+                                                            getMessageApi().success('已复制到剪贴板');
                                                         }}
                                                     />
-                                                </div>
+                                                </Flex>
                                             </div>
                                         ),
                                     })
@@ -220,16 +223,17 @@ const UserManage = () => {
                     <p>
                         用户 <strong>{userItem.nickname}</strong> 的新密码为：
                     </p>
-                    <div className='bg-gray-100 py-2 px-3 rounded-md flex justify-between items-center font-mono'>
-                        <span>{newPassword}</span>
-                        <CopyOutlined
-                            className='cursor-pointer ml-2 p-1 rounded hover:bg-gray-200'
+                    <Flex justify='space-between' align='center' style={{ backgroundColor: token.controlItemBgHover, paddingLeft: '10px' }} className='py-2 px-3 rounded-md'>
+                        <Typography.Text>{newPassword}</Typography.Text>
+                        <Button
+                            type="text"
+                            icon={<CopyOutlined />}
                             onClick={() => {
-                                navigator.clipboard.writeText(newPassword)
-                                getMessageApi().success('已复制到剪贴板')
+                                navigator.clipboard.writeText(newPassword);
+                                getMessageApi().success('已复制到剪贴板');
                             }}
                         />
-                    </div>
+                    </Flex>
                 </div>
             ),
         })

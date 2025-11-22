@@ -291,7 +291,7 @@ const TopMenuTab = ({ style }) => {
                             className="ant-tabs-tab ant-tabs-tab-active"
                             style={{
                                 background: token.colorBgContainer,
-                                boxShadow: token.boxShadow,
+                                boxShadow: '0 4px 10px rgba(0, 0, 0, 0.45)',
                                 borderRadius: token.borderRadius,
                                 padding: '5px 12px',
                                 cursor: 'grabbing',
