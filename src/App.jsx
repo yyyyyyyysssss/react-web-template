@@ -39,7 +39,7 @@ const App = () => {
         colorTextDisabled: 'rgba(255, 255, 255, 0.30)', //控制禁用状态下的字体颜色
         colorPrimary: colorPrimary, // 保持主色一致
         colorLink: colorPrimary, // 保持链接颜色一致
-        borderRadius: 8, // 圆角
+        borderRadius: 6, // 圆角
         fontSize: 14, // 字体大小
         colorBgContainer: '#252525', // 容器背景色：深色背景
         colorBgElevated: '#252525', //浮层容器背景色
@@ -51,8 +51,8 @@ const App = () => {
         colorBorderSecondary: 'rgba(255, 255, 255, 0.1)', //辅助性的边框颜色
         colorTextPlaceholder: 'rgba(255, 255, 255, 0.18)', // 提示文字
         controlOutline: 'none', //激活时的轮廓颜色
-        boxShadow: '0 4px 10px rgba(0, 0, 0, 0.45)',
-        boxShadowSecondary: '0 2px 6px rgba(0, 0, 0, 0.35)',
+        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.45),0 1px 3px rgba(0, 0, 0, 0.6)',
+        boxShadowSecondary: '0 4px 16px rgba(0, 0, 0, 0.45),0 1px 3px rgba(0, 0, 0, 0.6)',
         boxShadowTertiary: '0 12px 32px rgba(0, 0, 0, 0.55)',
       },
       components: {
@@ -121,7 +121,7 @@ const App = () => {
         colorTextDescription: 'rgba(0,0,0,0.45)',
         colorPrimary: colorPrimary,
         colorLink: colorPrimary,
-        borderRadius: 8,
+        borderRadius: 6,
         colorBgContainer: 'white',
         fontSize: 14,
         colorBorder: '#d9d9d9',

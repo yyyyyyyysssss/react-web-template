@@ -99,6 +99,8 @@ const TopMenuTab = ({ style }) => {
 
     const { token } = theme.useToken()
 
+    const themeValue = useSelector(state => state.layout.theme)
+
     const location = useLocation()
 
     const dispatch = useDispatch()
@@ -291,7 +293,7 @@ const TopMenuTab = ({ style }) => {
                             className="ant-tabs-tab ant-tabs-tab-active"
                             style={{
                                 background: token.colorBgContainer,
-                                boxShadow: '0 4px 10px rgba(0, 0, 0, 0.45)',
+                                boxShadow: token.boxShadow,
                                 borderRadius: token.borderRadius,
                                 padding: '5px 12px',
                                 cursor: 'grabbing',

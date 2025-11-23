@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { AutoComplete, Button, Input } from "antd"
+import { AutoComplete, Button, Flex, Input } from "antd"
 import {
     SearchOutlined,
 } from '@ant-design/icons';
@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import './index.css'
 import { findRouteByPath } from '../../../router/router';
+import IconBox from '../../../components/icon-box';
 
 const SearchMenu = () => {
 
@@ -85,12 +86,9 @@ const SearchMenu = () => {
                     transition="width 0.3s ease-in-out"
                 />
             </AutoComplete>
-            <Button
-                type="primary"
-                icon={<SearchOutlined />}
-                onClick={handleClick}
-                className={`search-button ${isSearching ? 'hidden' : ''}`}
-            />
+            <IconBox className={`search-button ${isSearching ? 'hidden' : ''}`} onClick={handleClick}>
+                <SearchOutlined style={{fontSize: 'var(--ant-font-size-lg)'}} />
+            </IconBox>
         </div>
     )
 }
