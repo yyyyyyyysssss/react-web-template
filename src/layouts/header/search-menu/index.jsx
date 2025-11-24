@@ -87,7 +87,7 @@ const SearchMenu = () => {
                 />
             </AutoComplete>
             <IconBox className={`search-button ${isSearching ? 'hidden' : ''}`} onClick={handleClick}>
-                <SearchOutlined style={{fontSize: 'var(--ant-font-size-lg)'}} />
+                <SearchOutlined style={{fontSize: '20px'}} />
             </IconBox>
         </div>
     )

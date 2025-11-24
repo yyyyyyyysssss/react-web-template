@@ -296,7 +296,7 @@ const UserProfile = () => {
                         }
                     ]
                 }}
-                trigger={['click']}
+                trigger={['hover']}
             >
                 <Flex
                     gap={5}

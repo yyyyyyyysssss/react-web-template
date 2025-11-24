@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { createContext, useEffect, useMemo, useState } from 'react';
 import './App.css';
 import router from './router/router';
 import { RouterProvider } from 'react-router-dom';
@@ -9,12 +9,15 @@ import zhCN from 'antd/es/locale/zh_CN';
 import NProgress from 'nprogress';
 import { setMessageApi } from './utils/MessageUtil.jsx';
 import { AuthProvider } from './router/AuthProvider.jsx';
+import tinycolor from 'tinycolor2';
 
 NProgress.configure({
   showSpinner: false
 })
 
 const defaultColorPrimary = '#1DA57A'
+
+const ColorPrimaryContext = createContext()
 
 const App = () => {
 
@@ -27,6 +30,12 @@ const App = () => {
   useEffect(() => {
     document.documentElement.style.setProperty('--color-primary', defaultColorPrimary)
   }, [colorPrimary])
+
+  const activeBgColor = useMemo(() => tinycolor(colorPrimary)
+    .lighten(20)
+    .setAlpha(0.2)
+    .toString(), [colorPrimary])
+
 
   const themeConfig = useMemo(() => ({
     dark: {
@@ -44,16 +53,16 @@ const App = () => {
         colorBgContainer: '#252525', // 容器背景色：深色背景
         colorBgElevated: '#252525', //浮层容器背景色
         controlItemBgHover: '#3A3A3A', //控制组件项在鼠标悬浮时的背景颜色。
-        controlItemBgActive: colorPrimary, // 控制组件项在激活状态下的背景颜色
-        controlItemBgActiveHover: colorPrimary, // 控制组件项在鼠标悬浮且激活状态下的背景颜色
+        controlItemBgActive: activeBgColor, // 控制组件项在激活状态下的背景颜色
+        controlItemBgActiveHover: activeBgColor, // 控制组件项在鼠标悬浮且激活状态下的背景颜色
         colorBgContainerDisabled: 'rgba(255, 255, 255, 0.08)', //容器在禁用状态下的背景色
         colorBorder: 'rgba(255, 255, 255, 0.2)', //边框颜色 
         colorBorderSecondary: 'rgba(255, 255, 255, 0.1)', //辅助性的边框颜色
         colorTextPlaceholder: 'rgba(255, 255, 255, 0.18)', // 提示文字
         controlOutline: 'none', //激活时的轮廓颜色
-        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.45),0 1px 3px rgba(0, 0, 0, 0.6)',
-        boxShadowSecondary: '0 4px 16px rgba(0, 0, 0, 0.45),0 1px 3px rgba(0, 0, 0, 0.6)',
-        boxShadowTertiary: '0 12px 32px rgba(0, 0, 0, 0.55)',
+        boxShadow: '0 6px 16px 0 rgba(0, 0, 0, 0.2), 0 3px 6px -4px rgba(0, 0, 0, 0.25), 0 9px 28px 8px rgba(0, 0, 0, 0.15)',
+        boxShadowSecondary: '0 6px 16px 0 rgba(0, 0, 0, 0.2), 0 3px 6px -4px rgba(0, 0, 0, 0.25), 0 9px 28px 8px rgba(0, 0, 0, 0.15)',
+        boxShadowTertiary: '0 1px 2px 0 rgba(0, 0, 0, 0.1), 0 1px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px 0 rgba(0, 0, 0, 0.2)',
       },
       components: {
         Breadcrumb: {
@@ -86,6 +95,8 @@ const App = () => {
           darkItemHoverBg: '#3A3A3A',
           // 菜单项背景色
           darkSubMenuItemBg: '#1f1f1f', // 菜单项背景色，深灰色
+          darkItemSelectedBg: activeBgColor,
+          darkPopupBg: '#181818'
         },
         Tree: {
 
@@ -155,11 +166,11 @@ const App = () => {
           cardBg: 'white'
         },
         Menu: {
-          
+
         }
       }
     }
-  }), [colorPrimary])
+  }), [colorPrimary, activeBgColor])
 
   setMessageApi(api)
 
@@ -170,14 +181,16 @@ const App = () => {
       renderEmpty={() => (<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无数据" />)}
     >
       <AuthProvider>
-        {contextHolder}
-        <RouterProvider
-          future={{
-            v7_startTransition: true,
-            v7_relativeSplatPath: true
-          }}
-          router={router}
-        />
+        <ColorPrimaryContext.Provider value={{ colorPrimary, setColorPrimary }}>
+          {contextHolder}
+          <RouterProvider
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true
+            }}
+            router={router}
+          />
+        </ColorPrimaryContext.Provider>
       </AuthProvider>
     </ConfigProvider>
   );
