@@ -17,7 +17,7 @@ NProgress.configure({
 
 const defaultColorPrimary = '#1DA57A'
 
-const ColorPrimaryContext = createContext()
+export const ColorPrimaryContext = createContext()
 
 const App = () => {
 
@@ -59,6 +59,7 @@ const App = () => {
         colorBorder: 'rgba(255, 255, 255, 0.2)', //边框颜色 
         colorBorderSecondary: 'rgba(255, 255, 255, 0.1)', //辅助性的边框颜色
         colorTextPlaceholder: 'rgba(255, 255, 255, 0.18)', // 提示文字
+        colorTextQuaternary: 'rgba(255, 255, 255, 0.18)',
         controlOutline: 'none', //激活时的轮廓颜色
         boxShadow: '0 6px 16px 0 rgba(0, 0, 0, 0.2), 0 3px 6px -4px rgba(0, 0, 0, 0.25), 0 9px 28px 8px rgba(0, 0, 0, 0.15)',
         boxShadowSecondary: '0 6px 16px 0 rgba(0, 0, 0, 0.2), 0 3px 6px -4px rgba(0, 0, 0, 0.25), 0 9px 28px 8px rgba(0, 0, 0, 0.15)',
@@ -114,7 +115,7 @@ const App = () => {
 
         },
         Select: {
-
+          
         },
         Splitter: {
           colorFill: 'rgba(255, 255, 255, 0.2)', // 分隔线颜色（浅灰色，适合暗色背景）

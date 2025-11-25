@@ -11,6 +11,7 @@ import TopBreadcrumbTab from '../breadcrumb-tab';
 import './index.css';
 import UserProfile from './user-profile';
 import SearchMenu from './search-menu';
+import ThemeColor from './theme-color';
 
 
 const Header = () => {
@@ -54,6 +55,7 @@ const Header = () => {
                 gap={10}
             >
                 <SearchMenu/>
+                <ThemeColor/>
                 <Segmented
                     size='middle'
                     shape="round"
