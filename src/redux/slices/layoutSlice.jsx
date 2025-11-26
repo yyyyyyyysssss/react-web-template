@@ -8,6 +8,7 @@ export const initialState = {
     menuItems: [],
     flattenMenuItems: [],
     theme: 'dark',
+    colorPrimary: '#1DA57A',
     tenant: null
 }
 
@@ -69,6 +70,11 @@ export const layoutSlice = createSlice({
             const { theme } = payload
             state.theme = theme
         },
+        switchColorPrimary: (state, action) => {
+            const { payload } = action
+            const { colorPrimary } = payload
+            state.colorPrimary = colorPrimary
+        },
         setTabIem: (state, action) => {
             const { payload } = action
             const { tabItem } = payload
@@ -85,9 +91,9 @@ export const layoutSlice = createSlice({
             const menuItem = findBestMatchMenu(path, state.flattenMenuItems)
             // 先检查是否存在
             const checkTabItem = state.tabItems.find(f => f.path === path)
-            if(checkTabItem){
+            if (checkTabItem) {
                 state.activeKey = checkTabItem.key
-                if(menuItem){
+                if (menuItem) {
                     state.openKeys = state.menuCollapsed ? [] : menuItem.parentPath
                 }
                 return
@@ -195,6 +201,6 @@ export const layoutSlice = createSlice({
     }
 })
 
-export const { reset, setActiveKey, menuCollapsed, switchTheme, setOpenKeys, setTabIem, addTabIem, removeTabItem, removeAllTabItem, removeOtherTabItem, removeLeftTabItem, removeRightTabItem, loadMenuItems, switchTenant } = layoutSlice.actions
+export const { reset, setActiveKey, menuCollapsed, switchTheme, switchColorPrimary, setOpenKeys, setTabIem, addTabIem, removeTabItem, removeAllTabItem, removeOtherTabItem, removeLeftTabItem, removeRightTabItem, loadMenuItems, switchTenant } = layoutSlice.actions
 
 export default layoutSlice.reducer

@@ -5,7 +5,8 @@ import { RouterProvider } from 'react-router-dom';
 import { ConfigProvider, Empty, message } from 'antd';
 import { useSelector } from 'react-redux';
 import 'antd/dist/reset.css';
-import zhCN from 'antd/es/locale/zh_CN';
+import zhCN from 'antd/locale/zh_CN';
+import enUS from 'antd/locale/en_US';
 import NProgress from 'nprogress';
 import { setMessageApi } from './utils/MessageUtil.jsx';
 import { AuthProvider } from './router/AuthProvider.jsx';
@@ -15,20 +16,16 @@ NProgress.configure({
   showSpinner: false
 })
 
-const defaultColorPrimary = '#1DA57A'
-
-export const ColorPrimaryContext = createContext()
-
 const App = () => {
 
   const [api, contextHolder] = message.useMessage()
 
-  const [colorPrimary, setColorPrimary] = useState(defaultColorPrimary)
+  const colorPrimary = useSelector(state => state.layout.colorPrimary)
 
   const themeValue = useSelector(state => state.layout.theme)
 
   useEffect(() => {
-    document.documentElement.style.setProperty('--color-primary', defaultColorPrimary)
+    document.documentElement.style.setProperty('--color-primary', colorPrimary)
   }, [colorPrimary])
 
   const activeBgColor = useMemo(() => tinycolor(colorPrimary)
@@ -115,7 +112,7 @@ const App = () => {
 
         },
         Select: {
-          
+          colorBgBase: '#1C1C1C',
         },
         Splitter: {
           colorFill: 'rgba(255, 255, 255, 0.2)', // 分隔线颜色（浅灰色，适合暗色背景）
@@ -123,6 +120,9 @@ const App = () => {
           controlItemBgActive: 'rgba(255, 255, 255, 0.25)',
           controlItemBgActiveHover: 'rgba(255, 255, 255, 0.5)'
         },
+        Segmented: {
+          itemHoverColor: 'rgba(0,0,0,0.88)'
+        }
       },
     },
     light: {
@@ -182,7 +182,6 @@ const App = () => {
       renderEmpty={() => (<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无数据" />)}
     >
       <AuthProvider>
-        <ColorPrimaryContext.Provider value={{ colorPrimary, setColorPrimary }}>
           {contextHolder}
           <RouterProvider
             future={{
@@ -191,7 +190,6 @@ const App = () => {
             }}
             router={router}
           />
-        </ColorPrimaryContext.Provider>
       </AuthProvider>
     </ConfigProvider>
   );

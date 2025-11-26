@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import './index.css'
 import { Card, Divider, Flex, List, Progress, Segmented, Statistic, Table, Tooltip, Typography, theme } from 'antd';
 import { ExclamationCircleOutlined, CaretUpFilled, CaretDownFilled } from '@ant-design/icons';
 import { Column, Pie, Line } from '@ant-design/plots';
 import { Tiny } from '@ant-design/plots';
 import { format } from 'fecha';
+import FullScreenButton from '../../components/FullScreenButton';
 
 
 const RankingList = ({ title, data }) => (
@@ -37,6 +38,8 @@ const RankingList = ({ title, data }) => (
 const Home = () => {
 
   const { token } = theme.useToken()
+
+  const rootRef = useRef()
 
   const visitDataset = [
     264, 417, 438, 887, 309, 397, 550, 575, 563, 430, 525, 592, 492, 467, 513, 546, 983, 340, 539, 243, 226, 192,
@@ -255,8 +258,10 @@ const Home = () => {
   ]
 
   return (
-    <Flex gap={20} flex={1} vertical>
-
+    <Flex ref={rootRef} gap={20} flex={1} vertical>
+      <Flex justify='end'>
+        <FullScreenButton targetRef={rootRef} />
+      </Flex>
       <Flex gap={25}>
         {/* 总销售额 */}
         <Card
@@ -582,7 +587,7 @@ const Home = () => {
       </Flex>
 
       {/* 支付笔数折线图 */}
-      <Flex flex={1}>
+      <Flex flex={1} style={{marginBottom: '10px'}}>
         <Card
           title='支付笔数'
           style={{ width: '100%', boxShadow: 'var(--ant-box-shadow-tertiary)' }}
@@ -604,7 +609,6 @@ const Home = () => {
           />
         </Card>
       </Flex>
-
     </Flex>
   )
 }

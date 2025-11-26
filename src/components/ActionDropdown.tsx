@@ -1,6 +1,6 @@
 import React from 'react'
 import { DownOutlined } from '@ant-design/icons';
-import { Dropdown, MenuProps, Modal, ModalFuncProps, Typography } from 'antd'
+import { Dropdown, MenuProps, Modal, ModalFuncProps, theme, Typography } from 'antd'
 
 
 interface ActionDropdownItem {
@@ -34,6 +34,8 @@ const ActionDropdown: React.FC<ActionDropdownProps> = ({
     disabled,
 }) => {
 
+    const { token } = theme.useToken()
+
     const [modal, contextHolder] = Modal.useModal()
 
     const menuItems: MenuProps['items'] = items.map(item => ({
@@ -41,7 +43,7 @@ const ActionDropdown: React.FC<ActionDropdownProps> = ({
         label: (
             <Typography.Link
                 type={item.danger ? 'danger' : undefined}
-                style={{ display: 'flex', justifyContent: 'center', width: '100%' }}
+                style={{ display: 'flex', justifyContent: 'center', width: '100%', color: token.colorLink}}
                 onClick={e => {
                     e.stopPropagation()
                     if (item.confirm) {

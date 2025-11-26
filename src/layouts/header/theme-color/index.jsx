@@ -2,29 +2,33 @@ import { Dropdown, theme, Tooltip } from 'antd';
 import './index.css'
 import { Check, Palette } from 'lucide-react';
 import IconBox from '../../../components/icon-box';
-import { useContext } from 'react';
-import { ColorPrimaryContext } from '../../../App';
+import { useMemo } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { switchColorPrimary } from '../../../redux/slices/layoutSlice';
 
 const ThemeColor = () => {
 
+    const colorPrimary = useSelector(state => state.layout.colorPrimary)
+
+    const dispatch = useDispatch()
+
     const { token } = theme.useToken()
 
-    const { colorPrimary, setColorPrimary } = useContext(ColorPrimaryContext)
-
     const colorOptions = [
-        { color: '#1DA57A', label: '极光绿' },
-        { color: '#1890FF', label: '拂晓' },
-        { color: '#F5222D', label: '薄暮' },
+        { color: '#1DA57A', label: '晨露' },
+        { color: '#2D9CDB', label: '拂晓' },
+        { color: '#D94F4F', label: '薄暮' },
         { color: '#FA5418', label: '火山' },
         { color: '#FAAD14', label: '日暮' },
-        { color: '#722ED1', label: '酱紫' },
+        { color: '#4DB6B6', label: '静谧' },
+        { color: '#A85DBF', label: '流光' },
     ]
 
     const switchColor = (color) => {
-        setColorPrimary(color)
+        dispatch(switchColorPrimary({ colorPrimary: color }))
     }
 
-    const colorItems = colorOptions.map(option => ({
+    const colorItems = useMemo(() => colorOptions.map(option => ({
         key: option.color,
         label: (
             <Tooltip title={option.label}>
@@ -55,14 +59,14 @@ const ThemeColor = () => {
                 </div>
             </Tooltip>
         ),
-    }))
+    })), [colorPrimary])
 
     return (
         <Dropdown
             menu={{
                 items: colorItems
             }}
-            placement="bottomCenter"
+            placement="bottom"
             trigger={['click']}
         >
             <IconBox>

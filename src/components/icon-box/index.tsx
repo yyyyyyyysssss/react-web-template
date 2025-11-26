@@ -3,8 +3,8 @@ import './index.css';
 import { theme } from 'antd';
 
 
-export interface IconBoxProps {
-    icon: React.ReactNode;
+export interface IconBoxProps extends React.HTMLProps<HTMLDivElement>{
+    icon?: React.ReactNode;
     children?: React.ReactNode;
     padding?: number;                        // 控制点击区域大小
     className?: string;
@@ -16,7 +16,8 @@ const IconBox: FC<IconBoxProps> = ({
     children,
     padding = 6,
     className = '',
-    onClick
+    onClick,
+    ...rest
 }) => {
 
     const { token } = theme.useToken()
@@ -31,6 +32,7 @@ const IconBox: FC<IconBoxProps> = ({
                 padding
             }}
             onClick={onClick}
+            {...rest}
         >
             {content}
         </div>
