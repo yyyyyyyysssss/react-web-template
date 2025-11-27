@@ -24,6 +24,10 @@ body {
   border-block-end: none !important;
 }
 
+.home-root-flex{
+  background: var(--ant-color-bg-container);
+}
+
 .rank-circle {
   display: inline-block;
   width: 22px;

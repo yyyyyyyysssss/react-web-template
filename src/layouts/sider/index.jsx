@@ -6,10 +6,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setActiveKey, setOpenKeys } from '../../redux/slices/layoutSlice';
 import { findRouteByPath } from '../../router/router';
 import { Square } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 
 
 const Sider = () => {
+
+    const { t } = useTranslation()
 
     const themeValue = useSelector(state => state.layout.theme)
 
@@ -72,7 +75,7 @@ const Sider = () => {
             const defaultIcon = route?.defaultIcon
             return {
                 key: item.id,
-                label: item.name,
+                label: t(item.name),
                 icon: item.icon || defaultIcon || <Square size={18} />,
                 path: item.routePath,
                 children: item.children && item.children.length > 0 ? formatMenuItems(item.children) : undefined,
@@ -82,7 +85,7 @@ const Sider = () => {
 
     const items = useMemo(() => {
         return formatMenuItems(menuItems)
-    }, [menuItems])
+    }, [menuItems,t])
 
 
     return (

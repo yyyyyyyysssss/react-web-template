@@ -1,6 +1,7 @@
 import React from 'react'
 import { DownOutlined } from '@ant-design/icons';
 import { Dropdown, MenuProps, Modal, ModalFuncProps, theme, Typography } from 'antd'
+import { useTranslation } from 'react-i18next';
 
 
 interface ActionDropdownItem {
@@ -20,19 +21,17 @@ interface ActionDropdownItem {
 
 interface ActionDropdownProps {
     items: ActionDropdownItem[]
-    triggerText?: React.ReactNode
+    triggerText?: string
     disabled?: boolean
 }
 
 const ActionDropdown: React.FC<ActionDropdownProps> = ({
     items,
-    triggerText = (
-        <>
-            更多 <DownOutlined />
-        </>
-    ),
+    triggerText = '更多',
     disabled,
 }) => {
+
+    const { t } = useTranslation()
 
     const { token } = theme.useToken()
 
@@ -48,10 +47,10 @@ const ActionDropdown: React.FC<ActionDropdownProps> = ({
                     e.stopPropagation()
                     if (item.confirm) {
                         modal.confirm({
-                            title: item.confirm.title ?? '确认操作',
+                            title: item.confirm.title ?? t('确认操作'),
                             content: item.confirm.content,
-                            okText: item.confirm.okText ?? '确定',
-                            cancelText: item.confirm.cancelText ?? '取消',
+                            okText: item.confirm.okText ?? t('确定'),
+                            cancelText: item.confirm.cancelText ?? t('取消'),
                             maskClosable: false,
                             confirmLoading: item.confirm.confirmLoading,
                             onOk: item.confirm.onOk,
@@ -68,7 +67,7 @@ const ActionDropdown: React.FC<ActionDropdownProps> = ({
     return (
         <>
             <Dropdown menu={{ items: menuItems }} trigger={['click']} disabled={disabled}>
-                <Typography.Link onClick={e => e.stopPropagation()}>{triggerText}</Typography.Link>
+                <Typography.Link onClick={e => e.stopPropagation()}>{t(triggerText)}<DownOutlined /></Typography.Link>
             </Dropdown>
             {contextHolder}
         </>

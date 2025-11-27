@@ -3,11 +3,14 @@ import { useCallback, useEffect, useMemo, useRef } from "react"
 import './index.css'
 import { useDispatch, useSelector } from 'react-redux';
 import { removeAllTabItem, removeLeftTabItem, removeOtherTabItem, removeRightTabItem } from "../../redux/slices/layoutSlice";
+import { useTranslation } from 'react-i18next';
 
 
 const TabRightClickMenu = ({ tabKey, index, x, y, close }) => {
 
     const dispatch = useDispatch()
+
+    const { t } = useTranslation()
 
     const { token } = theme.useToken()
     const { borderRadius, colorBgContainer, colorBorder,boxShadow } = token
@@ -87,19 +90,19 @@ const TabRightClickMenu = ({ tabKey, index, x, y, close }) => {
                 vertical
             >
                 {tabSize !== 0 && (
-                    <div style={{borderRadius: borderRadius}} className='menu-btn' onClick={closeOther}>关闭其它</div>
+                    <div style={{borderRadius: borderRadius}} className='menu-btn' onClick={closeOther}>{t('关闭其它')}</div>
                 )}
-                <div style={{borderRadius: borderRadius}} className='menu-btn' onClick={closeAll}>关闭所有</div>
+                <div style={{borderRadius: borderRadius}} className='menu-btn' onClick={closeAll}>{t('关闭所有')}</div>
                 {index === tabSize && tabSize !== 0 && (
-                    <div style={{borderRadius: borderRadius}} className='menu-btn' onClick={closeLeft}>关闭左侧</div>
+                    <div style={{borderRadius: borderRadius}} className='menu-btn' onClick={closeLeft}>{t('关闭左侧')}</div>
                 )}
                 {index === 0 && tabSize !== 0 && (
-                    <div style={{borderRadius: borderRadius}} className='menu-btn' onClick={closeRight}>关闭右侧</div>
+                    <div style={{borderRadius: borderRadius}} className='menu-btn' onClick={closeRight}>{t('关闭右侧')}</div>
                 )}
                 {index > 0 && index < tabSize && (
                     <>
-                        <div style={{borderRadius: borderRadius}} className='menu-btn' onClick={closeLeft}>关闭左侧</div>
-                        <div style={{borderRadius: borderRadius}} className='menu-btn' onClick={closeRight}>关闭右侧</div>
+                        <div style={{borderRadius: borderRadius}} className='menu-btn' onClick={closeLeft}>{t('关闭左侧')}</div>
+                        <div style={{borderRadius: borderRadius}} className='menu-btn' onClick={closeRight}>{t('关闭右侧')}</div>
                     </>
                 )}
 

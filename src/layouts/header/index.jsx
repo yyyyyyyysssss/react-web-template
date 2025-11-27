@@ -12,6 +12,7 @@ import './index.css';
 import UserProfile from './user-profile';
 import SearchMenu from './search-menu';
 import ThemeColor from './theme-color';
+import LanguageSwitch from './language-switch';
 
 
 const Header = () => {
@@ -56,6 +57,7 @@ const Header = () => {
             >
                 <SearchMenu/>
                 <ThemeColor/>
+                <LanguageSwitch/>
                 <Segmented
                     size='middle'
                     shape="round"

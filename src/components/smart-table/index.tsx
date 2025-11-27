@@ -8,6 +8,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { useRequest } from 'ahooks'
 import type { TableProps, ColumnsType } from 'antd/es/table'
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import {
     DndContext,
     closestCenter,
@@ -156,6 +157,8 @@ const SmartTable = <T extends any>({
 }: SmartTableProps<T>) => {
 
     const location = useLocation()
+
+    const { t } = useTranslation()
 
     const isDev = import.meta.env.MODE === 'dev'
 
@@ -478,7 +481,7 @@ const SmartTable = <T extends any>({
                     showQuickJumper: true,
                     showSizeChanger: true,
                     pageSizeOptions: ['10', '20', '50', '100'],
-                    showTotal: total => `共 ${total} 条`,
+                    showTotal: total => t('共 {{total}} 条', { total }),
                     onChange: (pageNum, pageSize) => {
                         const newQueryParam = { ...queryParam, [pageNumField]: pageNum, [pageSizeField]: pageSize }
                         setQueryParam(newQueryParam)

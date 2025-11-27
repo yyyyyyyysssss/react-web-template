@@ -67,7 +67,6 @@ const ThemeColor = () => {
                 items: colorItems
             }}
             placement="bottom"
-            trigger={['click']}
         >
             <IconBox>
                 <Palette size={20} />

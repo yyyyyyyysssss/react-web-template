@@ -12,6 +12,7 @@ import { useRequest } from 'ahooks';
 import SmartTable from '../../../components/smart-table';
 import ActionDropdown from '../../../components/ActionDropdown';
 import Loading from '../../../components/loading';
+import { useTranslation } from 'react-i18next';
 
 
 const initQueryParam = {
@@ -22,6 +23,8 @@ const initQueryParam = {
 }
 
 const UserManage = () => {
+
+    const { t } = useTranslation()
 
     const { token } = theme.useToken()
 
@@ -343,24 +346,24 @@ const UserManage = () => {
                             fallback={
                                 <Switch
                                     disabled
-                                    checkedChildren="启用"
-                                    unCheckedChildren="停用"
+                                    checkedChildren={t('启用')}
+                                    unCheckedChildren={t('停用')}
                                     checked={enabled}
                                 />
                             }
 
                         >
                             <Popconfirm
-                                okText='确定'
-                                cancelText='取消'
-                                title="确定停用？"
+                                okText={t('确定')}
+                                cancelText={t('取消')}
+                                title={t('确定停用')}
                                 onConfirm={() => handleChange(false)}
                                 style={{ marginInlineEnd: 8 }}
                             >
                                 <Switch
                                     loading={!!userEnabledLoadingMap[id]}
-                                    checkedChildren="启用"
-                                    unCheckedChildren="停用"
+                                    checkedChildren={t('启用')}
+                                    unCheckedChildren={t('停用')}
                                     checked={enabled}
                                 />
                             </Popconfirm>
@@ -375,16 +378,16 @@ const UserManage = () => {
                             fallback={
                                 <Switch
                                     disabled
-                                    checkedChildren="启用"
-                                    unCheckedChildren="停用"
+                                    checkedChildren={t('启用')}
+                                    unCheckedChildren={t('停用')}
                                     checked={enabled}
                                 />
                             }
                         >
                             <Switch
                                 loading={!!userEnabledLoadingMap[id]}
-                                checkedChildren="启用"
-                                unCheckedChildren="停用"
+                                checkedChildren={t('启用')}
+                                unCheckedChildren={t('停用')}
                                 checked={enabled}
                                 onChange={handleChange}
                             />
@@ -423,7 +426,7 @@ const UserManage = () => {
                                 分配角色
                             </Typography.Link>
                             <Typography.Link onClick={() => handleEditUser(record.id)} style={{ marginInlineEnd: 8 }}>
-                                编辑
+                                {t('编辑')}
                             </Typography.Link>
                             <Typography.Link
                                 style={{ marginInlineEnd: 8 }}
@@ -455,10 +458,10 @@ const UserManage = () => {
                                 items={[
                                     {
                                         key: 'delete',
-                                        label: '删除',
+                                        label: t('删除'),
                                         danger: true,
                                         confirm: {
-                                            title: '确定删除？',
+                                            title: t('确定删除'),
                                             content: (
                                                 <>
                                                     是否删除 <Highlight>{record.nickname}</Highlight> 的账号？删除后将无法恢复！
@@ -529,8 +532,8 @@ const UserManage = () => {
                     </Form.Item>
                 </Form>
                 <Space>
-                    <Button type="primary" onClick={handleSearch}>查询</Button>
-                    <Button onClick={handleReset}>重置</Button>
+                    <Button type="primary" onClick={handleSearch}>{t('查询')}</Button>
+                    <Button onClick={handleReset}>{t('重置')}</Button>
                 </Space>
             </Flex>
             <SmartTable
@@ -539,7 +542,7 @@ const UserManage = () => {
                 headerExtra={(
                     <Space>
                         <HasPermission hasPermissions='system:user:write'>
-                            <Button type="primary" onClick={handleAddUser}>新增</Button>
+                            <Button type="primary" onClick={handleAddUser}>{t('新增')}</Button>
                         </HasPermission>
                     </Space>
                 )}

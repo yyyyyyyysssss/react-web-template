@@ -3,10 +3,13 @@ import { useMemo } from 'react';
 import { Breadcrumb } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
 import { findRouteByPath } from '../../router/router';
+import { useTranslation } from 'react-i18next';
 
 const TopBreadcrumbTab = () => {
 
     const location = useLocation()
+
+    const { t } = useTranslation()
 
     const breadcrumbItems = useMemo(() => {
         const pathnames = location.pathname.split('/').filter(item => item !== '')
@@ -19,10 +22,10 @@ const TopBreadcrumbTab = () => {
             }
             return {
                 key: path,
-                title: route?.element ? <Link to={path} state={location.state}>{route?.breadcrumbName}</Link> : route?.breadcrumbName,
+                title: route?.element ? <Link to={path} state={location.state}>{t(route?.breadcrumbName)}</Link> : t(route?.breadcrumbName),
             }
         })
-    }, [location])
+    }, [location,t])
 
     return <Breadcrumb items={breadcrumbItems}/>
 }

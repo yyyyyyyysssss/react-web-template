@@ -22,6 +22,8 @@ const App = () => {
 
   const colorPrimary = useSelector(state => state.layout.colorPrimary)
 
+  const language = useSelector(state => state.layout.language)
+
   const themeValue = useSelector(state => state.layout.theme)
 
   useEffect(() => {
@@ -39,7 +41,8 @@ const App = () => {
       cssVar: true,
       token: {
         colorText: 'rgba(255, 255, 255, 0.88)', // 白色文本
-        colorIcon: 'rgba(255, 255, 255, 0.45)', // 图标
+        colorIcon: 'rgba(255, 255, 255, 0.55)', // 图标
+        colorIconHover: 'rgba(255, 255, 255, 0.75)', // 图标悬浮
         colorSplit: 'rgba(255, 255, 255, 0.06)', // 较浅的分割线颜色
         colorTextDescription: 'rgba(255, 255, 255, 0.45)', // 较浅的文本描述颜色
         colorTextDisabled: 'rgba(255, 255, 255, 0.30)', //控制禁用状态下的字体颜色
@@ -54,13 +57,13 @@ const App = () => {
         controlItemBgActiveHover: activeBgColor, // 控制组件项在鼠标悬浮且激活状态下的背景颜色
         colorBgContainerDisabled: 'rgba(255, 255, 255, 0.08)', //容器在禁用状态下的背景色
         colorBorder: 'rgba(255, 255, 255, 0.2)', //边框颜色 
-        colorBorderSecondary: 'rgba(255, 255, 255, 0.1)', //辅助性的边框颜色
+        colorBorderSecondary: 'rgba(255, 255, 255, 0.06)', //辅助性的边框颜色
         colorTextPlaceholder: 'rgba(255, 255, 255, 0.18)', // 提示文字
         colorTextQuaternary: 'rgba(255, 255, 255, 0.18)',
         controlOutline: 'none', //激活时的轮廓颜色
         boxShadow: '0 6px 16px 0 rgba(0, 0, 0, 0.2), 0 3px 6px -4px rgba(0, 0, 0, 0.25), 0 9px 28px 8px rgba(0, 0, 0, 0.15)',
         boxShadowSecondary: '0 6px 16px 0 rgba(0, 0, 0, 0.2), 0 3px 6px -4px rgba(0, 0, 0, 0.25), 0 9px 28px 8px rgba(0, 0, 0, 0.15)',
-        boxShadowTertiary: '0 1px 2px 0 rgba(0, 0, 0, 0.1), 0 1px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px 0 rgba(0, 0, 0, 0.2)',
+        boxShadowTertiary: '0 1px 2px 0 rgba(0, 0, 0, 0.05), 0 1px 4px -1px rgba(0, 0, 0, 0.01), 0 2px 3px 0 rgba(0, 0, 0, 0.1)',
       },
       components: {
         Breadcrumb: {
@@ -95,6 +98,9 @@ const App = () => {
           darkSubMenuItemBg: '#1f1f1f', // 菜单项背景色，深灰色
           darkItemSelectedBg: activeBgColor,
           darkPopupBg: '#181818'
+        },
+        Dropdown: {
+
         },
         Tree: {
 
@@ -177,7 +183,7 @@ const App = () => {
 
   return (
     <ConfigProvider
-      locale={zhCN}
+      locale={language === 'zh' ? zhCN : enUS}
       theme={themeConfig[themeValue]}
       renderEmpty={() => (<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无数据" />)}
     >

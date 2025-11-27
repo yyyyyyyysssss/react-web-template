@@ -1,6 +1,5 @@
-import React, { CSSProperties, FC } from 'react';
+import React, { FC } from 'react';
 import './index.css';
-import { theme } from 'antd';
 
 
 export interface IconBoxProps extends React.HTMLProps<HTMLDivElement>{
@@ -20,16 +19,13 @@ const IconBox: FC<IconBoxProps> = ({
     ...rest
 }) => {
 
-    const { token } = theme.useToken()
-
     const content = children ?? icon;
 
     return (
         <div
             className={`icon-button ${className}`}
             style={{
-                borderRadius: token.borderRadius,
-                padding
+                padding,
             }}
             onClick={onClick}
             {...rest}

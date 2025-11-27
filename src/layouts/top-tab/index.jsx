@@ -24,9 +24,12 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import classNames from 'classnames';
+import { useTranslation } from 'react-i18next';
 
 
 const SortableTabItem = ({ tab, index, activeKey, dragging, onTabClick, onEdit, onContextMenu }) => {
+
+    const { t } = useTranslation()
 
     const {
         attributes,
@@ -47,6 +50,8 @@ const SortableTabItem = ({ tab, index, activeKey, dragging, onTabClick, onEdit, 
     const isActive = tab.key === activeKey
     const closable = tab.props.closable !== false
 
+    const label = tab.props.label ?? tab.props.tab
+
     return (
         <div
             key={tab.key}
@@ -61,7 +66,7 @@ const SortableTabItem = ({ tab, index, activeKey, dragging, onTabClick, onEdit, 
             })}
         >
             <div className="ant-tabs-tab-btn">
-                {tab.props.label ?? tab.props.tab}
+                {t(label)}
             </div>
             {closable && (
                 <button
@@ -97,9 +102,9 @@ const SortableTabItem = ({ tab, index, activeKey, dragging, onTabClick, onEdit, 
 
 const TopMenuTab = ({ style }) => {
 
-    const { token } = theme.useToken()
+    const { t } = useTranslation()
 
-    const themeValue = useSelector(state => state.layout.theme)
+    const { token } = theme.useToken()
 
     const location = useLocation()
 
@@ -256,6 +261,7 @@ const TopMenuTab = ({ style }) => {
     const renderTabBar = (props, _) => {
         const { panes, activeKey, onTabClick, editable } = props
         const onEdit = editable?.onEdit
+        const label = draggedTab?.label ?? draggedTab?.tab
         return (
             <DndContext
                 sensors={sensors}
@@ -299,7 +305,7 @@ const TopMenuTab = ({ style }) => {
                                 cursor: 'grabbing',
                             }}
                         >
-                            {draggedTab.label ?? draggedTab.tab}
+                            {t(label)}
                         </div>
                     ) : null}
                 </DragOverlay>
@@ -316,7 +322,7 @@ const TopMenuTab = ({ style }) => {
                 type="editable-card"
                 onEdit={handleEdit}
                 items={items}
-                tabBarStyle={{ 
+                tabBarStyle={{
                     borderBottom: 'none',
                 }}
                 renderTabBar={renderTabBar}
