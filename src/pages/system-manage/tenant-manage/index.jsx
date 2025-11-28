@@ -12,6 +12,7 @@ import { getMessageApi } from '../../../utils/MessageUtil'
 import SmartUpload from '../../../components/smart-upload'
 import UserTransfer from '../../../components/UserTransfer';
 import Loading from '../../../components/loading';
+import { useTranslation } from 'react-i18next'
 
 const initQueryParam = {
   pageNum: 1,
@@ -20,6 +21,8 @@ const initQueryParam = {
 }
 
 const TenantManage = () => {
+
+  const { t } = useTranslation()
 
   const [searchForm] = Form.useForm()
 
@@ -103,10 +106,10 @@ const TenantManage = () => {
     const tenantData = await editForm.validateFields()
     if (tenantOperation.operationType === 'ADD') {
       await createTenantAsync(tenantData)
-      getMessageApi().success('租户新增成功')
+      getMessageApi().success(t('新增成功'))
     } else {
       await updateTenantAsync(tenantData)
-      getMessageApi().success('租户修改成功')
+      getMessageApi().success(t('修改成功'))
     }
     handleClose()
     handleRefresh()
@@ -125,7 +128,7 @@ const TenantManage = () => {
   const handleUpdateStatus = async (tenantId, status) => {
     const data = await updateTenantStatus(tenantId, status)
     if (data === true) {
-      getMessageApi().success('操作成功')
+      getMessageApi().success(t('操作成功'))
       handleReset()
     }
   }
@@ -133,7 +136,7 @@ const TenantManage = () => {
   const handleDelete = async (tenantId) => {
     const data = await deleteTenantByIdAsync(tenantId)
     if (data === true) {
-      getMessageApi().success('删除成功')
+      getMessageApi().success(t('删除成功'))
       handleReset()
     }
   }
@@ -143,7 +146,7 @@ const TenantManage = () => {
     const tenantName = tenant.tenantName
     setBindUser({
       open: true,
-      title: `分配用户[${tenantName}]`,
+      title: t('分配用户') + `[${tenantName}]`,
       tenantId: tenantId
     })
     const userIds = await getUserIdByTenantIdAsync(tenantId)
@@ -162,7 +165,7 @@ const TenantManage = () => {
   const handleBindUserSave = async () => {
     const { userIds } = await bindUserForm.validateFields()
     await bindTenantUserAsync(bindUser.tenantId,userIds)
-    getMessageApi().success('操作成功')
+    getMessageApi().success(t('操作成功'))
     handleBindUserClose()
   }
 
@@ -274,20 +277,20 @@ const TenantManage = () => {
               hasPermissions='system:tenant:write'
             >
               <Typography.Link onClick={() => handleBindUser(record)} style={{ marginInlineEnd: 8 }}>
-                分配用户
+                {t('分配用户')}
               </Typography.Link>
               <Typography.Link onClick={() => handleEditTenant(record)} style={{ marginInlineEnd: 8 }}>
-                编辑
+                {t('编辑')}
               </Typography.Link>
               {
                 record.status === 'DISABLED' || record.status === 'PENDING' ? (
                   <Typography.Link onClick={() => handleUpdateStatus(record.id, 'ACTIVE')} style={{ marginInlineEnd: 8 }}>
-                    启用
+                    {t('启用')}
                   </Typography.Link>
                 ) : record.status === 'ACTIVE' ? (
-                  <Popconfirm title="确定停用?" onConfirm={() => handleUpdateStatus(record.id, 'DISABLED')}>
+                  <Popconfirm title={t('确定停用')} onConfirm={() => handleUpdateStatus(record.id, 'DISABLED')}>
                     <Typography.Link style={{ marginInlineEnd: 8 }}>
-                      停用
+                      {t('停用')}
                     </Typography.Link>
                   </Popconfirm>
 
@@ -301,10 +304,10 @@ const TenantManage = () => {
                 items={[
                   {
                     key: 'delete',
-                    label: '删除',
+                    label: t('删除'),
                     danger: true,
                     confirm: {
-                      title: '确定删除？',
+                      title: t('确定删除'),
                       content: (
                         <>
                           是否删除 <Highlight>{record.tenantName}</Highlight> 租户？删除后将无法恢复！
@@ -371,8 +374,8 @@ const TenantManage = () => {
           </Form.Item>
         </Form>
         <Space>
-          <Button type="primary" onClick={handleSearch}>查询</Button>
-          <Button onClick={handleReset}>重置</Button>
+          <Button type="primary" onClick={handleSearch}>{t('查询')}</Button>
+          <Button onClick={handleReset}>{t('重置')}</Button>
         </Space>
       </Flex>
       <SmartTable
@@ -381,7 +384,7 @@ const TenantManage = () => {
         headerExtra={(
           <Space>
             <HasPermission hasPermissions='system:tenant:write'>
-              <Button type="primary" onClick={handleAddTenant}>新增</Button>
+              <Button type="primary" onClick={handleAddTenant}>{t('新增')}</Button>
             </HasPermission>
           </Space>
         )}
@@ -390,7 +393,7 @@ const TenantManage = () => {
         setQueryParam={setQueryParam}
       />
       <Modal
-        title={tenantOperation.title}
+        title={t(tenantOperation.title)}
         width={400}
         centered
         open={tenantOperation.open}
@@ -399,8 +402,8 @@ const TenantManage = () => {
         onCancel={handleClose}
         onClose={handleClose}
         maskClosable={false}
-        okText="保存"
-        cancelText="取消"
+        okText={t('保存')}
+        cancelText={t('取消')}
         afterClose={() => editForm.resetFields()}
       >
         <div className='w-full mt-5'>
@@ -489,8 +492,8 @@ const TenantManage = () => {
         confirmLoading={bindTenantUserLoading}
         maskClosable={false}
         destroyOnHidden
-        okText="保存"
-        cancelText="取消"
+        okText={t('保存')}
+        cancelText={t('取消')}
         afterClose={() => bindUserForm.resetFields()}
         okButtonProps={{
           disabled: getUserIdByTenantIdLoading

@@ -2,6 +2,7 @@ import { Flex, Form, Select, Tag } from 'antd'
 import { RequestMethod } from '../../../../enums'
 import { useEffect } from 'react'
 import EditableTable from '../../../../components/smart-table/EditableTable'
+import { useTranslation } from 'react-i18next';
 
 const requestMethodOptions = Object.entries(RequestMethod).map(([key, value]) => ({
     label: key,
@@ -11,6 +12,8 @@ const requestMethodOptions = Object.entries(RequestMethod).map(([key, value]) =>
 const AuthorityUrl = ({ authorityId, authorityUrls, onChange, loading }) => {
 
     const [form] = Form.useForm()
+
+    const { t } = useTranslation()
 
     useEffect(() => {
         if (authorityUrls) {

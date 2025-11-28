@@ -11,6 +11,7 @@ import { useRequest } from 'ahooks'
 import SmartTable from '../../../components/smart-table'
 import RemoteSearchSelect from '../../../components/RemoteSearchSelect'
 import Loading from '../../../components/loading'
+import { useTranslation } from 'react-i18next'
 
 const initQueryParam = {
     pageNum: 1,
@@ -20,6 +21,8 @@ const initQueryParam = {
 }
 
 const RoleManage = () => {
+
+    const { t } = useTranslation()
 
     const [modal, contextHolder] = Modal.useModal()
 
@@ -148,7 +151,7 @@ const RoleManage = () => {
                         createRoleAsync(values)
                             .then(
                                 () => {
-                                    getMessageApi().success('角色新增成功')
+                                    getMessageApi().success(t('新增成功'))
                                     handleClose()
                                     handleRefresh()
                                 }
@@ -157,7 +160,7 @@ const RoleManage = () => {
                         updateRoleAsync(values)
                             .then(
                                 () => {
-                                    getMessageApi().success('角色修改成功')
+                                    getMessageApi().success(t('修改成功'))
                                     handleClose()
                                     handleRefresh()
                                 }
@@ -173,9 +176,9 @@ const RoleManage = () => {
         try {
             await updateRoleEnabled(id, enabled)
             if (enabled) {
-                getMessageApi().success('角色启用成功')
+                getMessageApi().success(t('启用成功'))
             } else {
-                getMessageApi().success('角色停用成功')
+                getMessageApi().success(t('停用成功'))
             }
             handleRefresh()
         } finally {
@@ -187,7 +190,7 @@ const RoleManage = () => {
         deleteRoleByIdAsync(id)
             .then(
                 () => {
-                    getMessageApi().success('角色删除成功')
+                    getMessageApi().success(t('删除成功'))
                     handleRefresh()
                 }
             )
@@ -275,23 +278,23 @@ const RoleManage = () => {
                             fallback={
                                 <Switch
                                     disabled
-                                    checkedChildren="启用"
-                                    unCheckedChildren="停用"
+                                    checkedChildren={t('启用')}
+                                    unCheckedChildren={t('停用')}
                                     checked={enabled}
                                 />
                             }
                         >
                             <Popconfirm
-                                okText='确定'
-                                cancelText='取消'
-                                title="确定停用？"
+                                okText={t('确定')}
+                                cancelText={t('取消')}
+                                title={t('确定停用')}
                                 onConfirm={() => handleUpdateEnabled(record.id, false)}
                                 style={{ marginInlineEnd: 8 }}
                             >
                                 <Switch
                                     loading={!!roleEnabledLoadingMap[id]}
-                                    checkedChildren="启用"
-                                    unCheckedChildren="停用"
+                                    checkedChildren={t('启用')}
+                                    unCheckedChildren={t('停用')}
                                     checked={enabled}
                                     onChange={handleChange}
                                 />
@@ -305,16 +308,16 @@ const RoleManage = () => {
                             fallback={
                                 <Switch
                                     disabled
-                                    checkedChildren="启用"
-                                    unCheckedChildren="停用"
+                                    checkedChildren={t('启用')}
+                                    unCheckedChildren={t('停用')}
                                     checked={enabled}
                                 />
                             }
                         >
                             <Switch
                                 loading={!!roleEnabledLoadingMap[id]}
-                                checkedChildren="启用"
-                                unCheckedChildren="停用"
+                                checkedChildren={t('启用')}
+                                unCheckedChildren={t('停用')}
                                 checked={enabled}
                                 onChange={handleChange}
                             />
@@ -345,10 +348,10 @@ const RoleManage = () => {
                     <span>
                         <HasPermission hasPermissions='system:role:write'>
                             <Typography.Link onClick={() => handleBindAuthority(record.id)} style={{ marginInlineEnd: 8 }}>
-                                分配权限
+                                {t('分配权限')}
                             </Typography.Link>
                             <Typography.Link onClick={() => handleEditRole(record.id)} style={{ marginInlineEnd: 8 }}>
-                                编辑
+                                {t('编辑')}
                             </Typography.Link>
                         </HasPermission>
                         <HasPermission hasPermissions='system:role:delete'>
@@ -356,9 +359,9 @@ const RoleManage = () => {
                                 style={{ marginInlineEnd: 8 }}
                                 onClick={() => {
                                     modal.confirm({
-                                        title: '确定删除？',
-                                        okText: '确定',
-                                        cancelText: '取消',
+                                        title: t('确定删除'),
+                                        okText: t('确定'),
+                                        cancelText: t('取消'),
                                         maskClosable: false,
                                         confirmLoading: deleteRoleByIdLoading,
                                         content: (
@@ -372,7 +375,7 @@ const RoleManage = () => {
                                     })
                                 }}
                             >
-                                删除
+                                {t('删除')}
                             </Typography.Link>
                         </HasPermission>
                     </span>
@@ -419,8 +422,8 @@ const RoleManage = () => {
                     </Form.Item>
                 </Form>
                 <Space>
-                    <Button type="primary" onClick={handleSearch}>查询</Button>
-                    <Button onClick={handleReset}>重置</Button>
+                    <Button type="primary" onClick={handleSearch}>{t('查询')}</Button>
+                    <Button onClick={handleReset}>{t('重置')}</Button>
                 </Space>
             </Flex>
             <SmartTable
@@ -429,7 +432,7 @@ const RoleManage = () => {
                 headerExtra={
                     <Space>
                         <HasPermission hasPermissions='system:role:write'>
-                            <Button type="primary" onClick={handleAddRole}>新增</Button>
+                            <Button type="primary" onClick={handleAddRole}>{t('新增')}</Button>
                         </HasPermission>
                     </Space>
                 }
@@ -438,7 +441,7 @@ const RoleManage = () => {
                 setQueryParam={setQueryParam}
             />
             <Modal
-                title={roleOperation.title}
+                title={t(roleOperation.title)}
                 width={400}
                 centered
                 open={roleOperation.open}
@@ -448,11 +451,11 @@ const RoleManage = () => {
                 onClose={handleClose}
                 maskClosable={false}
                 keyboard={false}
-                okText="保存"
+                okText={t('保存')}
                 okButtonProps={{
                     disabled: getRoleDetailsLoading
                 }}
-                cancelText="取消"
+                cancelText={t('取消')}
             >
                 <Form
                     form={editForm}
@@ -540,8 +543,8 @@ const RoleManage = () => {
                 width={400}
                 footer={
                     <Space>
-                        <Button loading={bindAuthorityByRoleIdLoading} type="primary" onClick={handleBindAuthoritySave}>保存</Button>
-                        <Button onClick={handleBindAuthorityClose}>取消</Button>
+                        <Button loading={bindAuthorityByRoleIdLoading} type="primary" onClick={handleBindAuthoritySave}>{t('保存')}</Button>
+                        <Button onClick={handleBindAuthorityClose}>{t('取消')}</Button>
                     </Space>
                 }
             >

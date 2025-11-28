@@ -7,10 +7,12 @@ import { addAuthority, createMenu, updateAuthority, updateMenu } from '../../../
 import { useRequest } from 'ahooks';
 import EditableTable from '../../../../../components/smart-table/EditableTable';
 import { getMessageApi } from '../../../../../utils/MessageUtil';
+import { useTranslation } from 'react-i18next';
 
 
 const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCode, onClose, onSuccess, }) => {
 
+    const { t } = useTranslation()
 
     const [form] = Form.useForm()
 
@@ -77,7 +79,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
                     addAuthorityAsync(requestParam)
                         .then(
                             (data) => {
-                                getMessageApi().success('新增成功')
+                                getMessageApi().success(t('新增成功'))
                                 const newData = { ...requestParam, id: data, type: AuthorityType.BUTTON }
                                 onSuccess(newData, operation)
                                 reset()
@@ -86,7 +88,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
                     createMenuAsync(requestParam)
                         .then(
                             (data) => {
-                                getMessageApi().success('新增成功')
+                                getMessageApi().success(t('新增成功'))
                                 const newData = { ...requestParam, id: data, type: AuthorityType.MENU }
                                 onSuccess(newData, operation)
                                 reset()
@@ -98,7 +100,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
                 if (type === AuthorityType.BUTTON) {
                     updateAuthorityAsync(requestParam)
                         .then(() => {
-                            getMessageApi().success('修改成功')
+                            getMessageApi().success(t('修改成功'))
                             const newData = { ...requestParam }
                             onSuccess(newData, operation)
                             reset()
@@ -106,7 +108,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
                 } else {
                     updateMenuAsync(requestParam)
                         .then(() => {
-                            getMessageApi().success('修改成功')
+                            getMessageApi().success(t('修改成功'))
                             const newData = { ...requestParam }
                             onSuccess(newData, operation)
                             reset()
@@ -131,7 +133,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
 
     return (
         <Modal
-            title={title}
+            title={t(title)}
             width={type === AuthorityType.MENU ? 400 : 500}
             centered
             open={open}
@@ -141,8 +143,8 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
             onClose={handleClose}
             maskClosable={false}
             keyboard={false}
-            okText="保存"
-            cancelText="取消"
+            okText={t('保存')}
+            cancelText={t('取消')}
             destroyOnHidden
         >
             <Flex
@@ -208,7 +210,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
                                     beforeUpload={null}
                                     customRequest={null}
                                 >
-                                    <Button icon={<UploadOutlined />}>点击上传</Button>
+                                    <Button icon={<UploadOutlined />}>{t('点击上传')}</Button>
                                 </Upload>
                             </Form.Item>
                         </>

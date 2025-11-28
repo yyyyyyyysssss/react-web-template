@@ -8,6 +8,7 @@ import IdGen from "../../utils/IdGen"
 import { getMessageApi } from "../../utils/MessageUtil"
 import HasPermission from '../../components/HasPermission';
 import Loading from "../loading"
+import { useTranslation } from 'react-i18next';
 
 
 interface EditableTableProps {
@@ -38,6 +39,8 @@ const EditableTable: React.FC<EditableTableProps> = ({
     onDelete,
     ...props
 }) => {
+
+    const { t } = useTranslation()
 
     const form = Form.useFormInstance()
 
@@ -89,7 +92,7 @@ const EditableTable: React.FC<EditableTableProps> = ({
         const newKey = IdGen.nextId()
         if (mode === 'single-edit') {
             if (editingKey !== null) {
-                getMessageApi().warning('请先保存或取消当前正在编辑的行')
+                getMessageApi().warning(t('请先保存或取消当前正在编辑的行'))
                 return
             }
             setEditingKey(newKey)
@@ -194,11 +197,12 @@ const EditableTable: React.FC<EditableTableProps> = ({
                                         const copyRow = { ...rowData, [rowKey]: IdGen.nextId() }
                                         add(copyRow)
                                     }}
+                                    style={{ whiteSpace: 'nowrap' }}
                                 >
-                                    复制
+                                    {t('复制')}
                                 </Typography.Link>
-                                <Popconfirm title="确定删除?" onConfirm={() => handleDelete(rowData, rowIndex)}>
-                                    <Typography.Link>删除</Typography.Link>
+                                <Popconfirm title={t('确定删除')} onConfirm={() => handleDelete(rowData, rowIndex)}>
+                                    <Typography.Link style={{ whiteSpace: 'nowrap' }}>{t('删除')}</Typography.Link>
                                 </Popconfirm>
                             </Flex>
                         )
@@ -211,13 +215,13 @@ const EditableTable: React.FC<EditableTableProps> = ({
                                         {!!loadingMap[rowIndex] ? (
                                             <Loading />
                                         ) : (
-                                            <Typography.Link onClick={() => handleSave(rowData, rowIndex)}>
-                                                保存
+                                            <Typography.Link style={{ whiteSpace: 'nowrap' }} onClick={() => handleSave(rowData, rowIndex)}>
+                                                {t('保存')}
                                             </Typography.Link>
                                         )}
 
-                                        <Typography.Link onClick={() => handleCancel(rowData, rowIndex)}>
-                                            取消
+                                        <Typography.Link style={{ whiteSpace: 'nowrap' }} onClick={() => handleCancel(rowData, rowIndex)}>
+                                            {t('取消')}
                                         </Typography.Link>
                                     </HasPermission>
                                 </Flex >
@@ -226,14 +230,14 @@ const EditableTable: React.FC<EditableTableProps> = ({
                             (
                                 <Flex gap={8} justify='center' align='center'>
                                     <HasPermission hasPermissions={editPermission}>
-                                        <Typography.Link disabled={editingKey !== null} onClick={() => handleEdit(rowData, rowIndex)}>
-                                            编辑
+                                        <Typography.Link style={{ whiteSpace: 'nowrap' }} disabled={editingKey !== null} onClick={() => handleEdit(rowData, rowIndex)}>
+                                            {t('编辑')}
                                         </Typography.Link>
                                     </HasPermission>
                                     <HasPermission hasPermissions={deletePermission}>
-                                        <Popconfirm disabled={editingKey !== null} okText='确定' cancelText='取消' title="确定删除？" onConfirm={() => handleDelete(rowData, rowIndex)}>
-                                            <Typography.Link disabled={editingKey !== null}>
-                                                删除
+                                        <Popconfirm disabled={editingKey !== null} okText={t('确定')} cancelText={t('取消')} title={t('确定删除')} onConfirm={() => handleDelete(rowData, rowIndex)}>
+                                            <Typography.Link style={{ whiteSpace: 'nowrap' }} disabled={editingKey !== null}>
+                                                {t('删除')}
                                             </Typography.Link>
                                         </Popconfirm>
                                     </HasPermission>
@@ -249,7 +253,7 @@ const EditableTable: React.FC<EditableTableProps> = ({
     return (
         <Flex gap={8} vertical>
             <HasPermission hasPermissions={editPermission}>
-                <Button onClick={handleAdd} type="primary" className='w-20'>新增一行</Button>
+                <Button onClick={handleAdd} type="primary" className='w-20'>{t('新增一行')}</Button>
             </HasPermission>
             <Table
                 components={{

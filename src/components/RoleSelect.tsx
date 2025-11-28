@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { fetchRoleOptions } from "../services/SystemService";
 import { Checkbox, Divider, Flex, Select } from "antd";
+import { useTranslation } from 'react-i18next';
 
 
 interface Role {
@@ -15,6 +16,8 @@ interface RoleSelectProps {
 }
 
 const RoleSelect: React.FC<RoleSelectProps> = ({ value, onChange, type = 'select' }) => {
+
+    const { t } = useTranslation()
 
     const [roleData, setRoleData] = useState<Role[]>([])
 
@@ -108,7 +111,7 @@ const RoleSelect: React.FC<RoleSelectProps> = ({ value, onChange, type = 'select
                         vertical
                     >
                         <Checkbox indeterminate={indeterminate} onChange={handleCheckAllChange} checked={checkAll}>
-                            选择全部
+                            {t('选择全部')}
                         </Checkbox>
                         <Divider />
                         <Checkbox.Group

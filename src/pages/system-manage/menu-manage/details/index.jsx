@@ -10,6 +10,7 @@ import HasPermission from '../../../../components/HasPermission';
 import { getMessageApi } from '../../../../utils/MessageUtil';
 import { useRequest } from 'ahooks';
 import Loading from '../../../../components/loading';
+import { useTranslation } from 'react-i18next';
 
 
 const MenuDetails = ({ menuId }) => {
@@ -17,6 +18,8 @@ const MenuDetails = ({ menuId }) => {
     if(!menuId){
         return <></>
     }
+
+    const { t } = useTranslation()
 
     const [menuData, setMenuData] = useState({})
 
@@ -74,7 +77,7 @@ const MenuDetails = ({ menuId }) => {
     const handleAuthorityChange = async (newAuthorityUrls) => {
         const authorityId = openInfo.authorityId
         await updateAuthorityUrlsByIdAsync(authorityId, newAuthorityUrls)
-        getMessageApi().success('修改成功')
+        getMessageApi().success(t('修改成功'))
         //更新当前权限urls
         setAuthorityUrls(newAuthorityUrls)
         //更新权限数据
@@ -118,7 +121,7 @@ const MenuDetails = ({ menuId }) => {
 
     const handleDeleteAuthority = async (authorityId) => {
         await deleteAuthorityByIdAsync(authorityId)
-        getMessageApi().success('删除成功')
+        getMessageApi().success(t('删除成功'))
         const newMenuData = {
             ...menuData,
             children: [...(menuData.children.filter(f => f.id !== authorityId))]
@@ -205,15 +208,15 @@ const MenuDetails = ({ menuId }) => {
                 return (
                     <Space size='middle'>
                         <HasPermission hasPermissions='system:menu:read'>
-                            <Typography.Link onClick={() => showDrawer(record)}>API权限</Typography.Link>
+                            <Typography.Link onClick={() => showDrawer(record)}>{t('API权限')}</Typography.Link>
                         </HasPermission>
                         <HasPermission hasPermissions='system:menu:write'>
-                            <Typography.Link onClick={() => handleMenuAuthority('编辑权限', AuthorityType.BUTTON, 'EDIT', record)}>编辑</Typography.Link>
+                            <Typography.Link onClick={() => handleMenuAuthority('编辑权限', AuthorityType.BUTTON, 'EDIT', record)}>{t('编辑')}</Typography.Link>
                         </HasPermission>
                         <HasPermission hasPermissions='system:menu:delete'>
-                            <Popconfirm okText='确定' cancelText='取消' title="确定删除？" okButtonProps={{ loading: deleteAuthorityByIdLoading }} onConfirm={async () => await handleDeleteAuthority(record.id)} style={{ marginInlineEnd: 8 }}>
+                            <Popconfirm okText={t('确定')} cancelText={t('取消')} title={t('确定删除')} okButtonProps={{ loading: deleteAuthorityByIdLoading }} onConfirm={async () => await handleDeleteAuthority(record.id)} style={{ marginInlineEnd: 8 }}>
                                 <Typography.Link>
-                                    删除
+                                    {t('删除')}
                                 </Typography.Link>
                             </Popconfirm>
                         </HasPermission>
@@ -263,7 +266,7 @@ const MenuDetails = ({ menuId }) => {
                 </Form.Item>
             </Form>
             <HasPermission hasPermissions='system:menu:write'>
-                <Button type="primary" onClick={() => handleMenuAuthority('新增权限', AuthorityType.BUTTON, 'ADD', null)} className='w-20'>新增权限</Button>
+                <Button type="primary" onClick={() => handleMenuAuthority('新增权限', AuthorityType.BUTTON, 'ADD', null)} className='w-28'>{t('新增权限')}</Button>
             </HasPermission>
             <Table
                 columns={columns}
@@ -279,7 +282,7 @@ const MenuDetails = ({ menuId }) => {
                 onSuccess={handleSuccessMenuAuthority}
             />
             <Drawer
-                title={`API权限[${openInfo.title}]`}
+                title={t('API权限') + `[${openInfo.title}]`}
                 closable={{ 'aria-label': 'Close Button' }}
                 onClose={onClose}
                 open={openInfo.open}

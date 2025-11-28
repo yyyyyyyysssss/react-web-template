@@ -47,7 +47,7 @@ const ActionDropdown: React.FC<ActionDropdownProps> = ({
                     e.stopPropagation()
                     if (item.confirm) {
                         modal.confirm({
-                            title: item.confirm.title ?? t('确认操作'),
+                            title: item.confirm.title ?? t('确定操作'),
                             content: item.confirm.content,
                             okText: item.confirm.okText ?? t('确定'),
                             cancelText: item.confirm.cancelText ?? t('取消'),

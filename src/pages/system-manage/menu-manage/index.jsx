@@ -11,11 +11,13 @@ import Highlight from '../../../components/Highlight';
 import HasPermission from '../../../components/HasPermission';
 import { getMessageApi } from '../../../utils/MessageUtil';
 import { useRequest } from 'ahooks';
+import { useTranslation } from 'react-i18next';
 
 
 
 const MenuItem = ({ item, onAddMenu, onEditMenu, onDeleteMenu }) => {
 
+    const { t } = useTranslation()
 
     const [hovering, setHovering] = useState(false)
 
@@ -41,11 +43,11 @@ const MenuItem = ({ item, onAddMenu, onEditMenu, onDeleteMenu }) => {
                             items: [
                                 {
                                     key: 'child',
-                                    label: '新增子菜单'
+                                    label: t('新增子菜单')
                                 },
                                 {
                                     key: 'brother',
-                                    label: '新增同级菜单'
+                                    label: t('新增同级菜单')
                                 }
                             ],
                             onClick: (info) => {
@@ -73,7 +75,7 @@ const MenuItem = ({ item, onAddMenu, onEditMenu, onDeleteMenu }) => {
                             onEditMenu(item)
                         }}
                     >
-                        <Tooltip title='编辑菜单'>
+                        <Tooltip title={t('编辑菜单')}>
                             <Pencil size={16} />
                         </Tooltip>
                     </div>
@@ -84,7 +86,7 @@ const MenuItem = ({ item, onAddMenu, onEditMenu, onDeleteMenu }) => {
                             onDeleteMenu(item)
                         }}
                     >
-                        <Tooltip title='删除菜单'>
+                        <Tooltip title={t('删除菜单')}>
                             <Trash2 size={16} />
                         </Tooltip>
                     </div>
@@ -95,6 +97,8 @@ const MenuItem = ({ item, onAddMenu, onEditMenu, onDeleteMenu }) => {
 }
 
 const MenuManage = () => {
+
+    const { t } = useTranslation()
 
     const [modal, contextHolder] = Modal.useModal()
 
@@ -259,19 +263,19 @@ const MenuManage = () => {
     const handleDeleteMenu = (menuItem) => {
         handleSelectMenu(menuItem.id)
         modal.confirm({
-            title: '确认删除？',
+            title: t('确定删除'),
             content: (
                 <>
                     是否删除 <Highlight>{menuItem.name}</Highlight> 菜单？删除后将一并移除其下所有子菜单和权限项。
                 </>
             ),
-            okText: '确认',
-            cancelText: '取消',
+            okText: t('确认'),
+            cancelText: t('取消'),
             maskClosable: false,
             confirmLoading: deleteMenuLoading,
             onOk: async () => {
                 await deleteMenuAsync(menuItem.id)
-                getMessageApi().success('删除成功')
+                getMessageApi().success(t('删除成功'))
                 const newMenuData = deleteTreeNode(menuData, menuItem.id)
                 setMenuData(newMenuData)
                 setSelectedKeys(null)

@@ -1,4 +1,4 @@
-import { Button, Drawer, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Skeleton, Space, Switch, theme, Typography } from 'antd'
+import { Button, Drawer, Flex, Form, Input, Modal, Popconfirm, Radio, Select, Skeleton, Space, Switch, theme, Tooltip, Typography } from 'antd'
 import './index.css'
 import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
@@ -113,7 +113,7 @@ const UserManage = () => {
     const handleAddUser = () => {
         setUserOperation({
             open: true,
-            title: '新增用户',
+            title: t('新增用户'),
             operationType: 'ADD',
             userItem: null,
         })
@@ -153,8 +153,8 @@ const UserManage = () => {
                                     handleClose()
                                     handleRefresh()
                                     modal.success({
-                                        title: `用户创建成功`,
-                                        okText: '知道了',
+                                        title: t('创建成功'),
+                                        okText: t('知道了'),
                                         content: (
                                             <div style={{ userSelect: 'text' }}>
                                                 <p>
@@ -164,10 +164,10 @@ const UserManage = () => {
                                                     <Typography.Text>{data.initialPassword}</Typography.Text>
                                                     <Button
                                                         type="text"
-                                                        icon={<CopyOutlined />}
+                                                        icon={<Tooltip title={t('复制')}><CopyOutlined /></Tooltip>}
                                                         onClick={() => {
                                                             navigator.clipboard.writeText(newPassword);
-                                                            getMessageApi().success('已复制到剪贴板');
+                                                            getMessageApi().success(t('已复制到剪贴板'));
                                                         }}
                                                     />
                                                 </Flex>
@@ -180,7 +180,7 @@ const UserManage = () => {
                         updateUserAsync(values)
                             .then(
                                 () => {
-                                    getMessageApi().success('修改成功')
+                                    getMessageApi().success(t('修改成功'))
                                     handleClose()
                                     handleRefresh()
                                 }
@@ -205,9 +205,9 @@ const UserManage = () => {
         try {
             await updateUserEnabled(id, enabled)
             if (enabled) {
-                getMessageApi().success('账号启用成功')
+                getMessageApi().success(t('启用成功'))
             } else {
-                getMessageApi().success('账号停用成功')
+                getMessageApi().success(t('停用成功'))
             }
             handleRefresh()
         } finally {
@@ -219,8 +219,8 @@ const UserManage = () => {
     const handleResetPassword = async (userItem) => {
         const newPassword = await resetPasswordAsync(userItem.id)
         modal.success({
-            title: '新密码已生成',
-            okText: '知道了',
+            title: t('新密码已生成'),
+            okText: t('知道了'),
             content: (
                 <div style={{ userSelect: 'text' }}>
                     <p>
@@ -230,10 +230,10 @@ const UserManage = () => {
                         <Typography.Text>{newPassword}</Typography.Text>
                         <Button
                             type="text"
-                            icon={<CopyOutlined />}
+                            icon={<Tooltip title={t('复制')}><CopyOutlined /></Tooltip>}
                             onClick={() => {
                                 navigator.clipboard.writeText(newPassword);
-                                getMessageApi().success('已复制到剪贴板');
+                                getMessageApi().success(t('已复制到剪贴板'));
                             }}
                         />
                     </Flex>
@@ -252,7 +252,7 @@ const UserManage = () => {
     const handleBindRole = (userId) => {
         setBindRole({
             open: true,
-            title: `分配角色`,
+            title: t(`分配角色`),
             userItem: null,
         })
         getUserDetailsAsync(userId)
@@ -262,7 +262,7 @@ const UserManage = () => {
                         if (prev.open) {
                             return {
                                 ...prev,
-                                title: `分配角色[${userData.nickname}]`,
+                                title: t(`分配角色`) + `[${userData.nickname}]`,
                                 userItem: userData
                             }
                         }
@@ -278,7 +278,7 @@ const UserManage = () => {
                 bindRoleByUserIdAsync(values.id, values.roleIds)
                     .then(
                         () => {
-                            getMessageApi().success('分配成功')
+                            getMessageApi().success(t('操作成功'))
                             handleBindRoleClose()
                             handleRefresh()
                         }
@@ -423,7 +423,7 @@ const UserManage = () => {
                             hasPermissions='system:user:write'
                         >
                             <Typography.Link onClick={() => handleBindRole(record.id)} style={{ marginInlineEnd: 8 }}>
-                                分配角色
+                                {t('分配角色')}
                             </Typography.Link>
                             <Typography.Link onClick={() => handleEditUser(record.id)} style={{ marginInlineEnd: 8 }}>
                                 {t('编辑')}
@@ -432,9 +432,9 @@ const UserManage = () => {
                                 style={{ marginInlineEnd: 8 }}
                                 onClick={() => {
                                     modal.confirm({
-                                        title: '确定重置？',
-                                        okText: '确定',
-                                        cancelText: '取消',
+                                        title: t('确定重置'),
+                                        okText: t('确定'),
+                                        cancelText: t('取消'),
                                         maskClosable: false,
                                         confirmLoading: resetPasswordLoading,
                                         content: (
@@ -448,7 +448,7 @@ const UserManage = () => {
                                     })
                                 }}
                             >
-                                重置密码
+                               {t('重置密码')}
                             </Typography.Link>
                         </HasPermission>
                         <HasPermission
@@ -551,7 +551,7 @@ const UserManage = () => {
                 setQueryParam={setQueryParam}
             />
             <Modal
-                title={userOperation.title}
+                title={t(userOperation.title)}
                 width={400}
                 centered
                 confirmLoading={createUserLoading || updateUserLoading}
@@ -561,8 +561,8 @@ const UserManage = () => {
                 onClose={handleClose}
                 maskClosable={false}
                 keyboard={false}
-                okText="保存"
-                cancelText="取消"
+                okText={t('保存')}
+                cancelText={t('取消')}
                 okButtonProps={{
                     disabled: getUserDetailsLoading
                 }}
@@ -652,8 +652,8 @@ const UserManage = () => {
                 width={400}
                 footer={
                     <Space>
-                        <Button loading={bindRoleByUserIdLoading} type="primary" onClick={handleBindRoleSave}>保存</Button>
-                        <Button onClick={handleBindRoleClose}>取消</Button>
+                        <Button loading={bindRoleByUserIdLoading} type="primary" onClick={handleBindRoleSave}>{t('保存')}</Button>
+                        <Button onClick={handleBindRoleClose}>{t('取消')}</Button>
                     </Space>
                 }
             >

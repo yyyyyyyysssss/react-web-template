@@ -80,6 +80,9 @@ const SortableItem: React.FC<SortableItemProps> = ({
     onFixedHeader,
     onFixedFooter
 }) => {
+
+    const { t } = useTranslation()
+
     const {
         attributes,
         listeners,
@@ -96,7 +99,7 @@ const SortableItem: React.FC<SortableItemProps> = ({
     return (
         <Flex vertical>
             {showUnfixedTitle && (
-                <Typography.Text type="secondary" style={{ fontSize: 12, marginLeft: '25px' }} >不固定</Typography.Text>
+                <Typography.Text type="secondary" style={{ fontSize: 12, marginLeft: '25px' }} >{t('不固定')}</Typography.Text>
             )}
             <List.Item ref={setNodeRef} style={style} {...attributes} className="hoverable-list-item">
                 <Flex
@@ -124,12 +127,12 @@ const SortableItem: React.FC<SortableItemProps> = ({
                         </Flex>
                     </Flex>
                     <Flex className='actions' gap={6}>
-                        <Tooltip title='固定在列首'>
+                        <Tooltip title={t('固定在列首')}>
                             <Typography.Link onClick={() => onFixedHeader(item.key)}>
                                 <ArrowUpToLine size={16} />
                             </Typography.Link>
                         </Tooltip>
-                        <Tooltip title='固定在列尾'>
+                        <Tooltip title={t('固定在列尾')}>
                             <Typography.Link onClick={() => onFixedFooter(item.key)}>
                                 <ArrowDownToLine size={16} />
                             </Typography.Link>
@@ -283,7 +286,7 @@ const SmartTable = <T extends any>({
         }
         return (
             <Flex style={{ marginLeft: '25px' }} vertical>
-                <Typography.Text type="secondary" style={{ fontSize: 12 }} >固定在左侧</Typography.Text>
+                <Typography.Text type="secondary" style={{ fontSize: 12 }} >{t('固定在左侧')}</Typography.Text>
                 {
                     headerItemTableColumns
                         .map(item => (
@@ -304,12 +307,12 @@ const SmartTable = <T extends any>({
                                         </Checkbox>
                                     </Flex>
                                     <Flex className='actions' gap={6}>
-                                        <Tooltip title='不固定'>
+                                        <Tooltip title={t('不固定')}>
                                             <Typography.Link onClick={() => handleNotFixed(item.key)}>
                                                 <MoveVertical size={16} />
                                             </Typography.Link>
                                         </Tooltip>
-                                        <Tooltip title='固定在列尾'>
+                                        <Tooltip title={t('固定在列尾')}>
                                             <Typography.Link onClick={() => handleFixedFooter(item.key)}>
                                                 <ArrowDownToLine size={16} />
                                             </Typography.Link>
@@ -334,7 +337,7 @@ const SmartTable = <T extends any>({
         }
         return (
             <Flex style={{ marginLeft: '25px' }} vertical>
-                <Typography.Text type="secondary" style={{ fontSize: 12 }}>固定在右侧</Typography.Text>
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>{t('固定在右侧')}</Typography.Text>
                 {
                     footerItemTableColumns
                         .map(item => (
@@ -355,12 +358,12 @@ const SmartTable = <T extends any>({
                                         </Checkbox>
                                     </Flex>
                                     <Flex className='actions' gap={6}>
-                                        <Tooltip title='不固定'>
+                                        <Tooltip title={t('不固定')}>
                                             <Typography.Link onClick={() => handleNotFixed(item.key)}>
                                                 <MoveVertical size={16} />
                                             </Typography.Link>
                                         </Tooltip>
-                                        <Tooltip title='固定在列首'>
+                                        <Tooltip title={t('固定在列首')}>
                                             <Typography.Link onClick={() => handleFixedHeader(item.key)}>
                                                 <ArrowUpToLine size={16} />
                                             </Typography.Link>
@@ -403,7 +406,7 @@ const SmartTable = <T extends any>({
                     style={{ marginRight: 8 }}
                     gap={10}
                 >
-                    <Tooltip title='刷新'>
+                    <Tooltip title={t('刷新')}>
                         <Typography.Text onClick={handleRefresh} className='typography-text-icon'>
                             <RotateCw size={18} />
                         </Typography.Text>
@@ -414,10 +417,10 @@ const SmartTable = <T extends any>({
                             <Flex gap={10} className="ant-dropdown-menu" style={{ width: '220px', padding: 10 }} vertical>
                                 <Flex justify='space-between'>
                                     <Checkbox indeterminate={indeterminate} onChange={handleCheckAllChange} checked={checkAll}>
-                                        列展示
+                                        {t('列展示')}
                                     </Checkbox>
                                     <Typography.Link onClick={() => setTableColumns(columns)}>
-                                        重置
+                                        {t('重置')}
                                     </Typography.Link>
                                 </Flex>
                                 <Flex vertical>
@@ -459,7 +462,7 @@ const SmartTable = <T extends any>({
                             </Flex>
                         )}
                     >
-                        <Tooltip title='列设置'>
+                        <Tooltip title={t('列设置')}>
                             <Typography.Text className='typography-text-icon'>
                                 <Settings size={18} />
                             </Typography.Text>
