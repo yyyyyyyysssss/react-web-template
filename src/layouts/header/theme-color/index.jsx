@@ -1,4 +1,4 @@
-import { Dropdown, theme, Tooltip } from 'antd';
+import { Dropdown, Flex, theme, Tooltip } from 'antd';
 import './index.css'
 import { Check, Palette } from 'lucide-react';
 import IconBox from '../../../components/icon-box';
@@ -68,9 +68,11 @@ const ThemeColor = () => {
             }}
             placement="bottom"
         >
-            <IconBox>
-                <Palette size={20} />
-            </IconBox>
+            <Flex>
+                <IconBox>
+                    <Palette size={20} />
+                </IconBox>
+            </Flex>
         </Dropdown >
     )
 }

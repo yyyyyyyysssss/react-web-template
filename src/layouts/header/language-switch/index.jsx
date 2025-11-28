@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dropdown, Typography } from 'antd';
+import { Dropdown, Flex, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import './index.css'
 import { Languages } from 'lucide-react';
@@ -43,9 +43,11 @@ const LanguageSwitch = () => {
             }}
             placement="bottom"
         >
-            <IconBox>
-                <Languages size={20} />
-            </IconBox>
+            <Flex>
+                <IconBox>
+                    <Languages size={20} />
+                </IconBox>
+            </Flex>
         </Dropdown >
     )
 
