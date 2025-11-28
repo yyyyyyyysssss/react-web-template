@@ -133,7 +133,7 @@ const MenuAuthority = ({ open, title, type, operation, data, parentId, parentCod
 
     return (
         <Modal
-            title={t(title)}
+            title={title ? t(title) : ''}
             width={type === AuthorityType.MENU ? 400 : 500}
             centered
             open={open}

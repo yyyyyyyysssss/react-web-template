@@ -6,8 +6,11 @@ import { getMessageApi } from '../../utils/MessageUtil';
 import { useRequest } from 'ahooks';
 import { useAuth } from '../../router/AuthProvider';
 import { login } from '../../services/LoginService';
+import { useTranslation } from 'react-i18next'
 
 const Login = () => {
+
+    const { t } = useTranslation()
 
     const { signin } = useAuth()
 
@@ -24,7 +27,8 @@ const Login = () => {
     const [verificationCode, setVerificationCode] = useState({
         disabled: false,
         tips: '获取验证码',
-        time: 60
+        time: 60,
+        seconds: 0,
     })
 
     const timerRef = useRef()
@@ -68,13 +72,15 @@ const Login = () => {
         let ti = verificationCode.time;
         setVerificationCode({
             disabled: true,
-            tips: `${ti} 秒后重新获取`,
+            tips: `{{ti}} 秒后重新获取`,
+            seconds: ti,
         });
         timerRef.current = setInterval(() => {
             if (--ti > 0) {
                 setVerificationCode({
                     disabled: true,
-                    tips: `${ti} 秒后重新获取`,
+                    tips: `{{ti}} 秒后重新获取`,
+                    seconds: ti,
                 });
             } else {
                 resetVerificationCode()
@@ -160,7 +166,7 @@ const Login = () => {
                             items={[
                                 {
                                     key: '1',
-                                    label: '账号密码登录',
+                                    label: t('账号密码登录'),
                                     children: (
                                         <>
                                             <Form.Item name="username" rules={[
@@ -184,7 +190,7 @@ const Login = () => {
                                 },
                                 {
                                     key: '2',
-                                    label: '邮箱登录',
+                                    label: t('邮箱登录'),
                                     children: (
                                         <>
                                             <Form.Item name="email" validateTrigger="onBlur" rules={[
@@ -203,7 +209,7 @@ const Login = () => {
                                                 ]}>
                                                     <Input allowClear size="large" placeholder="请输入验证码!" prefix={<MailOutlined />} />
                                                 </Form.Item>
-                                                <Button disabled={verificationCode.disabled} size="large" onClick={handleWithVerificationCode}>{verificationCode.tips}</Button>
+                                                <Button disabled={verificationCode.disabled} size="large" onClick={handleWithVerificationCode}>{t(verificationCode.tips,{ti : verificationCode.seconds})}</Button>
                                             </Flex>
                                         </>
                                     )
@@ -212,15 +218,15 @@ const Login = () => {
                         />
                         <Form.Item>
                             <Form.Item name="rememberMe" valuePropName="checked" initialValue={true} noStyle>
-                                <Checkbox>记住密码</Checkbox>
+                                <Checkbox>{t('记住密码')}</Checkbox>
                             </Form.Item>
                             <Typography.Link onClick={handleForgetPassword} style={{ float: 'right' }}>
-                                忘记密码 ？
+                                {t('忘记密码')}
                             </Typography.Link>
                         </Form.Item>
                         <Form.Item>
                             <Button type="primary" htmlType="submit" style={{ width: '100%' }} size="large" loading={loading}>
-                                登录
+                                {t('登录')}
                             </Button>
                         </Form.Item>
                     </Form>

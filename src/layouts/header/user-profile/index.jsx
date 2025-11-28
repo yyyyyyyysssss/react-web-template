@@ -13,14 +13,19 @@ import { simpleUploadFile } from '../../../services/FileService';
 import { useRequest } from 'ahooks';
 import './index.css'
 import TenantSwitch from '../../../components/tenant-switch';
+import { useTranslation } from 'react-i18next'
 
 const UserProfile = () => {
+
+    const { t } = useTranslation()
 
     const { signout } = useAuth()
 
     const { nickname, avatar } = useSelector(state => state.auth.userInfo)
 
     const tenants = useSelector((state) => state.auth.userInfo.tenants) || []
+
+    const language = useSelector(state => state.layout.language)
 
     const [profileForm] = Form.useForm()
 
@@ -239,7 +244,7 @@ const UserProfile = () => {
                                         align='center'
                                     >
                                         <UserPen size={16} />
-                                        <Typography.Text>个人信息</Typography.Text>
+                                        <Typography.Text>{t('个人信息')}</Typography.Text>
                                     </Flex>
                                 </Typography.Link>
 
@@ -254,7 +259,7 @@ const UserProfile = () => {
                                         align='center'
                                     >
                                         <Building size={16} />
-                                        <Typography.Text>切换租户</Typography.Text>
+                                        <Typography.Text>{t('切换租户')}</Typography.Text>
                                     </Flex>
                                 </Typography.Link>
                             )
@@ -268,7 +273,7 @@ const UserProfile = () => {
                                         align='center'
                                     >
                                         <Lock size={16} />
-                                        <Typography.Text>修改密码</Typography.Text>
+                                        <Typography.Text>{t('修改密码')}</Typography.Text>
                                     </Flex>
 
                                 </Typography.Link>
@@ -283,13 +288,19 @@ const UserProfile = () => {
                                         align='center'
                                     >
                                         <LogOut size={16} />
-                                        <Flex
-                                            justify='space-between'
-                                            flex={1}
-                                        >
-                                            <Typography.Text>退</Typography.Text>
-                                            <Typography.Text>出</Typography.Text>
-                                        </Flex>
+                                        {language === 'zh' ? (
+                                            <Flex
+                                                justify='space-between'
+                                                flex={1}
+                                            >
+                                                <Typography.Text>退</Typography.Text>
+                                                <Typography.Text>出</Typography.Text>
+                                            </Flex>
+                                        ) : (
+                                            <Typography.Text>{t('登出')}</Typography.Text>
+                                        )
+                                    }
+
                                     </Flex>
                                 </Typography.Link>
                             )
@@ -318,13 +329,13 @@ const UserProfile = () => {
                 </Flex>
             </Dropdown>
             <Modal
-                title='修改密码'
+                title={t('修改密码')}
                 width={400}
                 open={changePasswordOpen}
                 onOk={handleChangePassword}
                 onCancel={handleClose}
                 onClose={handleClose}
-                okText="确认修改"
+                okText={t('确认修改')}
                 destroyOnHidden
             >
                 <Form
@@ -372,7 +383,7 @@ const UserProfile = () => {
                     {password && (
                         <div style={{ marginLeft: '30%', marginTop: -12, marginBottom: 12 }}>
                             <span style={{ color: strengthColorMap[strength].color, fontWeight: 500 }}>
-                                密码强度：{strengthColorMap[strength].label}
+                                {t('密码强度')}：{t(strengthColorMap[strength].label)}
                             </span>
                         </div>
                     )}
@@ -391,7 +402,7 @@ const UserProfile = () => {
                 </Form>
             </Modal>
             <Drawer
-                title='个人信息'
+                title={t('个人信息')}
                 closable={{ 'aria-label': 'Close Button' }}
                 onClose={() => setProfileOpen(false)}
                 open={profileOpen}
@@ -463,7 +474,7 @@ const UserProfile = () => {
                 title={
                     <Flex justify='center' align='center' vertical>
                         <Flex style={{ width: '100%' }} align='start'>
-                            <Typography.Text>裁剪你的新头像</Typography.Text>
+                            <Typography.Text>{t('裁剪你的新头像')}</Typography.Text>
                         </Flex>
                         <Divider style={{ width: '450px', marginBottom: '6px', marginTop: '8px' }} />
                     </Flex>
@@ -483,7 +494,7 @@ const UserProfile = () => {
                             onClick={handleSetNewAvatar}
                             style={{ width: '100%' }}
                         >
-                            设置新的头像
+                            {t('设置新的头像')}
                         </Button>
                     </Flex>
                 }
@@ -500,7 +511,7 @@ const UserProfile = () => {
                 </ReactCrop>
             </Modal>
             <Modal
-                title={<Typography.Title level={3} className="text-gray-700">切换租户</Typography.Title>}
+                title={<Typography.Title level={3} className="text-gray-700">{t('切换租户')}</Typography.Title>}
                 width={600}
                 open={tenantSwitchOpen}
                 onCancel={() => setTenantSwitchOpen(false)}

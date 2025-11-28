@@ -113,7 +113,7 @@ const UserManage = () => {
     const handleAddUser = () => {
         setUserOperation({
             open: true,
-            title: t('新增用户'),
+            title: '新增用户',
             operationType: 'ADD',
             userItem: null,
         })

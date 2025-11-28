@@ -5,8 +5,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react'
 import { switchTenant } from '../../redux/slices/layoutSlice';
 import { fetchUserTenant, switchTenantByTenantId } from '../../services/UserProfileService';
+import { useTranslation } from 'react-i18next'
 
 const TenantSelection = () => {
+
+    const { t } = useTranslation()
 
     const dispatch = useDispatch()
 
@@ -42,7 +45,7 @@ const TenantSelection = () => {
         <Flex className="h-screen bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400" justify="center" align="center">
             <Card className="w-1/2 h-1/2 bg-white rounded-lg shadow-lg">
                 <Flex className="h-full flex-col items-center justify-center space-y-4">
-                    <Typography.Title level={2} className="text-gray-700">请选择租户</Typography.Title>
+                    <Typography.Title level={2} className="text-gray-700">{t('请选择租户')}</Typography.Title>
                     <TenantSwitch tenantList={tenantList} />
                 </Flex>
             </Card>

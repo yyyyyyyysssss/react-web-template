@@ -108,6 +108,8 @@ const MenuManage = () => {
 
     const [selectedKeys, setSelectedKeys] = useState(null)
 
+    const [expandedKeys, setExpandedKeys] = useState([])
+
     const [menuDetailsKey, setMenuDetailsKey] = useState('0')
 
     const { runAsync: deleteMenuAsync, loading: deleteMenuLoading } = useRequest(deleteMenu, {
@@ -130,6 +132,8 @@ const MenuManage = () => {
         const fetchData = async () => {
             const data = await fetchMenuTree()
             setMenuData(data)
+            // 默认展开第一层级
+            setExpandedKeys(data.map((node) => node.id))
         }
         fetchData()
     }, [])
@@ -213,7 +217,7 @@ const MenuManage = () => {
         menuDrag(dragKey, dropKey, position)
             .then(d => {
                 if (d === true) {
-                    getMessageApi().success('拖动成功')
+                    getMessageApi().success(t('拖动成功'))
                     setMenuData(data)
                 }
             })
@@ -394,7 +398,7 @@ const MenuManage = () => {
     return (
         <Flex flex={1} gap={10} className='h-full'>
             <Splitter>
-                <Splitter.Panel style={{padding: '10px'}} defaultSize="25%" min="20%" max="50%">
+                <Splitter.Panel style={{ padding: '10px' }} defaultSize="25%" min="20%" max="50%">
                     <Tree
                         className="draggable-tree"
                         draggable={{
@@ -406,10 +410,12 @@ const MenuManage = () => {
                         treeData={menuItems}
                         selectedKeys={selectedKeys}
                         onSelect={handleSelect}
+                        expandedKeys={expandedKeys} // 控制展开的节点
+                        onExpand={(keys) => setExpandedKeys(keys)} // 更新展开的节点
                     />
                 </Splitter.Panel>
-                <Splitter.Panel style={{padding: '20px'}}>
-                    <Flex style={{width: '100%', height: '100%'}} flex={8}>
+                <Splitter.Panel style={{ padding: '20px' }}>
+                    <Flex style={{ width: '100%', height: '100%' }} flex={8}>
                         {selectedKeys && (
                             <MenuDetails menuId={selectedMenu.id} />
                         )}
