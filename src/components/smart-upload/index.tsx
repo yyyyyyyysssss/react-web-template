@@ -1,4 +1,4 @@
-import { Button, Flex, Progress, theme, Tooltip, Typography, Upload, UploadFile, UploadProps } from "antd"
+import { Button, Flex, Image, Progress, theme, Tooltip, Typography, Upload, UploadFile, UploadProps } from "antd"
 import { fetchAccessUrl, fetchUploadId, simpleUploadFile, uploadChunkFile } from "../../services/FileService";
 import {
     LoadingOutlined,
@@ -22,7 +22,7 @@ import {
 } from "react-circular-progressbar";
 import 'react-circular-progressbar/dist/styles.css'
 import { getMessageApi } from "../../utils/MessageUtil";
-import { downloadFile } from "../../utils/download";
+import { downloadFile } from "../../utils/Download";
 import { UploadFileStatus, UploadListType } from "antd/es/upload/interface";
 
 interface SmartUploadProps {
@@ -35,6 +35,14 @@ interface SmartUploadProps {
     onChange: (urls: Array<string> | string) => void
 }
 
+const getBase64 = (file: any) =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onload = () => resolve(reader.result)
+        reader.onerror = error => reject(error)
+    })
+
 // 每块5M
 const SLICE_SIZE = 1024 * 1024 * 5;
 
@@ -43,6 +51,10 @@ const SmartUpload: React.FC<SmartUploadProps & Partial<UploadProps>> = ({ childr
     const [fileList, setFileList] = useState<UploadFile[]>([])
 
     const [downloading, setDownloading] = useState(false)
+
+    const [previewOpen, setPreviewOpen] = useState(false)
+
+    const [previewImage, setPreviewImage] = useState('')
 
     const { token } = theme.useToken()
 
@@ -299,6 +311,14 @@ const SmartUpload: React.FC<SmartUploadProps & Partial<UploadProps>> = ({ childr
         }
     }
 
+    const handlePreview = async (file: any) => {
+        if (!file.url && !file.preview) {
+            file.preview = await getBase64(file.originFileObj);
+        }
+        setPreviewImage(file.url || file.preview);
+        setPreviewOpen(true);
+    }
+
     const uploadButton = (
         <button style={{ border: 0, background: 'none' }} type="button">
             <PlusOutlined style={{ fontSize: 24, color: '#999' }} />
@@ -306,40 +326,54 @@ const SmartUpload: React.FC<SmartUploadProps & Partial<UploadProps>> = ({ childr
     )
 
     return (
-        <Upload
-            listType={listType}
-            beforeUpload={handleBeforeUpload}
-            customRequest={handleCustomRequest}
-            onChange={handleChange}
-            fileList={fileList}
-            itemRender={renderItem}
-            iconRender={renderIcon}
-            showUploadList={{
-                showRemoveIcon: true, // 默认删除
-                showPreviewIcon: true, // 默认预览
-                showDownloadIcon: true, // 启用下载图标
-                downloadIcon: (file) => (
-                    <Tooltip title="下载">
-                        <Typography.Link
-                            onClick={(e) => handleDownload(e, file)}
-                        >
-                            {downloading ?
-                                (
-                                    <LoadingOutlined />
-                                )
-                                :
-                                (
-                                    <DownloadOutlined />
-                                )
-                            }
-                        </Typography.Link>
-                    </Tooltip>
-                )
-            }}
-            {...uploadProps}
-        >
-            {uploadProps.maxCount && fileList?.length >= uploadProps.maxCount ? null : uploadButton}
-        </Upload>
+        <>
+            <Upload
+                listType={listType}
+                beforeUpload={handleBeforeUpload}
+                customRequest={handleCustomRequest}
+                onChange={handleChange}
+                fileList={fileList}
+                itemRender={renderItem}
+                iconRender={renderIcon}
+                showUploadList={{
+                    showRemoveIcon: true, // 默认删除
+                    showPreviewIcon: true, // 默认预览
+                    showDownloadIcon: true, // 启用下载图标
+                    downloadIcon: (file) => (
+                        <Tooltip title="下载">
+                            <Typography.Link
+                                onClick={(e) => handleDownload(e, file)}
+                            >
+                                {downloading ?
+                                    (
+                                        <LoadingOutlined />
+                                    )
+                                    :
+                                    (
+                                        <DownloadOutlined />
+                                    )
+                                }
+                            </Typography.Link>
+                        </Tooltip>
+                    )
+                }}
+                onPreview={handlePreview}
+                {...uploadProps}
+            >
+                {uploadProps.maxCount && fileList?.length >= uploadProps.maxCount ? null : uploadButton}
+            </Upload>
+            {previewImage && (
+                <Image
+                    wrapperStyle={{ display: 'none' }}
+                    preview={{
+                        visible: previewOpen,
+                        onVisibleChange: visible => setPreviewOpen(visible),
+                        afterOpenChange: visible => !visible && setPreviewImage(''),
+                    }}
+                    src={previewImage}
+                />
+            )}
+        </>
     )
 }
 
