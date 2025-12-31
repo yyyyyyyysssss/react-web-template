@@ -15,3 +15,9 @@ export const RequestMethod = Object.freeze({
     DELETE: 'DELETE',
     ALL: '*'
 })
+
+export const OperationMode = Object.freeze({
+    ADD: { value: 'ADD', description: '新增' },
+    EDIT: { value: 'EDIT', description: '编辑' },
+    VIEW: { value: 'VIEW', description: '查看' }
+})

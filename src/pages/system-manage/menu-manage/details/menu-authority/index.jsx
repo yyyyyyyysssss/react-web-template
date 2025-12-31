@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Button, Flex, Form, Input, InputNumber, Modal, Upload } from 'antd';
 import './index.css'
-import { AuthorityType, RequestMethod } from '../../../../../enums';
+import { AuthorityType, RequestMethod } from '../../../../../enums/common';
 import { UploadOutlined } from '@ant-design/icons';
 import { addAuthority, createMenu, updateAuthority, updateMenu } from '../../../../../services/SystemService';
 import { useRequest } from 'ahooks';

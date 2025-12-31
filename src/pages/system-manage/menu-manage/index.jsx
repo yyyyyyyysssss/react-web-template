@@ -5,7 +5,7 @@ import { deleteMenu, fetchMenuTree, menuDrag } from '../../../services/SystemSer
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import MenuDetails from './details';
 import MenuAuthority from './details/menu-authority';
-import { AuthorityType } from '../../../enums';
+import { AuthorityType } from '../../../enums/common';
 import IdGen from '../../../utils/IdGen';
 import Highlight from '../../../components/Highlight';
 import HasPermission from '../../../components/HasPermission';

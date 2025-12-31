@@ -165,11 +165,8 @@ const SmartTable = <T extends any>({
 
     const isDev = import.meta.env.MODE === 'dev'
 
-    const tenant = useSelector((state: any) => state.layout.tenant)
 
-    const tenantId = tenant?.id || 'default_tenant';
-
-    const STORAGE_KEY = storageKey || `smart_table_${tenantId}_${location.pathname}`
+    const STORAGE_KEY = storageKey || `smart_table_${location.pathname}`
 
     const [tableColumns, setTableColumns] = useState<any[]>([])
 
@@ -327,7 +324,7 @@ const SmartTable = <T extends any>({
     }, [tableColumns, handleNotFixed, handleFixedFooter])
 
     const unfixedColumns = useMemo(() => {
-        return tableColumns.filter(item => item.fixed !== 'left' && item.fixed !== 'right')
+        return tableColumns.filter(item => item.fixed !== 'left' && item.fixed !== 'right' && !item.hidden)
     }, [tableColumns])
 
     const renderFooterItem = useMemo(() => {

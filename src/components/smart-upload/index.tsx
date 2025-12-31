@@ -1,5 +1,5 @@
-import { Button, Flex, Progress, theme, Tooltip, Typography, Upload, UploadFile, UploadProps } from "antd"
-import { fetchAccessUrl, fetchUploadId, simpleUploadFile, uploadChunkFile } from "../../services/FileService";
+import { Button, ConfigProvider, Flex, Image, Progress, theme, Tooltip, Typography, Upload, UploadFile, UploadProps } from "antd"
+import { checkMD5, fetchAccessUrl, fetchUploadId, simpleUploadFile, uploadChunkFile } from "../../services/FileService";
 import {
     LoadingOutlined,
     PlusOutlined,
@@ -22,8 +22,9 @@ import {
 } from "react-circular-progressbar";
 import 'react-circular-progressbar/dist/styles.css'
 import { getMessageApi } from "../../utils/MessageUtil";
-import { downloadFile } from "../../utils/download";
+import { downloadFile } from "../../utils/Download";
 import { UploadFileStatus, UploadListType } from "antd/es/upload/interface";
+import { calculateMD5AsFile } from "../../utils/MD5Util";
 
 interface SmartUploadProps {
     children: React.ReactNode; // 确保 children 作为外部传递
@@ -35,14 +36,28 @@ interface SmartUploadProps {
     onChange: (urls: Array<string> | string) => void
 }
 
+const getBase64 = (file: any) =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onload = () => resolve(reader.result)
+        reader.onerror = error => reject(error)
+    })
+
 // 每块5M
 const SLICE_SIZE = 1024 * 1024 * 5;
 
 const SmartUpload: React.FC<SmartUploadProps & Partial<UploadProps>> = ({ children, onProgress, onSuccess, onError, listType = 'picture-card', value, onChange, ...uploadProps }) => {
 
+    const { componentDisabled } = ConfigProvider.useConfig()
+
     const [fileList, setFileList] = useState<UploadFile[]>([])
 
     const [downloading, setDownloading] = useState(false)
+
+    const [previewOpen, setPreviewOpen] = useState(false)
+
+    const [previewImage, setPreviewImage] = useState('')
 
     const { token } = theme.useToken()
 
@@ -71,7 +86,19 @@ const SmartUpload: React.FC<SmartUploadProps & Partial<UploadProps>> = ({ childr
         })
     }, [files])
 
-    const handleBeforeUpload = async (file: File) => {
+    const handleBeforeUpload = async (file: any, fileList: any) => {
+        // 在文件上传前更新状态为 "uploading"
+        const updatedFileList = fileList.map((f: any) =>
+            f.uid === file.uid ? { ...f, status: 'uploading' } : f
+        )
+        setFileList(updatedFileList)
+        const md5 = await calculateMD5AsFile(file)
+        const checkMD5Result = await checkMD5(md5)
+        const { found, accessUrl } = checkMD5Result
+        if (found) {
+            (file as any).accessUrl = accessUrl
+            return true
+        }
         // 小于10m的使用普通上传 不获取uploadId
         if (file.size < SLICE_SIZE * 2) {
             return true
@@ -107,10 +134,15 @@ const SmartUpload: React.FC<SmartUploadProps & Partial<UploadProps>> = ({ childr
 
     const uploadFile = async (options: any) => {
         const file = options.file
+        // 通过md5检查已上传过的文件直接回调
+        if (file.accessUrl) {
+            onSuccess?.(file.accessUrl)
+            options.onSuccess(file.accessUrl)
+            return
+        }
         const uploadId = (file as any).metadata?.uploadId
         const totalSize = file.size
         const filename = file.name
-
         let currentProgress = 0
         const progressCallback = (delta: number) => {
             // 由于progress包含了每次上传请求的所有内容的累积大小 不仅仅是当前分片的大小 所以累加后会超过总文件大小
@@ -299,47 +331,74 @@ const SmartUpload: React.FC<SmartUploadProps & Partial<UploadProps>> = ({ childr
         }
     }
 
+    const handlePreview = async (file: any) => {
+        if (!file.url && !file.preview) {
+            file.preview = await getBase64(file.originFileObj);
+        }
+        setPreviewImage(file.url || file.preview);
+        setPreviewOpen(true);
+    }
+
     const uploadButton = (
-        <button style={{ border: 0, background: 'none' }} type="button">
-            <PlusOutlined style={{ fontSize: 24, color: '#999' }} />
-        </button>
+        componentDisabled === false && (
+            <button style={{ border: 0, background: 'none' }} type="button">
+                <PlusOutlined style={{ fontSize: 24, color: '#999' }} />
+            </button>
+        )
     )
 
     return (
-        <Upload
-            listType={listType}
-            beforeUpload={handleBeforeUpload}
-            customRequest={handleCustomRequest}
-            onChange={handleChange}
-            fileList={fileList}
-            itemRender={renderItem}
-            iconRender={renderIcon}
-            showUploadList={{
-                showRemoveIcon: true, // 默认删除
-                showPreviewIcon: true, // 默认预览
-                showDownloadIcon: true, // 启用下载图标
-                downloadIcon: (file) => (
-                    <Tooltip title="下载">
-                        <Typography.Link
-                            onClick={(e) => handleDownload(e, file)}
-                        >
-                            {downloading ?
-                                (
-                                    <LoadingOutlined />
-                                )
-                                :
-                                (
-                                    <DownloadOutlined />
-                                )
-                            }
-                        </Typography.Link>
-                    </Tooltip>
-                )
-            }}
-            {...uploadProps}
-        >
-            {uploadProps.maxCount && fileList?.length >= uploadProps.maxCount ? null : uploadButton}
-        </Upload>
+        <>
+            <Upload
+                listType={listType}
+                beforeUpload={handleBeforeUpload}
+                customRequest={handleCustomRequest}
+                onChange={handleChange}
+                fileList={fileList}
+                itemRender={renderItem}
+                iconRender={renderIcon}
+                showUploadList={{
+                    showRemoveIcon: componentDisabled === false, // 默认删除
+                    showPreviewIcon: (file: any) => {
+                        const imageExtensions = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i
+                        return imageExtensions.test(file.name)
+                    }, // 默认预览
+                    showDownloadIcon: true, // 启用下载图标
+                    downloadIcon: (file) => (
+                        <Tooltip title="下载">
+                            <Typography.Link
+                                onClick={(e) => handleDownload(e, file)}
+                            >
+                                {downloading ?
+                                    (
+                                        <LoadingOutlined />
+                                    )
+                                    :
+                                    (
+                                        <DownloadOutlined />
+                                    )
+                                }
+                            </Typography.Link>
+                        </Tooltip>
+                    )
+                }}
+                onPreview={handlePreview}
+                {...uploadProps}
+            >
+                {uploadProps.maxCount && fileList?.length >= uploadProps.maxCount ? null : uploadButton}
+            </Upload>
+            {previewImage && (
+                <Image
+                    wrapperStyle={{ display: 'none' }}
+                    preview={{
+                        visible: previewOpen,
+                        onVisibleChange: visible => setPreviewOpen(visible),
+                        afterOpenChange: visible => !visible && setPreviewImage(''),
+                    }}
+                    src={previewImage}
+                />
+            )}
+        </>
     )
 }
 

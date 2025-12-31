@@ -1,5 +1,5 @@
 import { Flex, Form, Select, Tag } from 'antd'
-import { RequestMethod } from '../../../../enums'
+import { RequestMethod } from '../../../../enums/common'
 import { useEffect } from 'react'
 import EditableTable from '../../../../components/smart-table/EditableTable'
 import { useTranslation } from 'react-i18next';

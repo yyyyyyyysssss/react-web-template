@@ -1,6 +1,6 @@
 import { Space, Flex, Form, Input, Table, Tag, Drawer, Button, Modal, Popconfirm, Typography, Spin, Avatar, Image } from 'antd'
 import { SettingOutlined } from '@ant-design/icons';
-import { AuthorityType } from '../../../../enums';
+import { AuthorityType } from '../../../../enums/common';
 import { useEffect, useState } from 'react';
 import { deleteAuthorityById, fetchMenuDetails, updateAuthorityUrlsById } from '../../../../services/SystemService';
 import IdGen from '../../../../utils/IdGen';

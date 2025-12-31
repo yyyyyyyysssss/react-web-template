@@ -1,22 +1,28 @@
-import { Spin } from 'antd';
+import { Flex, Spin } from 'antd';
 import './index.css'
 import React from 'react';
 
 
-interface LoadingProps {
+interface LoadingProps extends React.HTMLAttributes<HTMLDivElement> {
     spinning?: boolean,
     children?: React.ReactNode
+    size?: any
     resetProps?: any,
 }
 
 const Loading: React.FC<LoadingProps> = ({
     spinning = true,
     children,
-    resetProps
+    size,
+    ...resetProps
 }) => {
 
     return (
-        <Spin spinning={spinning} {...resetProps} >
+        <Spin
+            spinning={spinning}
+            size={size}
+            {...resetProps}
+        >
             {children}
         </Spin>
     )

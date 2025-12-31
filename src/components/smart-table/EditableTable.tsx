@@ -1,4 +1,4 @@
-import { Button, Flex, Form, Popconfirm, Space, Table, Typography } from "antd"
+import { Button, ConfigProvider, Flex, Form, Popconfirm, Space, Table, Typography } from "antd"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import EditableRow from "./EditableRow"
 import EditableCell from "./EditableCell"
@@ -9,7 +9,11 @@ import { getMessageApi } from "../../utils/MessageUtil"
 import HasPermission from '../../components/HasPermission';
 import Loading from "../loading"
 import { useTranslation } from 'react-i18next';
+import { PlusOutlined } from '@ant-design/icons';
+import { OperationMode } from '../../enums/common'
 
+
+type OperationModeType = typeof OperationMode[keyof typeof OperationMode]['value']
 
 interface EditableTableProps {
     columns: any[]
@@ -17,8 +21,10 @@ interface EditableTableProps {
     rowKey?: string
     fields: any[]
     mode: 'single-edit' | 'multi-add'
+    operationMode: OperationModeType
     editPermission?: string | string[]
     deletePermission?: string | string[]
+    errors: any,
     add: (defaultValue?: any, insertIndex?: number) => void
     remove: (index: number) => void
     onSave?: (rowData: any, rowIndex: number) => Promise<any>
@@ -31,8 +37,10 @@ const EditableTable: React.FC<EditableTableProps> = ({
     rowKey = 'id',
     fields,
     mode = 'multi-add',
+    operationMode = OperationMode.ADD.value,
     editPermission,
     deletePermission,
+    errors,
     add,
     remove,
     onSave,
@@ -43,6 +51,8 @@ const EditableTable: React.FC<EditableTableProps> = ({
     const { t } = useTranslation()
 
     const form = Form.useFormInstance()
+
+    const { componentDisabled } = ConfigProvider.useConfig()
 
     const [editingKey, setEditingKey] = useState<string | null>(null)
     const [pendingAdd, setPendingAdd] = useState<any>({
@@ -67,9 +77,9 @@ const EditableTable: React.FC<EditableTableProps> = ({
         })
     }, [fields, form, name, rowKey])
 
-    const isEditing = useCallback((rowData: any) => {
+    const isEditing = useCallback((rowEditingKey: any) => {
 
-        return mode === 'multi-add' ? true : rowData[rowKey] === editingKey
+        return mode === 'multi-add' ? true : rowEditingKey === editingKey
     }, [mode, rowKey, editingKey])
 
     const addRow = useCallback((rowData: any) => {
@@ -78,7 +88,7 @@ const EditableTable: React.FC<EditableTableProps> = ({
     }, [add])
 
     useEffect(() => {
-        if (pendingAdd.flag && editingKey && pendingAdd.key) {
+        if (pendingAdd.flag === true && editingKey && pendingAdd.key) {
             const newRowData = { [rowKey]: pendingAdd.key }
             addRow(newRowData)
             setPendingAdd({
@@ -86,7 +96,7 @@ const EditableTable: React.FC<EditableTableProps> = ({
                 flag: false
             })
         }
-    }, [editingKey, pendingAdd, addRow])
+    }, [editingKey, pendingAdd, rowKey])
 
     const handleAdd = useCallback(async () => {
         const newKey = IdGen.nextId()
@@ -107,7 +117,8 @@ const EditableTable: React.FC<EditableTableProps> = ({
     }, [mode, editingKey, addRow, rowKey])
 
 
-    const handleSave = useCallback(async (rowData: any, rowIndex: number) => {
+    const handleSave = useCallback(async (name: any, rowIndex: number) => {
+        const rowData = form.getFieldValue([name, rowIndex])
         setLoadingMap((prev: any) => ({ ...prev, [rowIndex]: true }))
         try {
             await rowValidate(rowIndex)
@@ -118,9 +129,10 @@ const EditableTable: React.FC<EditableTableProps> = ({
             setLoadingMap((prev: any) => ({ ...prev, [rowIndex]: false }))
         }
 
-    }, [onSave])
+    }, [form, onSave])
 
-    const handleEdit = useCallback((rowData: any, rowIndex: number) => {
+    const handleEdit = useCallback((name: any, rowIndex: number) => {
+        const rowData = form.getFieldValue([name, rowIndex])
         editRowDataRef.current = rowData
         setEditingKey(rowData[rowKey])
         form.setFieldsValue({
@@ -130,7 +142,8 @@ const EditableTable: React.FC<EditableTableProps> = ({
         })
     }, [form, name, rowKey])
 
-    const handleCancel = useCallback((rowData: any, rowIndex: number) => {
+    const handleCancel = useCallback((name: any, rowIndex: number) => {
+        const rowData = form.getFieldValue([name, rowIndex])
         setEditingKey(null)
         if (rowData.type && rowData.type === 'add') {
             remove(rowIndex)
@@ -146,11 +159,12 @@ const EditableTable: React.FC<EditableTableProps> = ({
     }, [form, name, rowKey, remove])
 
 
-    const handleDelete = useCallback(async (rowData: any, rowIndex: number) => {
+    const handleDelete = useCallback(async (name: any, rowIndex: number) => {
+        const rowData = form.getFieldValue([name, rowIndex])
         await onDelete?.(rowData, rowIndex)
         remove(rowIndex)
         setEditingKey(null)
-    }, [onDelete, remove])
+    }, [onDelete, remove, form])
 
     const rowValidate = useCallback((rowIndex: number) => {
         const fields = columns
@@ -158,6 +172,12 @@ const EditableTable: React.FC<EditableTableProps> = ({
             .map(col => [name, rowIndex, col.dataIndex])
         return form.validateFields(fields);
     }, [columns, form, name])
+
+    const handleCopy = useCallback((name: any, rowIndex: number) => {
+        const rowData = form.getFieldValue([name, rowIndex])
+        const copyRow = { ...rowData, [rowKey]: IdGen.nextId() } // 确保新行有唯一的 rowKey
+        add(copyRow) // 添加新行
+    }, [add, rowKey, form])
 
     const mergedColumns = useMemo(() => {
 
@@ -167,6 +187,7 @@ const EditableTable: React.FC<EditableTableProps> = ({
                 onCell: (record: any, rowIndex: number) => {
                     const rowData = form.getFieldValue([name, rowIndex])
                     return {
+                        tableName: name,
                         rowData: rowData,
                         dataIndex: col.dataIndex,
                         title: col.title,
@@ -176,7 +197,7 @@ const EditableTable: React.FC<EditableTableProps> = ({
                         rules: col.rules,
                         render: col.render,
                         editRender: col.editRender,
-                        editing: isEditing(rowData) && col.editable && col.editable !== false,
+                        editing: isEditing(record[rowKey]) && col.editable && col.editable !== false && componentDisabled === false,
                         onChange: col.onChange,
                         rowIndex
                     }
@@ -188,74 +209,74 @@ const EditableTable: React.FC<EditableTableProps> = ({
                 width: 100,
                 align: 'center',
                 render: (_: any, record: any, rowIndex: number) => {
-                    const rowData = form.getFieldValue([name, rowIndex])
                     if (mode === 'multi-add') {
                         return (
-                            <Flex gap={8} justify='center' align='center'>
-                                <Typography.Link
-                                    onClick={() => {
-                                        const copyRow = { ...rowData, [rowKey]: IdGen.nextId() }
-                                        add(copyRow)
-                                    }}
-                                    style={{ whiteSpace: 'nowrap' }}
-                                >
-                                    {t('复制')}
-                                </Typography.Link>
-                                <Popconfirm title={t('确定删除')} onConfirm={() => handleDelete(rowData, rowIndex)}>
-                                    <Typography.Link style={{ whiteSpace: 'nowrap' }}>{t('删除')}</Typography.Link>
-                                </Popconfirm>
-                            </Flex>
+                            componentDisabled === false && (
+                                <Flex gap={8} justify='center' align='center'>
+                                    <Typography.Link
+                                        onClick={() => handleCopy(name, rowIndex)}
+                                        style={{ whiteSpace: 'nowrap' }}
+                                    >
+                                        {t('复制')}
+                                    </Typography.Link>
+                                    <Popconfirm title={t('确定删除')} onConfirm={() => handleDelete(name, rowIndex)}>
+                                        <Typography.Link style={{ whiteSpace: 'nowrap' }}>{t('删除')}</Typography.Link>
+                                    </Popconfirm>
+                                </Flex>
+                            )
                         )
                     } else {
-                        const editable = isEditing(rowData)
+                        const editable = isEditing(record[rowKey])
                         return editable ?
                             (
-                                <Flex gap={8} justify='center' align='center'>
-                                    <HasPermission hasPermissions={editPermission}>
-                                        {!!loadingMap[rowIndex] ? (
-                                            <Loading />
-                                        ) : (
-                                            <Typography.Link style={{ whiteSpace: 'nowrap' }} onClick={() => handleSave(rowData, rowIndex)}>
-                                                {t('保存')}
-                                            </Typography.Link>
-                                        )}
+                                componentDisabled === false && (
+                                    <Flex gap={8} justify='center' align='center'>
+                                        <HasPermission hasPermissions={editPermission}>
+                                            {!!loadingMap[rowIndex] ? (
+                                                <Loading />
+                                            ) : (
+                                                <Typography.Link style={{ whiteSpace: 'nowrap' }} onClick={() => handleSave(name, rowIndex)}>
+                                                    {t('保存')}
+                                                </Typography.Link>
+                                            )}
 
-                                        <Typography.Link style={{ whiteSpace: 'nowrap' }} onClick={() => handleCancel(rowData, rowIndex)}>
-                                            {t('取消')}
-                                        </Typography.Link>
-                                    </HasPermission>
-                                </Flex >
+                                            <Typography.Link style={{ whiteSpace: 'nowrap' }} onClick={() => handleCancel(name, rowIndex)}>
+                                                {t('取消')}
+                                            </Typography.Link>
+                                        </HasPermission>
+                                    </Flex >
+                                )
                             )
                             :
                             (
-                                <Flex gap={8} justify='center' align='center'>
-                                    <HasPermission hasPermissions={editPermission}>
-                                        <Typography.Link style={{ whiteSpace: 'nowrap' }} disabled={editingKey !== null} onClick={() => handleEdit(rowData, rowIndex)}>
-                                            {t('编辑')}
-                                        </Typography.Link>
-                                    </HasPermission>
-                                    <HasPermission hasPermissions={deletePermission}>
-                                        <Popconfirm disabled={editingKey !== null} okText={t('确定')} cancelText={t('取消')} title={t('确定删除')} onConfirm={() => handleDelete(rowData, rowIndex)}>
-                                            <Typography.Link style={{ whiteSpace: 'nowrap' }} disabled={editingKey !== null}>
-                                                {t('删除')}
+                                componentDisabled === false && (
+                                    <Flex gap={8} justify='center' align='center'>
+                                        <HasPermission hasPermissions={editPermission}>
+                                            <Typography.Link style={{ whiteSpace: 'nowrap' }} disabled={editingKey !== null} onClick={() => handleEdit(name, rowIndex)}>
+                                                {t('编辑')}
                                             </Typography.Link>
-                                        </Popconfirm>
-                                    </HasPermission>
-                                </Flex>
+                                        </HasPermission>
+                                        <HasPermission hasPermissions={deletePermission}>
+                                            <Popconfirm disabled={editingKey !== null} okText={t('确定')} cancelText={t('取消')} title={t('确定删除')} onConfirm={() => handleDelete(name, rowIndex)}>
+                                                <Typography.Link style={{ whiteSpace: 'nowrap' }} disabled={editingKey !== null}>
+                                                    {t('删除')}
+                                                </Typography.Link>
+                                            </Popconfirm>
+                                        </HasPermission>
+                                    </Flex>
+                                )
                             )
                     }
 
                 },
             },
         ]
-    }, [columns, form, name, add, remove, handleDelete, handleSave, handleEdit, handleCancel, rowKey, editingKey])
+    }, [columns, form, name, handleCopy, remove, handleDelete, handleSave, handleEdit, handleCancel, editingKey, rowKey, componentDisabled])
 
     return (
         <Flex gap={8} vertical>
-            <HasPermission hasPermissions={editPermission}>
-                <Button onClick={handleAdd} type="primary" className='w-20'>{t('新增一行')}</Button>
-            </HasPermission>
             <Table
+                className="edit-table"
                 components={{
                     body: {
                         row: EditableRow,
@@ -266,8 +287,20 @@ const EditableTable: React.FC<EditableTableProps> = ({
                 columns={mergedColumns}
                 rowKey={rowKey}
                 pagination={false}
+                footer={() => (
+                    operationMode && operationMode !== OperationMode.VIEW.value && (
+                        <HasPermission hasPermissions={editPermission}>
+                            <Button onClick={handleAdd} type="dashed" style={{ width: '100%' }}><PlusOutlined />{t('新增一行')}</Button>
+                        </HasPermission>
+                    )
+                )}
                 {...props}
             />
+            <Form.Item>
+                <Form.ErrorList
+                    errors={errors}
+                />
+            </Form.Item>
         </Flex>
     )
 }

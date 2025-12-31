@@ -247,3 +247,9 @@ export const fetchUserIdByTenantId = async (tenantId) => {
 
     return apiRequestWrapper(() => httpWrapper.get(`/api/system/tenant/${tenantId}/userId`))
 }
+
+// 获取字典
+export const fetchDictByCode = async (code, category = '') => {
+
+    return apiRequestWrapper(() => httpWrapper.get(`/api/options/dict?code=${code}&category=${category}`))
+}

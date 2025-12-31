@@ -1,6 +1,13 @@
 import { apiRequestWrapper } from "./ApiRequestWrapper"
 import httpWrapper from "./AxiosWrapper"
 
+// MD5校验
+export const checkMD5 = (md5) => {
+
+    return apiRequestWrapper(() => httpWrapper.get(`/api/file/check/${md5}`))
+}
+
+
 // 前置获取uploadId
 export const fetchUploadId = (fileInfo) => {
 
