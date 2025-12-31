@@ -12,27 +12,43 @@ body {
 
 /* 滚动条整体 */
 ::-webkit-scrollbar {
-    width: 6px;
+  width: 6px;
 }
 
 /* 滚动条轨道 */
 ::-webkit-scrollbar-track {
-    border-radius: var(--ant-border-radius);
-    /* 轨道圆角 */
+  border-radius: var(--ant-border-radius);
+  /* 轨道圆角 */
 }
 
 /* 滚动条滑块 */
 ::-webkit-scrollbar-thumb {
-    background: lightgray;
-    /* 滑块背景色 */
-    border-radius: var(--ant-border-radius);
-    /* 滑块圆角 */
+  background: var(--ant-control-item-bg-active);
+  /* 滑块背景色 */
+  border-radius: var(--ant-border-radius);
+  /* 滑块圆角 */
 }
 
 /* 滚动条滑块悬停 */
 ::-webkit-scrollbar-thumb:hover {
-    background: gray;
-    /* 滑块悬停背景色 */
+  background: var(--ant-control-item-bg-active-hover);
+  /* 滑块悬停背景色 */
+}
+
+/* 虚拟列表滚动调样式 */
+.rc-virtual-list-scrollbar {
+  width: 6px !important;
+}
+.rc-virtual-list-scrollbar-track {
+  border-radius: var(--ant-border-radius) !important;
+}
+.rc-virtual-list-scrollbar-thumb {
+  background: var(--ant-control-item-bg-active) !important;
+  /* 滑块背景色 */
+  border-radius: var(--ant-border-radius) !important;
+}
+.rc-virtual-list-scrollbar-thumb:hover {
+  background: var(--ant-control-item-bg-active-hover) !important;
 }
 
 .layout-panel-tabs .ant-tabs-nav {

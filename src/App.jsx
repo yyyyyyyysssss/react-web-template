@@ -11,6 +11,13 @@ import NProgress from 'nprogress';
 import { setMessageApi } from './utils/MessageUtil.jsx';
 import { AuthProvider } from './router/AuthProvider.jsx';
 import tinycolor from 'tinycolor2';
+import 'dayjs/locale/zh-cn';
+import dayjs from 'dayjs'
+import NoDataEmpty from './components/NoDataEmpty.js';
+
+
+dayjs.locale('zh-cn')
+
 
 NProgress.configure({
   showSpinner: false
@@ -35,12 +42,23 @@ const App = () => {
     .setAlpha(0.2)
     .toString(), [colorPrimary])
 
+  const hoverAndActiveBgColor = useMemo(() =>
+    tinycolor(activeBgColor)
+      .darken(10)   // 将激活状态颜色稍微加深
+      .setAlpha(0.3) // 增加透明度
+      .toString(),
+    [activeBgColor]
+  );
+
 
   const themeConfig = useMemo(() => ({
     dark: {
       cssVar: true,
       token: {
         colorText: 'rgba(255, 255, 255, 0.88)', // 白色文本
+        colorTextSecondary: '255, 255, 255, 0.6', //第二梯度的文本色
+        colorTextTertiary: 'rgba(255, 255, 255, 0.2)', //第三梯度的文本色
+        colorTextQuaternary: 'rgba(255, 255, 255, 0.18)', // 第四梯度的文本色
         colorIcon: 'rgba(255, 255, 255, 0.55)', // 图标
         colorIconHover: 'rgba(255, 255, 255, 0.75)', // 图标悬浮
         colorSplit: 'rgba(255, 255, 255, 0.06)', // 较浅的分割线颜色
@@ -52,14 +70,14 @@ const App = () => {
         fontSize: 14, // 字体大小
         colorBgContainer: '#252525', // 容器背景色：深色背景
         colorBgElevated: '#252525', //浮层容器背景色
+        colorFillAlter: 'rgba(255,255,255,0.02)',
         controlItemBgHover: '#3A3A3A', //控制组件项在鼠标悬浮时的背景颜色。
         controlItemBgActive: activeBgColor, // 控制组件项在激活状态下的背景颜色
-        controlItemBgActiveHover: activeBgColor, // 控制组件项在鼠标悬浮且激活状态下的背景颜色
+        controlItemBgActiveHover: hoverAndActiveBgColor, // 控制组件项在鼠标悬浮且激活状态下的背景颜色
         colorBgContainerDisabled: 'rgba(255, 255, 255, 0.08)', //容器在禁用状态下的背景色
         colorBorder: 'rgba(255, 255, 255, 0.2)', //边框颜色 
         colorBorderSecondary: 'rgba(255, 255, 255, 0.06)', //辅助性的边框颜色
         colorTextPlaceholder: 'rgba(255, 255, 255, 0.18)', // 提示文字
-        colorTextQuaternary: 'rgba(255, 255, 255, 0.18)',
         controlOutline: 'none', //激活时的轮廓颜色
         boxShadow: '0 6px 16px 0 rgba(0, 0, 0, 0.2), 0 3px 6px -4px rgba(0, 0, 0, 0.25), 0 9px 28px 8px rgba(0, 0, 0, 0.15)',
         boxShadowSecondary: '0 6px 16px 0 rgba(0, 0, 0, 0.2), 0 3px 6px -4px rgba(0, 0, 0, 0.25), 0 9px 28px 8px rgba(0, 0, 0, 0.15)',
@@ -127,7 +145,8 @@ const App = () => {
           controlItemBgActiveHover: 'rgba(255, 255, 255, 0.5)'
         },
         Segmented: {
-          itemHoverColor: 'rgba(0,0,0,0.88)'
+          itemHoverColor: 'rgba(0,0,0,0.88)',
+          itemColor: 'rgba(0,0,0,0.65)'
         }
       },
     },
@@ -155,7 +174,8 @@ const App = () => {
           bodySortBg: '#fafafa',
           headerSortActiveBg: '#fafafa',
           headerSortHoverBg: '#fafafa',
-          fixedHeaderSortActiveBg: '#fafafa'
+          fixedHeaderSortActiveBg: '#fafafa',
+          footerBg: '#fafafa'
         },
         Layout: {
           //顶部背景色
@@ -185,17 +205,17 @@ const App = () => {
     <ConfigProvider
       locale={language === 'zh' ? zhCN : enUS}
       theme={themeConfig[themeValue]}
-      renderEmpty={() => (<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无数据" />)}
+      renderEmpty={() => (<NoDataEmpty />)}
     >
       <AuthProvider>
-          {contextHolder}
-          <RouterProvider
-            future={{
-              v7_startTransition: true,
-              v7_relativeSplatPath: true
-            }}
-            router={router}
-          />
+        {contextHolder}
+        <RouterProvider
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true
+          }}
+          router={router}
+        />
       </AuthProvider>
     </ConfigProvider>
   );

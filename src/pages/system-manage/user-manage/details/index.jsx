@@ -2,15 +2,13 @@ import React from 'react';
 import './index.css'
 import { Button, Card, Flex, Form, Input, Radio, Select } from 'antd';
 import useBack from '../../../../hooks/useBack';
-import useQueryParams from '../../../../hooks/useQueryParams';
-// import useStateParams from '../../../../hooks/useStateParams';
-// import { useParams } from 'react-router-dom';
+import useQueryParams from '../../../../hooks/useFullParams';
 
 const UserDetails = () => {
 
     const [form] = Form.useForm()
 
-    const { id, type } = useQueryParams()
+    const { id, type } = useFullParams()
 
 
     const { goBack } = useBack()
