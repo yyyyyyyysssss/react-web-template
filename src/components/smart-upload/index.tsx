@@ -28,7 +28,7 @@ import { calculateMD5AsFile } from "../../utils/MD5Util";
 
 interface SmartUploadProps {
     children: React.ReactNode; // 确保 children 作为外部传递
-    onProgress?: (totalSize: number, progress: number, progressPercentage: number) => void
+    onProgress?: (totalSize: number, delta: number, progress: number, progressPercentage: number) => void
     onSuccess?: (accessUrl: any) => void
     onError?: (error: any) => void
     listType: UploadListType
@@ -149,7 +149,7 @@ const SmartUpload: React.FC<SmartUploadProps & Partial<UploadProps>> = ({ childr
             currentProgress += delta
             const progressPercentage = Math.min((currentProgress / totalSize) * 100, 100)
             options.onProgress({ percent: progressPercentage })
-            onProgress?.(totalSize, currentProgress, progressPercentage)
+            onProgress?.(totalSize, delta, currentProgress, progressPercentage)
         }
         try {
             // uploadId不为空表示分片上传 否则普通上传

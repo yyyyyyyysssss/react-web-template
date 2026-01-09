@@ -4,7 +4,7 @@ import { Breadcrumb } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
 import { findRouteByPath } from '../../router/router';
 import { useTranslation } from 'react-i18next';
-import { OperationMode } from '../../enums';
+import { OperationMode } from '../../enums/common';
 import useFullParams from '../../hooks/useFullParams';
 
 const TopBreadcrumbTab = () => {
