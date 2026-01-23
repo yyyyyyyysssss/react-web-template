@@ -46,6 +46,10 @@ const TenantManage = () => {
     tenantId: null,
   })
 
+  const { runAsync: getTenantDataAsync, loading: getTenantDataLoading } = useRequest(fetchTenantList, {
+    manual: true
+  })
+
   const { runAsync: createTenantAsync, loading: createTenantLoading } = useRequest(createTenant, {
     manual: true
   })
@@ -65,6 +69,10 @@ const TenantManage = () => {
   const { runAsync: bindTenantUserAsync, loading: bindTenantUserLoading } = useRequest(bindTenantUser, {
     manual: true
   })
+
+  const getData = async (queryParam) => {
+        return await getTenantDataAsync(queryParam)
+    }
 
   const handleSearch = () => {
     searchForm.validateFields()
@@ -164,7 +172,7 @@ const TenantManage = () => {
 
   const handleBindUserSave = async () => {
     const { userIds } = await bindUserForm.validateFields()
-    await bindTenantUserAsync(bindUser.tenantId,userIds)
+    await bindTenantUserAsync(bindUser.tenantId, userIds)
     getMessageApi().success(t('操作成功'))
     handleBindUserClose()
   }
@@ -374,8 +382,8 @@ const TenantManage = () => {
           </Form.Item>
         </Form>
         <Space>
-          <Button type="primary" onClick={handleSearch}>{t('查询')}</Button>
-          <Button onClick={handleReset}>{t('重置')}</Button>
+          <Button type="primary" onClick={handleSearch} loading={getTenantDataLoading}>{t('查询')}</Button>
+          <Button onClick={handleReset} loading={getTenantDataLoading}>{t('重置')}</Button>
         </Space>
       </Flex>
       <SmartTable
@@ -388,7 +396,8 @@ const TenantManage = () => {
             </HasPermission>
           </Space>
         )}
-        fetchData={fetchTenantList}
+        fetchData={getData}
+        loading={getTenantDataLoading}
         queryParam={queryParam}
         setQueryParam={setQueryParam}
       />

@@ -1,13 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import './index.css'
-import { Tabs, theme } from 'antd';
+import { Dropdown, Tabs, theme } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { findRouteByPath } from '../../router/router';
 import { useDispatch, useSelector } from 'react-redux';
-import { addTabIem, removeTabItem, setTabIem } from '../../redux/slices/layoutSlice';
-import TabRightClickMenu from './TabRightClickMenu';
-import { useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
+import { addTabIem, removeTabItem, setTabIem, removeAllTabItem, removeLeftTabItem, removeOtherTabItem, removeRightTabItem } from '../../redux/slices/layoutSlice';
 import {
     DndContext,
     closestCenter,
@@ -21,84 +18,11 @@ import {
     arrayMove,
     SortableContext,
     sortableKeyboardCoordinates,
-    verticalListSortingStrategy,
+    horizontalListSortingStrategy
 } from '@dnd-kit/sortable'
-import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
+import SortableItem from '../../components/SortableItem';
 
-
-const SortableTabItem = ({ tab, index, activeKey, dragging, onTabClick, onEdit, onContextMenu }) => {
-
-    const { t } = useTranslation()
-
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-    } = useSortable({
-        id: tab.key,
-    })
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        padding: '4px 0',
-        opacity: dragging ? 0 : 1,
-    }
-
-    const isActive = tab.key === activeKey
-    const closable = tab.props.closable !== false
-
-    const label = tab.props.label ?? tab.props.tab
-
-    return (
-        <div
-            key={tab.key}
-            ref={setNodeRef}
-            style={style}
-            {...attributes}
-            {...listeners}
-            onClick={() => onTabClick(tab.key)}
-            onContextMenu={(event) => onContextMenu(event, tab.key, index)}
-            className={classNames('ant-tabs-tab', {
-                'ant-tabs-tab-active': isActive,
-            })}
-        >
-            <div className="ant-tabs-tab-btn">
-                {t(label)}
-            </div>
-            {closable && (
-                <button
-                    type="button"
-                    className="ant-tabs-tab-remove"
-                    onClick={(e) => {
-                        e.stopPropagation()
-                        onEdit?.('remove', { key: tab.key, e });
-                    }}
-                >
-                    <span
-                        role="img"
-                        aria-label="close"
-                        className="anticon anticon-close"
-                    >
-                        <svg
-                            viewBox="64 64 896 896"
-                            focusable="false"
-                            data-icon="close"
-                            width="1em"
-                            height="1em"
-                            fill="currentColor"
-                            aria-hidden="true"
-                        >
-                            <path d="M563.8 512l262.5-312.9c4.4-5.2.7-13.1-6.1-13.1h-79.8c-4.7 0-9.2 2.1-12.3 5.7L512 449.8 295.9 191.7c-3-3.6-7.5-5.7-12.3-5.7h-79.8c-6.8 0-10.5 7.9-6.1 13.1L460.2 512 197.7 824.9A7.95 7.95 0 00203.8 838h79.8c4.7 0 9.2-2.1 12.3-5.7L512 574.2l216.1 258.1c3 3.6 7.5 5.7 12.3 5.7h79.8c6.8 0 10.5-7.9 6.1-13.1L563.8 512z"></path>
-                        </svg>
-                    </span>
-                </button>
-            )}
-        </div>
-    )
-}
 
 const TopMenuTab = ({ style }) => {
 
@@ -140,40 +64,6 @@ const TopMenuTab = ({ style }) => {
         }
         // eslint-disable-next-line
     }, [flattenMenuItems, location])
-
-    // 右键菜单
-    const [rightMenu, setRightMenu] = useState({
-        visible: false,
-        x: 0,
-        y: 0,
-        tabKey: null
-    })
-
-    const handleContextMenu = (event, tabKey, index) => {
-        event.preventDefault()
-        const { clientX, clientY } = event
-        setRightMenu({
-            visible: true,
-            x: clientX,
-            y: clientY,
-            tabKey: tabKey,
-            index: index
-        })
-    }
-
-    const rightMenuClose = useCallback((targetKey) => {
-        setRightMenu({
-            visible: false,
-            x: 0,
-            y: 0,
-            tabKey: null,
-            index: null
-        })
-        if (targetKey && targetKey !== activeKey) {
-            switchTab(targetKey)
-        }
-        // eslint-disable-next-line
-    }, [activeKey])
 
     const add = (location, route) => {
         const path = location.pathname
@@ -244,6 +134,11 @@ const TopMenuTab = ({ style }) => {
 
     const handleDragEnd = (event) => {
         const { active, over } = event
+
+        if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur()
+        }
+
         if (!over || active.id === over.id) {
             setDraggedTab(null)
             return
@@ -256,11 +151,55 @@ const TopMenuTab = ({ style }) => {
         setDraggedTab(null)
     }
 
-    const handleDragCancel = () => setDraggedTab(null)
+    const handleDragCancel = () => {
+        if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur()
+        }
+        setDraggedTab(null)
+    }
 
-    const renderTabBar = (props, _) => {
-        const { panes, activeKey, onTabClick, editable } = props
-        const onEdit = editable?.onEdit
+    const handleMenuAction = useCallback((actionKey, tabKey, tabIndex) => {
+        const tabSize = tabItems.length - 1;
+
+        const afterCloseAllSelectKey = () => {
+            if (tabSize > 0) return tabItems[0].key;
+            return null;
+        };
+
+        if (actionKey === 'closeOther') {
+            dispatch(removeOtherTabItem({ key: tabKey, index: tabIndex }));
+            // 关闭后选中当前 tab
+            if (tabKey && tabKey !== activeKey) {
+                switchTab(tabKey);
+            }
+            return;
+        }
+
+        if (actionKey === 'closeAll') {
+            dispatch(removeAllTabItem());
+            const selectKey = afterCloseAllSelectKey();
+            if (selectKey) switchTab(selectKey);
+            return;
+        }
+
+        if (actionKey === 'closeLeft') {
+            dispatch(removeLeftTabItem({ key: tabKey, index: tabIndex }));
+            if (tabKey && tabKey !== activeKey) {
+                switchTab(tabKey);
+            }
+            return;
+        }
+
+        if (actionKey === 'closeRight') {
+            dispatch(removeRightTabItem({ key: tabKey, index: tabIndex }));
+            if (tabKey && tabKey !== activeKey) {
+                switchTab(tabKey);
+            }
+        }
+    }, [dispatch, tabItems, activeKey, switchTab])
+
+    const renderTabBar = (props, DefaultTabBar) => {
+        const { panes } = props
         const label = draggedTab?.label ?? draggedTab?.tab
         return (
             <DndContext
@@ -270,33 +209,58 @@ const TopMenuTab = ({ style }) => {
                 onDragEnd={handleDragEnd}
                 onDragCancel={handleDragCancel}
             >
-                <div className="ant-tabs-nav">
-                    <div className="ant-tabs-nav-wrap">
-                        <div className="ant-tabs-nav-list">
-                            <SortableContext
-                                items={panes.map((p) => p.key)}
-                                strategy={verticalListSortingStrategy}
-                            >
-                                {panes.map((tab, index) => {
-                                    return <SortableTabItem
-                                        key={tab.key}
-                                        tab={tab}
-                                        index={index}
-                                        activeKey={activeKey}
-                                        dragging={draggedTab?.key === tab.key}
-                                        onTabClick={onTabClick}
-                                        onEdit={onEdit}
-                                        onContextMenu={handleContextMenu}
-                                    />
-                                })}
-                            </SortableContext>
-                        </div>
-                    </div>
-                </div>
+                <SortableContext
+                    items={panes.map((p) => p.key)}
+                    strategy={horizontalListSortingStrategy}
+                >
+                    <DefaultTabBar {...props}>
+                        {(node) => {
+                            const key = node.key
+                            const tabIndex = panes.findIndex(p => p.key === key)
+                            return (
+                                <SortableItem id={key}>
+                                    {({ ref, style, attributes, listeners, isDragging }) => (
+                                        <div
+                                            ref={ref}
+                                            style={{
+                                                ...style,
+                                                opacity: isDragging ? 0 : 1, // 原 Tab 隐藏
+                                            }}
+                                            {...attributes}
+                                            {...listeners}
+                                        >
+                                            <Dropdown
+                                                trigger={['contextMenu']}
+                                                menu={{
+                                                    items: [
+                                                        { key: 'closeOther', label: t('关闭其它') },
+                                                        { key: 'closeAll', label: t('关闭所有') },
+                                                        ...(tabIndex > 0
+                                                            ? [{ key: 'closeLeft', label: t('关闭左侧') }]
+                                                            : []),
+                                                        ...(tabIndex < panes.length - 1
+                                                            ? [{ key: 'closeRight', label: t('关闭右侧') }]
+                                                            : []),
+                                                    ],
+                                                    onClick: ({ key: actionKey }) => {
+                                                        handleMenuAction(actionKey, key, tabIndex)
+                                                    },
+                                                }}
+                                            >
+                                                {node}
+                                            </Dropdown>
+                                        </div>
+                                    )}
+                                </SortableItem>
+                            );
+                        }}
+                    </DefaultTabBar>
+
+                </SortableContext>
                 <DragOverlay style={{ pointerEvents: 'none' }}>
                     {draggedTab ? (
                         <div
-                            className="ant-tabs-tab ant-tabs-tab-active"
+                            className="ant-tabs-tab"
                             style={{
                                 background: token.colorBgContainer,
                                 boxShadow: token.boxShadow,
@@ -327,15 +291,6 @@ const TopMenuTab = ({ style }) => {
                 }}
                 renderTabBar={renderTabBar}
             />
-            {rightMenu.visible && (
-                <TabRightClickMenu
-                    x={rightMenu.x}
-                    y={rightMenu.y}
-                    tabKey={rightMenu.tabKey}
-                    index={rightMenu.index}
-                    close={rightMenuClose}
-                />
-            )}
         </div>
     )
 }

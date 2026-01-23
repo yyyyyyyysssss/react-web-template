@@ -43,3 +43,7 @@
 .menu-ops-btn:hover  {
     background-color: var(--ant-color-bg-text-hover)
 }
+
+.site-tree-search-value {
+  color: #f50;
+}

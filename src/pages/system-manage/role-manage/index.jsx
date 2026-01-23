@@ -34,6 +34,10 @@ const RoleManage = () => {
 
     const [queryParam, setQueryParam] = useState(initQueryParam)
 
+    const { runAsync: getRoleDataAsync, loading: getRoleDataLoading } = useRequest(fetchRoleList, {
+        manual: true
+    })
+
     const { runAsync: createRoleAsync, loading: createRoleLoading } = useRequest(createRole, {
         manual: true
     })
@@ -81,6 +85,9 @@ const RoleManage = () => {
         }
     }, [bindAuthority])
 
+    const getData = async (queryParam) => {
+        return await getRoleDataAsync(queryParam)
+    }
 
     const handleSearch = () => {
         searchForm.validateFields()
@@ -422,8 +429,8 @@ const RoleManage = () => {
                     </Form.Item>
                 </Form>
                 <Space>
-                    <Button type="primary" onClick={handleSearch}>{t('查询')}</Button>
-                    <Button onClick={handleReset}>{t('重置')}</Button>
+                    <Button type="primary" onClick={handleSearch} loading={getRoleDataLoading}>{t('查询')}</Button>
+                    <Button onClick={handleReset} loading={getRoleDataLoading}>{t('重置')}</Button>
                 </Space>
             </Flex>
             <SmartTable
@@ -436,7 +443,8 @@ const RoleManage = () => {
                         </HasPermission>
                     </Space>
                 }
-                fetchData={fetchRoleList}
+                fetchData={getData}
+                loading={getRoleDataLoading}
                 queryParam={queryParam}
                 setQueryParam={setQueryParam}
             />
@@ -547,6 +555,7 @@ const RoleManage = () => {
                         <Button onClick={handleBindAuthorityClose}>{t('取消')}</Button>
                     </Space>
                 }
+                destroyOnHidden
             >
                 <Form
                     form={bindAuthorityForm}

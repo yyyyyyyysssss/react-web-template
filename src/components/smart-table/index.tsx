@@ -5,9 +5,7 @@ import { RotateCw, Settings, ArrowUpToLine, GripVertical, ArrowDownToLine, MoveV
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { CSS } from '@dnd-kit/utilities'
-import { useRequest } from 'ahooks'
 import type { TableProps, ColumnsType } from 'antd/es/table'
-import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import {
     DndContext,
@@ -149,6 +147,7 @@ const SmartTable = <T extends any>({
     headerExtra,
     storageKey,
     fetchData,
+    loading,
     queryParam,
     setQueryParam,
     fieldNames,
@@ -179,10 +178,6 @@ const SmartTable = <T extends any>({
 
     const [data, setData] = useState<any>({})
 
-    const { runAsync: fetchDataAsync, loading: fetchDataLoading } = useRequest(fetchData, {
-        manual: true
-    })
-
     const isFirstRender = useRef(true)
 
     useEffect(() => {
@@ -190,7 +185,7 @@ const SmartTable = <T extends any>({
             isFirstRender.current = false
             if (!autoFetch) return // 首次渲染 + autoFetch=false → 跳过
         }
-        fetchDataAsync(queryParam).then(rawData => {
+        fetchData(queryParam).then(rawData => {
             const processed = transformData ? transformData(rawData) : rawData;
             setData(processed)
             onDataChange?.(processed)
@@ -198,7 +193,7 @@ const SmartTable = <T extends any>({
     }, [queryParam])
 
     const handleRefresh = () => {
-        fetchDataAsync(queryParam)
+        fetchData(queryParam)
     }
 
     useEffect(() => {
@@ -470,7 +465,7 @@ const SmartTable = <T extends any>({
             <Table
                 className='w-full'
                 columns={visibleColumns}
-                loading={fetchDataLoading}
+                loading={loading}
                 scroll={data?.[listField]?.length > 10 ? { y: 600, x: 'max-content' } : { x: 'max-content' }}
                 dataSource={data?.[listField] || []}
                 rowKey={rowKey || 'id'}

@@ -40,6 +40,10 @@ const UserManage = () => {
 
     const [queryParam, setQueryParam] = useState(initQueryParam)
 
+    const { runAsync: getUserDataAsync, loading: getUserDataLoading } = useRequest(fetchUserList, {
+        manual: true
+    })
+
     const { runAsync: createUserAsync, loading: createUserLoading } = useRequest(createUser, {
         manual: true
     })
@@ -91,6 +95,9 @@ const UserManage = () => {
         }
     }, [bindRole])
 
+    const getData = async (queryParam) => {
+        return await getUserDataAsync(queryParam)
+    }
 
     const handleSearch = () => {
         searchForm.validateFields()
@@ -448,7 +455,7 @@ const UserManage = () => {
                                     })
                                 }}
                             >
-                               {t('重置密码')}
+                                {t('重置密码')}
                             </Typography.Link>
                         </HasPermission>
                         <HasPermission
@@ -532,8 +539,8 @@ const UserManage = () => {
                     </Form.Item>
                 </Form>
                 <Space>
-                    <Button type="primary" onClick={handleSearch}>{t('查询')}</Button>
-                    <Button onClick={handleReset}>{t('重置')}</Button>
+                    <Button type="primary" onClick={handleSearch} loading={getUserDataLoading}>{t('查询')}</Button>
+                    <Button onClick={handleReset} loading={getUserDataLoading}>{t('重置')}</Button>
                 </Space>
             </Flex>
             <SmartTable
@@ -546,7 +553,8 @@ const UserManage = () => {
                         </HasPermission>
                     </Space>
                 )}
-                fetchData={fetchUserList}
+                fetchData={getData}
+                loading={getUserDataLoading}
                 queryParam={queryParam}
                 setQueryParam={setQueryParam}
             />
@@ -656,6 +664,7 @@ const UserManage = () => {
                         <Button onClick={handleBindRoleClose}>{t('取消')}</Button>
                     </Space>
                 }
+                destroyOnHidden
             >
                 <Form
                     form={bindRoleForm}

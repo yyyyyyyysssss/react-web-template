@@ -1,303 +1,225 @@
-import { Space, Flex, Form, Input, Table, Tag, Drawer, Button, Modal, Popconfirm, Typography, Spin, Avatar, Image } from 'antd'
-import { SettingOutlined } from '@ant-design/icons';
-import { AuthorityType } from '../../../../enums/common';
+import { Space, Flex, Form, Input, Button, Popconfirm, Row, Col, InputNumber, Typography } from 'antd'
+import { UploadOutlined } from '@ant-design/icons';
+import { OperationMode } from '../../../../enums/common';
 import { useEffect, useState } from 'react';
-import { deleteAuthorityById, fetchMenuDetails, updateAuthorityUrlsById } from '../../../../services/SystemService';
-import IdGen from '../../../../utils/IdGen';
-import AuthorityUrl from './AuthorityUrl';
-import MenuAuthority from './menu-authority';
+import { createMenu, fetchMenuDetails, updateMenu } from '../../../../services/SystemService';
 import HasPermission from '../../../../components/HasPermission';
 import { getMessageApi } from '../../../../utils/MessageUtil';
 import { useRequest } from 'ahooks';
 import Loading from '../../../../components/loading';
 import { useTranslation } from 'react-i18next';
+import SmartUpload from '../../../../components/smart-upload';
+import MenuAuthority from './MenuAuthority';
 
-
-const MenuDetails = ({ menuId }) => {
-
-    if(!menuId){
-        return <></>
-    }
+const MenuDetails = ({ menuId, parentId, parentCode, operationMode, changeOperationMode, onSuccess }) => {
 
     const { t } = useTranslation()
 
-    const [menuData, setMenuData] = useState({})
+    const [form] = Form.useForm()
 
-    const [authorityUrls, setAuthorityUrls] = useState({})
+    const [menuData, setMenuData] = useState()
 
     const { runAsync: fetchMenuDetailsAsync, loading: fetchMenuDetailsLoading } = useRequest(fetchMenuDetails, {
         manual: true
     })
 
-    const { runAsync: updateAuthorityUrlsByIdAsync, loading: updateAuthorityUrlsByIdLoading } = useRequest(updateAuthorityUrlsById, {
+    const { runAsync: createMenuAsync, loading: createMenuLoading } = useRequest(createMenu, {
         manual: true
     })
 
-    const { runAsync: deleteAuthorityByIdAsync, loading: deleteAuthorityByIdLoading } = useRequest(deleteAuthorityById, {
+    const { runAsync: updateMenuAsync, loading: updateMenuLoading } = useRequest(updateMenu, {
         manual: true
     })
-
-
-    const [openInfo, setOpenInfo] = useState({
-        open: false,
-        title: '',
-        authorityId: ''
-    })
-
-    const [menuAuthorityOpen, setMenuAuthorityOpen] = useState({
-        open: false,
-        type: '',
-        operation: '',
-        title: '',
-        data: null
-    })
-
-    const fetchAndSetMenuData = async (id) => {
-        const data = await fetchMenuDetailsAsync(id)
-        if (data.children && data.children.length > 0) {
-            data.children.forEach(child => {
-                if (child.urls && child.urls.length > 0) {
-                    child.urls = child.urls.map(item => ({
-                        ...item,
-                        id: IdGen.nextId()
-                    }))
-                }
-            })
-
-        }
-        setMenuData(data)
-    }
 
     useEffect(() => {
-        if (menuId) {
-            fetchAndSetMenuData(menuId)
-        }
-    }, [menuId])
 
-    const handleAuthorityChange = async (newAuthorityUrls) => {
-        const authorityId = openInfo.authorityId
-        await updateAuthorityUrlsByIdAsync(authorityId, newAuthorityUrls)
-        getMessageApi().success(t('修改成功'))
-        //更新当前权限urls
-        setAuthorityUrls(newAuthorityUrls)
-        //更新权限数据
-        setMenuData(prev => ({
-            ...prev,
-            children: prev.children.map(child =>
-                child.id === authorityId
-                    ? { ...child, urls: newAuthorityUrls }
-                    : child
-            )
-        }))
-    }
-
-
-    const showDrawer = (menuItem) => {
-        setOpenInfo({
-            open: true,
-            title: menuItem.name,
-            authorityId: menuItem.id
-        })
-        setAuthorityUrls(menuItem.urls)
-    }
-
-    const onClose = () => {
-        setOpenInfo({
-            open: false,
-            title: '',
-            authorityId: ''
-        })
-    }
-
-    const handleMenuAuthority = (title, type, operation, data) => {
-        setMenuAuthorityOpen({
-            open: true,
-            type: type,
-            operation: operation,
-            title: title,
-            data: data
-        })
-    }
-
-    const handleDeleteAuthority = async (authorityId) => {
-        await deleteAuthorityByIdAsync(authorityId)
-        getMessageApi().success(t('删除成功'))
-        const newMenuData = {
-            ...menuData,
-            children: [...(menuData.children.filter(f => f.id !== authorityId))]
-        }
-        setMenuData(newMenuData)
-    }
-
-    const handleSuccessMenuAuthority = (newData, operation) => {
-        if (operation === 'ADD') {
-            const newMenuData = {
-                ...menuData,
-                children: [...(menuData.children || []), newData]
+        const fetchData = async (menuId) => {
+            if (!menuId) {
+                return
             }
-            setMenuData(newMenuData)
+            const menuData = await fetchMenuDetailsAsync(menuId)
+            form.setFieldsValue({ ...menuData, parentCode: parentCode })
+            setMenuData(menuData)
+        }
+        switch (operationMode) {
+            case OperationMode.VIEW.value:
+                fetchData(menuId)
+                break
+            case OperationMode.ADD.value:
+                form.resetFields()
+                form.setFieldsValue({
+                    parentCode: parentCode,
+                    parentId: parentId
+                })
+                break
+            case OperationMode.EDIT.value:
+                break
+        }
+    }, [operationMode, menuId, form, parentCode])
+
+    if (!operationMode) {
+        return null
+    }
+
+    const resetForm = () => {
+        form.resetFields()
+    }
+
+    const saveMenu = async () => {
+        const formValues = await form.validateFields()
+        const menuInfo = {
+            ...formValues,
+            code: operationMode === OperationMode.ADD.value && parentCode ? `${parentCode}:${formValues.code}` : formValues.code,
+        }
+        let menuId
+        if (operationMode === OperationMode.ADD.value) {
+            menuId = await createMenuAsync(menuInfo)
         } else {
-            const updatedChildren = (menuData.children || []).map(child =>
-                child.id === newData.id ? { ...child, ...newData } : child
-            )
-            const newMenuData = {
-                ...menuData,
-                children: updatedChildren,
-            }
-            setMenuData(newMenuData)
+            await updateMenuAsync(menuInfo)
+            menuId = menuInfo.id
         }
-        handleCloseMenuAuthority()
-    }
-
-    const handleCloseMenuAuthority = () => {
-        setMenuAuthorityOpen({
-            open: false,
-            type: '',
-            operation: '',
-            title: '',
-            data: null
-        })
-    }
-
-
-    const columns = [
-        {
-            key: 'name',
-            title: '权限名称',
-            dataIndex: 'name',
-            align: 'center',
-        },
-        {
-            key: 'code',
-            title: '权限编码',
-            dataIndex: 'code',
-            align: 'center',
-        },
-        {
-            key: 'type',
-            title: '权限类型',
-            dataIndex: 'type',
-            align: 'center',
-            render: (_, { type }) => {
-                let color
-                let text
-                if (type === AuthorityType.BUTTON) {
-                    color = '#1890ff'
-                    text = '按钮'
-                } else if (type === AuthorityType.API) {
-                    color = '#722ed1'
-                    text = 'API'
-                } else {
-                    color = 'gray'
-                    text = '未知'
-                }
-                return (
-                    <Tag color={color}>
-                        {text}
-                    </Tag>
-                )
-            }
-
-        },
-        {
-            key: 'action',
-            title: '操作',
-            dataIndex: 'action',
-            align: 'center',
-            render: (_, record) => {
-                return (
-                    <Space size='middle'>
-                        <HasPermission hasPermissions='system:menu:read'>
-                            <Typography.Link onClick={() => showDrawer(record)}>{t('API权限')}</Typography.Link>
-                        </HasPermission>
-                        <HasPermission hasPermissions='system:menu:write'>
-                            <Typography.Link onClick={() => handleMenuAuthority('编辑权限', AuthorityType.BUTTON, 'EDIT', record)}>{t('编辑')}</Typography.Link>
-                        </HasPermission>
-                        <HasPermission hasPermissions='system:menu:delete'>
-                            <Popconfirm okText={t('确定')} cancelText={t('取消')} title={t('确定删除')} okButtonProps={{ loading: deleteAuthorityByIdLoading }} onConfirm={async () => await handleDeleteAuthority(record.id)} style={{ marginInlineEnd: 8 }}>
-                                <Typography.Link>
-                                    {t('删除')}
-                                </Typography.Link>
-                            </Popconfirm>
-                        </HasPermission>
-                    </Space>
-                )
-            }
-        }
-    ]
-
-    if (fetchMenuDetailsLoading) {
-        return (
-            <Flex flex={1} justify='center' align='center'>
-                <Loading />
-            </Flex>
-        )
+        getMessageApi().success('保存成功')
+        onSuccess(menuId)
     }
 
     return (
-
-        <Flex
-            className='w-full'
-            gap={8}
-            vertical
-        >
-            <Form
-                labelCol={{ span: 2 }}
-                wrapperCol={{ span: 22 }}
-                layout="horizontal"
-                disabled={true}
+        <Loading spinning={fetchMenuDetailsLoading || createMenuLoading || updateMenuLoading}>
+            <Flex
+                className='w-full'
+                gap={20}
+                vertical
             >
-                <Form.Item label="菜单名称:">
-                    <Input value={menuData.name} />
-                </Form.Item>
-                <Form.Item label="菜单编码:">
-                    <Input value={menuData.code} />
-                </Form.Item>
-                <Form.Item label="路由:">
-                    <Input value={menuData.routePath} />
-                </Form.Item>
-                <Form.Item label="图标:">
-                    {menuData.icon && (
-                        <Image width={48} src={menuData.icon} />
-                    )}
-                </Form.Item>
-                <Form.Item label="排序:">
-                    <Input value={menuData.sort} />
-                </Form.Item>
-            </Form>
-            <HasPermission hasPermissions='system:menu:write'>
-                <Button type="primary" onClick={() => handleMenuAuthority('新增权限', AuthorityType.BUTTON, 'ADD', null)} className='w-28'>{t('新增权限')}</Button>
-            </HasPermission>
-            <Table
-                columns={columns}
-                dataSource={menuData.children}
-                rowKey={(record) => record.id}
-                pagination={false}
-            />
-            <MenuAuthority
-                {...menuAuthorityOpen}
-                parentId={menuData.id}
-                parentCode={menuData.code}
-                onClose={handleCloseMenuAuthority}
-                onSuccess={handleSuccessMenuAuthority}
-            />
-            <Drawer
-                title={t('API权限') + `[${openInfo.title}]`}
-                closable={{ 'aria-label': 'Close Button' }}
-                onClose={onClose}
-                open={openInfo.open}
-                width={700}
-                destroyOnHidden
-            >
-                <AuthorityUrl
-                    authorityId={openInfo.authorityId}
-                    authorityUrls={authorityUrls}
-                    onChange={handleAuthorityChange}
-                    loading={updateAuthorityUrlsByIdLoading}
+                <Flex
+                    hidden={!(operationMode === OperationMode.VIEW.value)}
+                >
+                    <HasPermission hasPermissions='system:menu:write'>
+                        <Button type="primary" onClick={() => changeOperationMode(OperationMode.EDIT.value)}>{t('编辑')}</Button>
+                    </HasPermission>
+                </Flex>
+                <Form
+                    form={form}
+                    style={{ width: '100%' }}
+                    labelCol={{ span: 2 }}
+                    wrapperCol={{ span: 22 }}
+                    layout="horizontal"
+                    disabled={operationMode === OperationMode.VIEW.value}
+                >
+                    <Form.Item name="id" noStyle />
+                    <Form.Item name="parentId" noStyle />
+                    <Row gutter={16}>
+                        <Col span={24}>
+                            <Form.Item
+                                label="菜单名称"
+                                name="name"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: `菜单名称不能为空`,
+                                    },
+                                ]}
+                            >
+                                <Input />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={16}>
+                        <Col span={24}>
+                            <Form.Item
+                                label="菜单编码"
+                                name="code"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: `菜单编码不能为空`,
+                                    },
+                                ]}
+                            >
+                                <Input
+                                    prefix={
+                                        <Typography.Text type="secondary">{operationMode === OperationMode.ADD.value && parentCode ? `${parentCode}:` : ''}</Typography.Text>
+                                    }
+                                />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={16}>
+                        <Col span={24}>
+                            <Form.Item
+                                label="路由"
+                                name="routePath"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: `路由不能为空`,
+                                    },
+                                ]}
+                            >
+                                <Input />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={16}>
+                        <Col span={24}>
+                            <Form.Item label="图标" name="icon">
+                                <SmartUpload
+                                    accept=".svg,.png,.jpg,.jpeg"
+                                    maxCount={1}
+                                >
+                                    <Button icon={<UploadOutlined />}>{t('点击上传')}</Button>
+                                </SmartUpload>
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={16}>
+                        <Col span={24}>
+                            <Form.Item label="排序" name="sort">
+                                <InputNumber
+                                    min={1}
+                                    step={1}
+                                    style={{ width: '100%' }}
+                                />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                </Form>
+                <MenuAuthority
+                    style={{ display: operationMode === OperationMode.VIEW.value ? 'block' : 'none' }}
+                    menuId={menuId}
+                    parentCode={menuData?.code}
                 />
-            </Drawer>
-        </Flex>
-
+                <Flex
+                    justify='flex-end'
+                    align='center'
+                    style={{
+                        position: 'sticky',
+                        bottom: 0,
+                        left: 0,
+                        width: '100%',
+                        padding: '10px'
+                    }}
+                >
+                    <Space>
+                        {operationMode !== OperationMode.VIEW.value && (
+                            <Button loading={createMenuLoading || updateMenuLoading} onClick={saveMenu} type="primary">{t('提交')}</Button>
+                        )}
+                        {operationMode === OperationMode.EDIT.value && (
+                            <Button onClick={() => changeOperationMode(OperationMode.VIEW.value)}>{t('取消')}</Button>
+                        )}
+                        {operationMode === OperationMode.ADD.value && (
+                            <Popconfirm
+                                okText={t('确定')}
+                                cancelText={t('取消')}
+                                title={t('确定重置')}
+                                onConfirm={resetForm}
+                                style={{ marginInlineEnd: 8 }}
+                            >
+                                <Button>{t('重置')}</Button>
+                            </Popconfirm>
+                        )}
+                    </Space>
+                </Flex>
+            </Flex>
+        </Loading>
     )
 }
 

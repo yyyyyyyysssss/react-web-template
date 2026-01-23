@@ -1,53 +1,56 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './index.css'
-import { Dropdown, Flex, Tree, Modal, Tooltip, Splitter, Typography } from 'antd'
+import { Dropdown, Flex, Tree, Modal, Tooltip, Splitter, Typography, Input } from 'antd'
 import { deleteMenu, fetchMenuTree, menuDrag } from '../../../services/SystemService'
-import { Plus, Pencil, Trash2 } from 'lucide-react';
-import MenuDetails from './details';
-import MenuAuthority from './details/menu-authority';
-import { AuthorityType } from '../../../enums/common';
-import IdGen from '../../../utils/IdGen';
+import { Plus, Trash2 } from 'lucide-react';
+import { OperationMode } from '../../../enums/common';
 import Highlight from '../../../components/Highlight';
 import HasPermission from '../../../components/HasPermission';
 import { getMessageApi } from '../../../utils/MessageUtil';
 import { useRequest } from 'ahooks';
 import { useTranslation } from 'react-i18next';
+import MenuDetails from './details';
+import Loading from '../../../components/loading';
 
+const getParentKey = (id, tree) => {
+    let parentKey
+    for (let i = 0; i < tree.length; i++) {
+        const node = tree[i]
+        if (node.children) {
+            if (node.children.some(item => item.id === id)) {
+                parentKey = node.id
+            } else if (getParentKey(id, node.children)) {
+                parentKey = getParentKey(id, node.children)
+            }
+        }
+    }
+    return parentKey
+}
 
-
-const MenuItem = ({ item, onAddMenu, onEditMenu, onDeleteMenu }) => {
+const MenuItem = ({ item, selected, onAddMenu, onDeleteMenu }) => {
 
     const { t } = useTranslation()
-
-    const [hovering, setHovering] = useState(false)
-
-    const [dropdownOpen, setDropdownOpen] = useState(false)
-
-    const showOps = hovering || dropdownOpen
-
 
     return (
         <Flex
             justify='space-between'
             align='center'
-            onMouseEnter={() => setHovering(true)}
-            onMouseLeave={() => setHovering(false)}
         >
             <Typography.Text>
-                {item.name}
+                {item.title}
             </Typography.Text>
             <HasPermission requireAll={true} hasPermissions={['system:menu:write', 'system:menu:delete']}>
-                <div className={`flex items-center transition-opacity ${showOps ? 'opacity-100' : 'opacity-0'}`}>
+                <div className={`flex items-center transition-opacity ${selected ? 'opacity-100' : 'opacity-0'}`}>
                     <Dropdown
                         menu={{
                             items: [
                                 {
                                     key: 'child',
-                                    label: t('新增子菜单')
+                                    label: t('新增子级')
                                 },
                                 {
                                     key: 'brother',
-                                    label: t('新增同级菜单')
+                                    label: t('新增同级')
                                 }
                             ],
                             onClick: (info) => {
@@ -57,7 +60,6 @@ const MenuItem = ({ item, onAddMenu, onEditMenu, onDeleteMenu }) => {
                                 onAddMenu(key, item)
                             }
                         }}
-                        onOpenChange={(open) => setDropdownOpen(open)}
                     >
                         <div
                             className='menu-ops-btn'
@@ -68,17 +70,7 @@ const MenuItem = ({ item, onAddMenu, onEditMenu, onDeleteMenu }) => {
                             <Plus size={18} />
                         </div>
                     </Dropdown>
-                    <div
-                        className='menu-ops-btn'
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            onEditMenu(item)
-                        }}
-                    >
-                        <Tooltip title={t('编辑菜单')}>
-                            <Pencil size={16} />
-                        </Tooltip>
-                    </div>
+
                     <div
                         className='menu-ops-btn'
                         onClick={(e) => {
@@ -110,32 +102,22 @@ const MenuManage = () => {
 
     const [expandedKeys, setExpandedKeys] = useState([])
 
-    const [menuDetailsKey, setMenuDetailsKey] = useState('0')
+    const [searchValue, setSearchValue] = useState('')
+
+    const [autoExpandParent, setAutoExpandParent] = useState(true)
+
+    const { runAsync: getMenuTreeAsync, loading: getMenuTreeLoading } = useRequest(fetchMenuTree, {
+        manual: true
+    })
 
     const { runAsync: deleteMenuAsync, loading: deleteMenuLoading } = useRequest(deleteMenu, {
         manual: true
     })
 
-    const [menuAuthorityOpen, setMenuAuthorityOpen] = useState({
-        open: false,
-        type: '',
-        operation: '',
-        title: '',
-        parentId: null,
-        parentCode: null,
-        data: null
-    })
-
     const flattenTreeRef = useRef()
 
     useEffect(() => {
-        const fetchData = async () => {
-            const data = await fetchMenuTree()
-            setMenuData(data)
-            // 默认展开第一层级
-            setExpandedKeys(data.map((node) => node.id))
-        }
-        fetchData()
+        refreshMenuTree()
     }, [])
 
     useEffect(() => {
@@ -154,6 +136,18 @@ const MenuManage = () => {
         }
         flattenTreeRef.current = flattenTree(menuData)
     }, [menuData])
+
+    const refreshMenuTree = async (options) => {
+        const data = await getMenuTreeAsync()
+        setMenuData(data)
+        // 默认展开第一层级
+        if (expandedKeys.length == 0) {
+            setExpandedKeys(data.map((node) => node.id))
+        }
+        if (options?.selectMenuId) {
+            handleSelectMenu(options.selectMenuId)
+        }
+    }
 
     const onDragEnter = (info) => {
 
@@ -224,43 +218,24 @@ const MenuManage = () => {
     }
 
     const handleAddMenu = (type, menuItem) => {
-        handleSelectMenu(menuItem.id)
         if (type === 'child') {
-            setMenuAuthorityOpen({
-                open: true,
-                type: AuthorityType.MENU,
-                operation: 'ADD',
-                title: '新增子菜单',
-                data: null,
+            setSelectedMenu({
+                id: null,
                 parentId: menuItem.id,
-                parentCode: menuItem.code
+                parentCode: menuItem.code,
+                operationMode: OperationMode.ADD.value
             })
         } else {
             const parentMenuItem = flattenTreeRef.current.find(f => f.id === menuItem.parentId)
-            setMenuAuthorityOpen({
-                open: true,
-                type: AuthorityType.MENU,
-                operation: 'ADD',
-                title: '新增同级菜单',
-                data: null,
-                parentId: parentMenuItem ? parentMenuItem.id : '0',
-                parentCode: parentMenuItem ? parentMenuItem.code : ''
+            setSelectedMenu({
+                id: null,
+                parentId: parentMenuItem.id,
+                parentCode: parentMenuItem.code,
+                operationMode: OperationMode.ADD.value
             })
         }
-
-    }
-
-    const handleEditMenu = (menuItem) => {
-        setMenuAuthorityOpen({
-            open: true,
-            type: AuthorityType.MENU,
-            operation: 'EDIT',
-            title: '编辑菜单',
-            data: menuItem,
-            parentId: menuItem.parentId,
-            parentCode: null
-        })
-        handleSelectMenu(menuItem.id)
+        // 将选中的取消
+        setSelectedKeys([])
     }
 
 
@@ -283,24 +258,42 @@ const MenuManage = () => {
                 const newMenuData = deleteTreeNode(menuData, menuItem.id)
                 setMenuData(newMenuData)
                 setSelectedKeys(null)
+                setSelectedMenu(null)
             },
         })
     }
 
-    const convertToTreeData = (data) => {
-        return data.map(item => ({
-            title: <MenuItem
-                item={item}
-                onAddMenu={handleAddMenu}
-                onEditMenu={handleEditMenu}
-                onDeleteMenu={handleDeleteMenu}
-            />,
-            key: item.id,
-            children: item.children && item.children.length > 0 ? convertToTreeData(item.children) : [],
-        }));
+    const convertToTreeData = (data, selectedKeys, searchValue) => {
+        return data.map(item => {
+            const selected = selectedKeys?.includes(item.id)
+            const strTitle = item.name
+            const index = strTitle.indexOf(searchValue)
+            const beforeStr = strTitle.substring(0, index)
+            const afterStr = strTitle.slice(index + searchValue.length)
+            const title = index > -1 ? (
+                <span key={item.id}>
+                    {beforeStr}
+                    <span className="site-tree-search-value">{searchValue}</span>
+                    {afterStr}
+                </span>
+            ) : (
+                <span key={item.id}>{strTitle}</span>
+            )
+            item.title = title
+            return {
+                title: <MenuItem
+                    item={item}
+                    selected={selected}
+                    onAddMenu={handleAddMenu}
+                    onDeleteMenu={handleDeleteMenu}
+                />,
+                key: item.id,
+                children: item.children && item.children.length > 0 ? convertToTreeData(item.children, selectedKeys, searchValue) : [],
+            }
+        })
     }
 
-    const menuItems = useMemo(() => convertToTreeData(menuData), [menuData]);
+    const menuItems = useMemo(() => convertToTreeData(menuData, selectedKeys, searchValue), [menuData, selectedKeys, searchValue]);
 
     const handleSelect = (selectedKeys, info) => {
         const clickedKey = info.node.key
@@ -311,33 +304,32 @@ const MenuManage = () => {
     const handleSelectMenu = async (menuId) => {
         // 不取消选中
         setSelectedKeys([menuId])
-        const menu = flattenTreeRef.current.find(f => f.id === menuId)
-        setSelectedMenu(menu)
-    }
-
-    const handleSuccessMenuAuthority = (newData, operation) => {
-        if (operation === 'ADD') {
-            const newMenuData = addTreeNode(menuData, newData.parentId, newData)
-            setMenuData(newMenuData)
-        } else {
-            const newMenuData = updateTreeNode(menuData, newData)
-            setMenuData(newMenuData)
-            //刷新详情组件
-            setMenuDetailsKey(IdGen.nextId())
-        }
-        handleCloseMenuAuthority()
-    }
-
-    const handleCloseMenuAuthority = () => {
-        setMenuAuthorityOpen({
-            open: false,
-            type: '',
-            operation: '',
-            title: '',
+        setSelectedMenu({
+            id: menuId,
             parentId: null,
             parentCode: null,
-            data: null
+            operationMode: OperationMode.VIEW.value
         })
+    }
+
+    const handleExpand = (newExpandedKeys) => {
+        setExpandedKeys(newExpandedKeys)
+        setAutoExpandParent(false)
+    }
+
+    const handleSearchChange = (e) => {
+        const { value } = e.target
+        const newExpandedKeys = flattenTreeRef.current
+            .map(item => {
+                if (item.name.includes(value)) {
+                    return getParentKey(item.id, menuData)
+                }
+                return null
+            })
+            .filter((item, i, self) => !!(item && self.indexOf(item) === i))
+        setExpandedKeys(newExpandedKeys)
+        setSearchValue(value)
+        setAutoExpandParent(true)
     }
 
     const sortBySortValue = (a, b) => {
@@ -395,38 +387,55 @@ const MenuManage = () => {
         })
     }
 
+    const changeOperationMode = (operationMode) => {
+        setSelectedMenu({
+            ...selectedMenu,
+            operationMode: operationMode
+        })
+    }
+
     return (
         <Flex flex={1} gap={10} className='h-full'>
             <Splitter>
                 <Splitter.Panel style={{ padding: '10px' }} defaultSize="25%" min="20%" max="50%">
-                    <Tree
-                        className="draggable-tree"
-                        draggable={{
-                            icon: false
-                        }}
-                        blockNode
-                        onDragEnter={onDragEnter}
-                        onDrop={onDrop}
-                        treeData={menuItems}
-                        selectedKeys={selectedKeys}
-                        onSelect={handleSelect}
-                        expandedKeys={expandedKeys} // 控制展开的节点
-                        onExpand={(keys) => setExpandedKeys(keys)} // 更新展开的节点
-                    />
-                </Splitter.Panel>
-                <Splitter.Panel style={{ padding: '20px' }}>
-                    <Flex style={{ width: '100%', height: '100%' }} flex={8}>
-                        {selectedKeys && (
-                            <MenuDetails menuId={selectedMenu.id} />
-                        )}
+                    <Flex
+                        vertical
+                    >
+                        <Input.Search style={{ marginBottom: 8 }} placeholder="搜索" onChange={handleSearchChange} allowClear/>
+                        <Loading spinning={getMenuTreeLoading}>
+                            <Tree
+                                className="draggable-tree"
+                                draggable={{
+                                    icon: false
+                                }}
+                                blockNode
+                                onDragEnter={onDragEnter}
+                                onDrop={onDrop}
+                                treeData={menuItems}
+                                selectedKeys={selectedKeys}
+                                onSelect={handleSelect}
+                                expandedKeys={expandedKeys} // 控制展开的节点
+                                onExpand={handleExpand} // 更新展开的节点
+                                autoExpandParent={autoExpandParent}
+                            />
+                        </Loading>
                     </Flex>
                 </Splitter.Panel>
+                <Splitter.Panel style={{ padding: '20px' }}>
+                    <MenuDetails
+                        menuId={selectedMenu?.id}
+                        parentId={selectedMenu?.parentId}
+                        parentCode={selectedMenu?.parentCode}
+                        operationMode={selectedMenu?.operationMode}
+                        changeOperationMode={changeOperationMode}
+                        onSuccess={(menuId) => {
+                            refreshMenuTree({
+                                selectMenuId: menuId
+                            })
+                        }}
+                    />
+                </Splitter.Panel>
             </Splitter>
-            <MenuAuthority
-                {...menuAuthorityOpen}
-                onClose={handleCloseMenuAuthority}
-                onSuccess={handleSuccessMenuAuthority}
-            />
             {contextHolder}
         </Flex>
     )

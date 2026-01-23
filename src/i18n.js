@@ -10,7 +10,7 @@ i18n
     .use(initReactI18next) // 绑定 react-i18next
     .init({
         fallbackLng: 'zh',  // 默认中文
-        debug: true,  // 开启调试模式
+        debug: false,  // 开启调试模式
         interpolation: {
             escapeValue: false, // React 默认已经做了转义
         },

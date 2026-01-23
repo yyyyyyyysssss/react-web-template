@@ -174,6 +174,12 @@ export const addAuthority = async (req) => {
     return apiRequestWrapper(() => httpWrapper.post('/api/system/authority', req))
 }
 
+// 获取菜单下的权限
+export const fetchAuthorityByMenuId = async (menuId) => {
+
+    return apiRequestWrapper(() => httpWrapper.get(`/api/system/authority/menu/${menuId}`))
+}
+
 // 更新权限
 export const updateAuthority = async (req) => {
 

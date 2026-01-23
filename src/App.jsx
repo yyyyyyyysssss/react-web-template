@@ -139,10 +139,7 @@ const App = () => {
           colorBgBase: '#1C1C1C',
         },
         Splitter: {
-          colorFill: 'rgba(255, 255, 255, 0.2)', // 分隔线颜色（浅灰色，适合暗色背景）
-          controlItemBgHover: 'rgba(255, 255, 255, 0.1)',
-          controlItemBgActive: 'rgba(255, 255, 255, 0.25)',
-          controlItemBgActiveHover: 'rgba(255, 255, 255, 0.5)'
+          
         },
         Segmented: {
           itemHoverColor: 'rgba(0,0,0,0.88)',
