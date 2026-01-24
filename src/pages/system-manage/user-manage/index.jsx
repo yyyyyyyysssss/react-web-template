@@ -513,6 +513,7 @@ const UserManage = () => {
                     form={searchForm}
                     layout='inline'
                     onFinish={handleSearch}
+                    style={{ flexShrink: 0 }}
                 >
                     <Form.Item name="keyword" label="用户信息" style={{ width: 365 }}>
                         <Input placeholder="请输入用户名称、账号、手机号、邮箱" allowClear />
@@ -538,10 +539,12 @@ const UserManage = () => {
                         <Button htmlType="submit" />
                     </Form.Item>
                 </Form>
-                <Space>
-                    <Button type="primary" onClick={handleSearch} loading={getUserDataLoading}>{t('查询')}</Button>
-                    <Button onClick={handleReset} loading={getUserDataLoading}>{t('重置')}</Button>
-                </Space>
+                <Flex style={{ width: 160, flexShrink: 0 }}>
+                    <Space>
+                        <Button type="primary" onClick={handleSearch} loading={getUserDataLoading}>{t('查询')}</Button>
+                        <Button onClick={handleReset} loading={getUserDataLoading}>{t('重置')}</Button>
+                    </Space>
+                </Flex>
             </Flex>
             <SmartTable
                 className='w-full'

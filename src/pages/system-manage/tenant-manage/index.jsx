@@ -71,8 +71,8 @@ const TenantManage = () => {
   })
 
   const getData = async (queryParam) => {
-        return await getTenantDataAsync(queryParam)
-    }
+    return await getTenantDataAsync(queryParam)
+  }
 
   const handleSearch = () => {
     searchForm.validateFields()
@@ -348,6 +348,7 @@ const TenantManage = () => {
           form={searchForm}
           layout='inline'
           onFinish={handleSearch}
+          style={{flexShrink: 0}}
         >
           <Form.Item name="keyword" label="租户信息" style={{ width: 365 }}>
             <Input placeholder="请输入租户或联系人信息" allowClear />
@@ -381,10 +382,12 @@ const TenantManage = () => {
             <Button htmlType="submit" />
           </Form.Item>
         </Form>
-        <Space>
-          <Button type="primary" onClick={handleSearch} loading={getTenantDataLoading}>{t('查询')}</Button>
-          <Button onClick={handleReset} loading={getTenantDataLoading}>{t('重置')}</Button>
-        </Space>
+        <Flex style={{ width: 160, flexShrink: 0 }}>
+          <Space>
+            <Button type="primary" onClick={handleSearch} loading={getTenantDataLoading}>{t('查询')}</Button>
+            <Button onClick={handleReset} loading={getTenantDataLoading}>{t('重置')}</Button>
+          </Space>
+        </Flex>
       </Flex>
       <SmartTable
         className='w-full'

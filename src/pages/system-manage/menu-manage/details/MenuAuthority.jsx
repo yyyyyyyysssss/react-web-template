@@ -326,7 +326,13 @@ const MenuAuthority = ({ style, menuId, parentCode }) => {
                                         },
                                     ]}
                                 >
-                                    <Input prefix={authorityModalOpen.operationMode === OperationMode.ADD.value && parentCode ? `${parentCode}:` : ''} />
+                                    <Input
+                                        prefix={
+                                            <Typography.Text type="secondary">
+                                                {authorityModalOpen.operationMode === OperationMode.ADD.value && parentCode ? `${parentCode}:` : ''}
+                                            </Typography.Text>
+                                        }
+                                    />
                                 </Form.Item>
                             </Col>
                         </Row>

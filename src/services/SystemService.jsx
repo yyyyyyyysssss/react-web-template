@@ -254,6 +254,108 @@ export const fetchUserIdByTenantId = async (tenantId) => {
     return apiRequestWrapper(() => httpWrapper.get(`/api/system/tenant/${tenantId}/userId`))
 }
 
+
+// 获取字典列表
+export const fetchDictList = async (queryParam) => {
+
+    return apiRequestWrapper(() => httpWrapper.post('/api/system/dict/query', queryParam))
+}
+
+// 获取字典详情
+export const fetchDictDetails = async (dictId, includeSensitiveData = false) => {
+    const headers = {
+        'x-sensitive-data-access': includeSensitiveData ? 'true' : 'false'
+    }
+    return apiRequestWrapper(() => httpWrapper.get(`/api/system/dict/${dictId}`, { headers }))
+}
+
+// 创建字典
+export const createDict = async (req) => {
+
+    return apiRequestWrapper(() => httpWrapper.post('/api/system/dict', req))
+}
+
+// 更新字典
+export const updateDict = async (req) => {
+
+    return apiRequestWrapper(() => httpWrapper.put('/api/system/dict', req))
+}
+
+// 字典停启用
+export const updateDictEnabled = async (dictId, enabled) => {
+    const req = {
+        id: dictId,
+        enabled: enabled
+    }
+    return apiRequestWrapper(() => httpWrapper.patch('/api/system/dict', req))
+}
+
+// 删除字典
+export const deleteDictById = async (dictId) => {
+
+    return apiRequestWrapper(() => httpWrapper.delete(`/api/system/dict/${dictId}`))
+}
+
+// 获取字典项列表
+export const fetchDictItemList = async (queryParam) => {
+
+    return apiRequestWrapper(() => httpWrapper.post('/api/system/dict/item/query', queryParam))
+}
+
+// 获取字典详情
+export const fetchDictItemDetails = async (dictItemId, includeSensitiveData = false) => {
+    const headers = {
+        'x-sensitive-data-access': includeSensitiveData ? 'true' : 'false'
+    }
+    return apiRequestWrapper(() => httpWrapper.get(`/api/system/dict/item/${dictItemId}`, { headers }))
+}
+
+// 获取字典项子节点
+export const fetchDictItemChildren = async (dictItemId) => {
+
+    return apiRequestWrapper(() => httpWrapper.get(`/api/system/dict/item/${dictItemId}/children`))
+}
+
+// 批量获取字典项子节点
+export const batchDictItemChildren = async (dictItemIdList) => {
+
+    return apiRequestWrapper(() => httpWrapper.post(`/api/system/dict/item/children/batch`,dictItemIdList))
+}
+
+// 创建字典项
+export const createDictItem = async (req) => {
+
+    return apiRequestWrapper(() => httpWrapper.post('/api/system/dict/item', req))
+}
+
+// 更新字典项
+export const updateDictItem = async (req) => {
+
+    return apiRequestWrapper(() => httpWrapper.put('/api/system/dict/item', req))
+}
+
+// 字典项停启用
+export const updateDictItemEnabled = async (dictItemId, enabled) => {
+    if (enabled) {
+        return apiRequestWrapper(() => httpWrapper.patch(`/api/system/dict/item/${dictItemId}/enable`))
+    } else {
+        return apiRequestWrapper(() => httpWrapper.patch(`/api/system/dict/item/${dictItemId}/disable`))
+    }
+
+}
+
+// 删除字典项子节点
+export const deleteDictItemById = async (dictItemId) => {
+
+    return apiRequestWrapper(() => httpWrapper.delete(`/api/system/dict/item/${dictItemId}`))
+}
+
+// 获取字典
+export const fetchDictTreeByCode = async (code, category = null) => {
+
+    return apiRequestWrapper(() => httpWrapper.get(`/api/options/dict/tree?code=${code}&category=${category}`))
+}
+
 // 获取字典
 export const fetchDictByCode = async (code, category = '') => {
 
